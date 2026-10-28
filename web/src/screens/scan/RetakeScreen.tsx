@@ -23,6 +23,7 @@ import { FacingChoice } from "./FacingChoice";
 import { preflightMessage } from "./preflightMessage";
 import { Protocol } from "./Protocol";
 import { useTakePhoto } from "./useTakePhoto";
+import { AutoAlignCard } from "../../extensions/AutoAlignCard";
 
 export const FULL_PROTOCOL_AFTER = 3;
 
@@ -90,6 +91,7 @@ export function RetakeScreen({ config, view }: { config: ClientConfig; view: Vie
           <p>{text}</p>
         </Notice>
       ))}
+      {view === "frontal" && <AutoAlignCard className="mb-6" />}
       {view === "profile" && <FacingChoice value={state.profile.facing} onChange={setFacing} className="mb-6" />}
       {failures >= FULL_PROTOCOL_AFTER ? (
         <section className="mt-8 border-t border-line pt-6" data-testid="full-protocol">

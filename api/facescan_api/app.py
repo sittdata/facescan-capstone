@@ -18,7 +18,7 @@ from facescan_api.errors import PROBLEM_MEDIA_TYPE, ApiError
 from facescan_api.openapi import DESCRIPTION, TITLE, build_openapi
 from facescan_api.ratelimit import RateLimiter
 from facescan_api.request_ids import RequestIdMiddleware
-from facescan_api.routes import health, v1
+from facescan_api.routes import health, v1, extensions
 from facescan_api.routes.common import ApiState
 from facescan_api.settings import Settings
 from facescan_api.workers import WorkerConfig, WorkerPool, default_engine_factory
@@ -72,6 +72,7 @@ def create_app(settings: Settings | None = None, *, engine_factory: Callable[[Wo
 
     app.include_router(health.router)
     app.include_router(v1.router)
+    app.include_router(extensions.router)
     app.add_middleware(RequestIdMiddleware)   # outermost: sees every response
     app.openapi = lambda: build_openapi(app)  # type: ignore[method-assign]
     return app

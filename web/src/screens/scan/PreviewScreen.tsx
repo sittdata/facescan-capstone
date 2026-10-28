@@ -19,6 +19,7 @@ import { scanPath } from "../paths";
 import { step } from "../steps";
 import { FacingChoice } from "./FacingChoice";
 import { preflightMessage } from "./preflightMessage";
+import { AutoAlignCard } from "../../extensions/AutoAlignCard";
 
 export function PreviewScreen({ config, view }: { config: ClientConfig; view: View }) {
   const { t } = useTranslation();
@@ -44,6 +45,7 @@ export function PreviewScreen({ config, view }: { config: ClientConfig; view: Vi
           >
             {source === "library" ? t("preview.chooseAnother") : t("preview.retake")}
           </Button>
+          {view === "frontal" && <AutoAlignCard compact />}
           <Button variant="primary" onClick={() => navigate(scanPath(view, "analyzing"))} disabled={picker.busy}>
             {t("preview.use")}
           </Button>

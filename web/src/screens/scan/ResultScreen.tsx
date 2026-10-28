@@ -19,6 +19,8 @@ import { Button, LinkButton } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Notice } from "../../components/ui/Notice";
 import { PhotoViewer } from "../../components/viewer/PhotoViewer";
+import { SegmentedControl } from "../../components/ui/SegmentedControl";
+import { DsiAnatomicalRegionsCard } from "../../extensions/DsiAnatomicalRegionsCard";
 import { useScan } from "../../scan/ScanContext";
 import { hasProfilePhoto, type View } from "../../scan/session";
 import { scanPath } from "../paths";
@@ -31,6 +33,8 @@ export function ResultScreen({ view }: { view: View }) {
   const scan = useScan();
   const { latest, photoUrl, announcement } = scan.state[view];
   const [confirmNew, setConfirmNew] = useState(false);
+  const [metricsTab, setMetricsTab] = useState<"standard" | "dsi">("standard");
+  const [viewerMode, setViewerMode] = useState<"overlay" | "dsi" | "original">("overlay");
   const [message, setMessage] = useState<string | null>(null);
   const { dispatch } = scan;
 
@@ -94,7 +98,17 @@ export function ResultScreen({ view }: { view: View }) {
       <div className="grid gap-8 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-4">
-            <PhotoViewer photoUrl={photoUrl} overlayUrl={latest.overlay} result={result} />
+            <PhotoViewer
+              photoUrl={photoUrl}
+              overlayUrl={latest.overlay}
+              result={result}
+              mode={viewerMode}
+              onModeChange={(m) => {
+                setViewerMode(m);
+                if (m === "dsi") setMetricsTab("dsi");
+                else if (m === "overlay") setMetricsTab("standard");
+              }}
+            />
             {latest.overlayProblem === "failed" && <p className="mt-3 text-sm text-ink-2">{t("results.overlayFailed")}</p>}
             {message && <p className="mt-3 text-sm text-ink-2" aria-hidden="true">{message}</p>}
             <div className="mt-4 flex flex-wrap gap-2">
@@ -128,7 +142,31 @@ export function ResultScreen({ view }: { view: View }) {
             <p>{result.side_note}</p>
             <p className="mt-2">{result.reference_note}</p>
           </Notice>
-          <MeasurementSheet metrics={result.metrics} />
+          {
+          /* Toggle between friend's clinical sheet and DSI314 4-region card */
+          view === "frontal" && (
+            <div className="flex items-center justify-between pb-1">
+              <SegmentedControl
+                label="โหมดการแสดงผลสัดส่วน"
+                value={metricsTab}
+                onChange={(val) => {
+                  const nextTab = val as "standard" | "dsi";
+                  setMetricsTab(nextTab);
+                  if (nextTab === "dsi" && viewerMode !== "dsi") setViewerMode("dsi");
+                  else if (nextTab === "standard" && viewerMode === "dsi") setViewerMode("overlay");
+                }}
+                options={[
+                  { value: "standard", label: "การวัดมาตรฐานคลินิก" },
+                  { value: "dsi", label: "สัดส่วน 4 บริเวณกายวิภาค" },
+                ]}
+              />
+            </div>
+          )}
+          {metricsTab === "standard" || view !== "frontal" ? (
+            <MeasurementSheet metrics={result.metrics} />
+          ) : (
+            <DsiAnatomicalRegionsCard result={result} />
+          )}
           <p className="text-ink-2">{result.disclaimer}</p>
           <ScanMeta date={new Date(latest.analyzedAt)} versions={latest.versions} />
           <p className="flex flex-wrap items-center gap-x-6">

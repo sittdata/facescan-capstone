@@ -27,6 +27,8 @@ import { currentReport, hasProfilePhoto, reportKey, type View } from "../scan/se
 import { scanPath, type AnalyzeState } from "./paths";
 import { ScanErrorPanel } from "./scan/ScanErrorPanel";
 import { step } from "./steps";
+import { FaceShapeCard } from "../extensions/FaceShapeCard";
+import { SimulationDrawer } from "../extensions/SimulationDrawer";
 
 function ViewTables({ view, result, photoUrl, overlayUrl }: { view: View; result: Result; photoUrl: string | null; overlayUrl: string | null }) {
   const { t } = useTranslation();
@@ -59,6 +61,7 @@ export function ReportScreen() {
   const [failure, setFailure] = useState<{ error: ApiError; at: number } | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [confirmNew, setConfirmNew] = useState(false);
+  const [showSimulation, setShowSimulation] = useState(false);
   const introId = useId();
   const allId = useId();
   const missing = entry === null;
@@ -153,6 +156,12 @@ export function ReportScreen() {
             )}
           </section>
 
+          <FaceShapeCard
+            photoUrl={state.frontal.photoUrl}
+            initialSex={state.subject?.sex || state.draft?.sex}
+            onOpenSimulation={() => setShowSimulation(true)}
+          />
+
           <section aria-labelledby={allId} className="border-t border-line pt-4">
             <h2 id={allId} className="text-xl">
               {t("report.allMeasurements")}
@@ -195,6 +204,7 @@ export function ReportScreen() {
         cancel={t("newScan.cancel")}
         onConfirm={startOver}
       />
+      <SimulationDrawer open={showSimulation} onClose={() => setShowSimulation(false)} photoUrl={state.frontal.photoUrl} />
     </Screen>
   );
 }
