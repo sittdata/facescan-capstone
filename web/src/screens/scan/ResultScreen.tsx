@@ -98,9 +98,9 @@ export function ResultScreen({ view }: { view: View }) {
       <p role="status" className="sr-only">
         {message ?? ""}
       </p>
-      <div className="grid gap-8 lg:grid-cols-12">
-        <div className="lg:col-span-5">
-          <div className="lg:sticky lg:top-4">
+      <div className="grid gap-8 lg:grid-cols-12 min-w-0 max-w-full overflow-hidden">
+        <div className="lg:col-span-5 min-w-0 max-w-full">
+          <div className="lg:sticky lg:top-4 min-w-0 max-w-full">
             <PhotoViewer
               photoUrl={photoUrl}
               overlayUrl={latest.overlay}
@@ -129,7 +129,7 @@ export function ResultScreen({ view }: { view: View }) {
           </div>
         </div>
 
-        <div className="grid content-start gap-4 lg:col-span-7">
+        <div className="grid content-start gap-4 lg:col-span-7 min-w-0 max-w-full">
           {view === "frontal" && (
             <>
               <DemographicsCard demographics={result.inferred_demographics} />

@@ -150,7 +150,7 @@ export function HarmonyCard({ harmony, result }: Props) {
   ];
 
   return (
-    <div className="border border-line bg-surface p-4">
+    <div className="border border-line bg-surface p-4 overflow-hidden break-words">
       <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-accent" />

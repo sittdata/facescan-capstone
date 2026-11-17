@@ -139,7 +139,7 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
   );
 
   return (
-    <div className="border border-line bg-surface p-4">
+    <div className="border border-line bg-surface p-4 overflow-hidden break-words">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
         <div className="flex items-center gap-2">
