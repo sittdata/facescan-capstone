@@ -947,7 +947,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Content Too Large: `payload_too_large` */
+            /** @description Request Entity Too Large: `payload_too_large` */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -956,7 +956,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Content Too Large",
+                     *       "title": "Request Entity Too Large",
                      *       "status": 413,
                      *       "detail": "…",
                      *       "code": "payload_too_large",
@@ -985,7 +985,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Unprocessable Content: `invalid_meta`, `too_many_pixels`, `frame_size_mismatch` */
+            /** @description Unprocessable Entity: `invalid_meta`, `too_many_pixels`, `frame_size_mismatch` */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -994,7 +994,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Unprocessable Content",
+                     *       "title": "Unprocessable Entity",
                      *       "status": 422,
                      *       "detail": "…",
                      *       "code": "invalid_meta",
@@ -1160,7 +1160,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Content Too Large: `payload_too_large` */
+            /** @description Request Entity Too Large: `payload_too_large` */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -1169,7 +1169,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Content Too Large",
+                     *       "title": "Request Entity Too Large",
                      *       "status": 413,
                      *       "detail": "…",
                      *       "code": "payload_too_large",
@@ -1198,7 +1198,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Unprocessable Content: `point_not_adjustable` */
+            /** @description Unprocessable Entity: `point_not_adjustable` */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -1207,7 +1207,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Unprocessable Content",
+                     *       "title": "Unprocessable Entity",
                      *       "status": 422,
                      *       "detail": "…",
                      *       "code": "point_not_adjustable",
@@ -1357,7 +1357,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Content Too Large: `payload_too_large` */
+            /** @description Request Entity Too Large: `payload_too_large` */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -1366,7 +1366,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Content Too Large",
+                     *       "title": "Request Entity Too Large",
                      *       "status": 413,
                      *       "detail": "…",
                      *       "code": "payload_too_large",
@@ -1395,7 +1395,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Unprocessable Content: `invalid_meta`, `too_many_pixels`, `image_mismatch` */
+            /** @description Unprocessable Entity: `invalid_meta`, `too_many_pixels`, `image_mismatch` */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -1404,7 +1404,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Unprocessable Content",
+                     *       "title": "Unprocessable Entity",
                      *       "status": 422,
                      *       "detail": "…",
                      *       "code": "invalid_meta",
@@ -1585,7 +1585,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Content Too Large: `payload_too_large` */
+            /** @description Request Entity Too Large: `payload_too_large` */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -1594,7 +1594,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Content Too Large",
+                     *       "title": "Request Entity Too Large",
                      *       "status": 413,
                      *       "detail": "…",
                      *       "code": "payload_too_large",
@@ -1623,7 +1623,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Unprocessable Content: `invalid_meta`, `too_many_pixels` */
+            /** @description Unprocessable Entity: `invalid_meta`, `too_many_pixels` */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -1632,7 +1632,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Unprocessable Content",
+                     *       "title": "Unprocessable Entity",
                      *       "status": 422,
                      *       "detail": "…",
                      *       "code": "invalid_meta",
@@ -1823,7 +1823,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Content Too Large: `payload_too_large` */
+            /** @description Request Entity Too Large: `payload_too_large` */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -1832,7 +1832,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "type": "about:blank",
-                     *       "title": "Content Too Large",
+                     *       "title": "Request Entity Too Large",
                      *       "status": 413,
                      *       "detail": "…",
                      *       "code": "payload_too_large",

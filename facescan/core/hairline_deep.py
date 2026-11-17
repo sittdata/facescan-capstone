@@ -15,7 +15,10 @@ from typing import Any
 
 import cv2
 import numpy as np
-import onnxruntime as ort
+try:
+    import onnxruntime as ort
+except ImportError:
+    ort = None
 
 from facescan.core.geometry import dist
 
@@ -38,13 +41,15 @@ class HairlineSegmentationResult:
     confidence: float
 
 
-_SESSION: ort.InferenceSession | None = None
+_SESSION: Any | None = None
 _METADATA: dict[str, Any] | None = None
 
 
-def get_segmenter_session() -> tuple[ort.InferenceSession, dict[str, Any]]:
+def get_segmenter_session() -> tuple[Any, dict[str, Any]]:
     global _SESSION, _METADATA
     if _SESSION is None:
+        if ort is None:
+            raise RuntimeError("onnxruntime is required for hairline deep segmentation")
         if not MODEL_PATH.is_file():
             raise FileNotFoundError(f"Hairline segmenter model not found: {MODEL_PATH}")
         _SESSION = ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])

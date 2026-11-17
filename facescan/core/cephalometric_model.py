@@ -17,7 +17,10 @@ from pathlib import Path
 from typing import Any, Mapping
 
 import numpy as np
-import onnxruntime as ort
+try:
+    import onnxruntime as ort
+except ImportError:
+    ort = None
 
 from facescan.core.schema import CephalometricResultModel
 
@@ -40,14 +43,16 @@ FEATURE_NAMES: list[str] = [
 
 CLASS_NAMES: list[str] = ["Class_I", "Class_II", "Class_III"]
 
-_SESSION: ort.InferenceSession | None = None
+_SESSION: Any | None = None
 _METADATA: dict[str, Any] | None = None
 
 
-def get_cephalometric_session() -> tuple[ort.InferenceSession, dict[str, Any]]:
+def get_cephalometric_session() -> tuple[Any, dict[str, Any]]:
     """Lazy-load and cache ONNX inference session and metadata."""
     global _SESSION, _METADATA
     if _SESSION is None or _METADATA is None:
+        if ort is None:
+            raise RuntimeError("onnxruntime is required for cephalometric model inference")
         if not MODEL_PATH.is_file():
             raise FileNotFoundError(
                 f"Cephalometric model not found at {MODEL_PATH}. "

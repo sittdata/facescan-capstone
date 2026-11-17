@@ -15,7 +15,10 @@ from pathlib import Path
 from typing import Any, Mapping
 
 import numpy as np
-import onnxruntime as ort
+try:
+    import onnxruntime as ort
+except ImportError:
+    ort = None
 
 from facescan.core.schema import AIHarmonyResultModel, FeatureAttributionModel, _Model
 
@@ -142,13 +145,15 @@ FeatureAttribution = FeatureAttributionModel
 AIHarmonyResult = AIHarmonyResultModel
 
 
-_SESSION: ort.InferenceSession | None = None
+_SESSION: Any | None = None
 _METADATA: dict[str, Any] | None = None
 
 
-def get_session() -> tuple[ort.InferenceSession, dict[str, Any]]:
+def get_session() -> tuple[Any, dict[str, Any]]:
     global _SESSION, _METADATA
     if _SESSION is None:
+        if ort is None:
+            raise RuntimeError("onnxruntime is required for AI Harmony model inference")
         if not MODEL_PATH.is_file():
             raise FileNotFoundError(f"AI Harmony ONNX model not found: {MODEL_PATH}")
         _SESSION = ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])

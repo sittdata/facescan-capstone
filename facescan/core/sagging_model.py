@@ -16,7 +16,10 @@ from pathlib import Path
 from typing import Any, Mapping
 
 import numpy as np
-import onnxruntime as ort
+try:
+    import onnxruntime as ort
+except ImportError:
+    ort = None
 
 from facescan.core.schema import FacialSaggingResultModel
 
@@ -92,14 +95,16 @@ TIER_CLINICAL_DESCRIPTIONS: dict[int, dict[str, str]] = {
     },
 }
 
-_SESSION: ort.InferenceSession | None = None
+_SESSION: Any | None = None
 _METADATA: dict[str, Any] | None = None
 
 
-def get_sagging_session() -> tuple[ort.InferenceSession, dict[str, Any]]:
+def get_sagging_session() -> tuple[Any, dict[str, Any]]:
     """Lazy-load and cache ONNX inference session and metadata."""
     global _SESSION, _METADATA
     if _SESSION is None:
+        if ort is None:
+            raise RuntimeError("onnxruntime is required for sagging model inference")
         if not MODEL_PATH.is_file():
             raise FileNotFoundError(f"Facial sagging ONNX model not found: {MODEL_PATH}")
         _SESSION = ort.InferenceSession(str(MODEL_PATH), providers=["CPUExecutionProvider"])
