@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     models_dir: Path = Path("models")
     norms_profile: str = "canon"
     rules_path: Path = Field(default_factory=core_rules_path)
+    enable_trichion_fallback: bool = True
 
     # --- workers
     workers: int = Field(default_factory=lambda: len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity")
@@ -46,7 +47,7 @@ class Settings(BaseSettings):
     timeout_adjust_s: float = Field(default=5.0, gt=0)
     timeout_overlay_s: float = Field(default=10.0, gt=0)
     timeout_report_s: float = Field(default=5.0, gt=0)
-    require_raqm: bool = True
+    require_raqm: bool = False
 
     # --- uploads
     max_image_bytes: int = Field(default=12 * MB, ge=1024)

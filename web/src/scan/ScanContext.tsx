@@ -137,7 +137,7 @@ export function ScanProvider({ children, now = Date.now }: { children: ReactNode
         if (response.status === "ok") {
           // A burst's photo is the frame the result refers to.
           const reference = capture.frames.length > 1 ? capture.referenceFrame(response.result.frames.reference_frame) : undefined;
-          const photoUrl = reference ? URL.createObjectURL(reference.blob) : undefined;
+          const photoUrl = response.aligned_photo ?? (reference ? URL.createObjectURL(reference.blob) : undefined);
           dispatch({ type: "analysis_ok", view, analysis: analysisFrom(response, locale, now()), photoUrl });
           return { kind: "ok" };
         }

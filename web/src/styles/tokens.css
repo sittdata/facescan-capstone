@@ -107,6 +107,14 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
+  /* Clinical tier indicators for aging, sagging, and harmony */
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-rose-500: #f43f5e;
+  --color-rose-600: #e11d48;
+
   --font-sans: var(--font-family);
   --text-sm: var(--fs-sm);
   --text-sm--line-height: var(--leading-body);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, Sliders } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import type { FaceShapeResult } from "./types";
 
 interface Props {
@@ -65,7 +65,6 @@ export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation }: Props)
 
   if (!photoUrl) return null;
 
-  // Select styling recommendations according to active gender
   const currentStyling =
     gender === "male"
       ? data?.styling?.male ?? {
@@ -80,44 +79,26 @@ export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation }: Props)
         };
 
   return (
-    <section
-      className="my-6 rounded-viewer border border-line bg-surface p-4 print:break-inside-avoid"
-      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+    <section className="my-4 border border-line bg-surface p-4 print:break-inside-avoid">
+      <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
-          <span
-            style={{
-              width: 4,
-              height: 20,
-              backgroundColor: "var(--accent)",
-              borderRadius: 2,
-            }}
-          />
+          <Sparkles size={16} className="text-accent" />
           <div>
-            <h3 className="text-lg font-semibold text-ink">รูปทรงใบหน้า & สไตล์ลิ่ง (Face Shape & Styling)</h3>
-            <p className="text-ink-2" style={{ fontSize: "0.8125rem" }}>
+            <h3 className="text-sm font-semibold text-ink">รูปทรงใบหน้า & สไตล์ลิ่ง</h3>
+            <p className="text-sm text-ink-2">
               วิเคราะห์อัตราส่วนโครงหน้าตามเกณฑ์มานุษยวิทยาคลินิก
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {onOpenSimulation && (
-            <button
-              type="button"
-              onClick={onOpenSimulation}
-              className="inline-flex items-center gap-1 rounded-control bg-accent px-3 py-1 font-medium transition-all"
-              style={{ fontSize: "0.8125rem", color: "#ffffff" }}
-            >
-              <Sliders style={{ width: 14, height: 14 }} />
-              <span>จำลองปรับรูปหน้า</span>
-            </button>
-          )}
+          <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-2">
+            พร้อมใช้งาน
+          </span>
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="rounded-control p-1 text-ink-2"
+            className="p-1 text-ink-2 hover:text-ink cursor-pointer"
             aria-label="Toggle details"
           >
             {expanded ? (
@@ -142,38 +123,34 @@ export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation }: Props)
       )}
 
       {data && (
-        <div className="pt-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span
-                className="inline-flex items-center rounded-control px-3 py-1 text-sm font-semibold text-accent"
-                style={{ backgroundColor: "var(--accent-band)" }}
-              >
-                {data.name_th}
-              </span>
-              <span className="text-ink-2" style={{ fontSize: "0.8125rem" }}>
-                ความสอดคล้อง: <strong>{Math.round(data.confidence * 100)}%</strong>
-              </span>
+        <div className="pt-4 space-y-4">
+          {/* Summary Box */}
+          <div className="border border-line bg-paper p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-semibold text-ink">
+                  {data.name_th}
+                </span>
+                <span className="text-sm text-ink-3">
+                  ความสอดคล้อง: <strong className="text-ink-2">{Math.round(data.confidence * 100)}%</strong>
+                </span>
+              </div>
+              <div className="flex gap-2 text-sm text-ink-3">
+                <span>
+                  L/W Ratio: <strong className="text-ink-2">{data.metrics.length_to_width_ratio}</strong>
+                </span>
+                <span className="text-ink-muted/50">|</span>
+                <span>
+                  Chin Angle: <strong className="text-ink-2">{data.metrics.chin_angle_deg}°</strong>
+                </span>
+              </div>
             </div>
-
-            <div className="flex gap-2 text-ink-2" style={{ fontSize: "0.8125rem" }}>
-              <span>
-                L/W Ratio: <strong>{data.metrics.length_to_width_ratio}</strong>
-              </span>
-              <span>•</span>
-              <span>
-                Chin Angle: <strong>{data.metrics.chin_angle_deg}°</strong>
-              </span>
-            </div>
+            <p className="mt-2 text-sm text-ink-2">{data.description}</p>
           </div>
 
-          <p className="mt-2 text-sm text-ink">{data.description}</p>
-
-          {/* Gender Selector Segmented Pills */}
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
-            <div className="font-semibold text-ink-2" style={{ fontSize: "0.75rem" }}>
-              คำแนะนำสไตล์ลิ่งเฉพาะเพศ:
-            </div>
+          {/* Gender Selector for Styling */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm text-ink-2">คำแนะนำสไตล์ลิ่งเฉพาะเพศ:</span>
             <div className="inline-flex rounded-control border border-line bg-surface" style={{ padding: 2 }}>
               <button
                 type="button"
@@ -208,75 +185,49 @@ export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation }: Props)
             </div>
           </div>
 
+          {/* Subcards Grid */}
           {expanded && (
             <div
-              className="mt-3 gap-4"
-              style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}
+              className="gap-3"
+              style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}
             >
               {/* Hairstyles */}
-              <div
-                className="rounded-viewer p-3 border border-line"
-                style={{ backgroundColor: "var(--notice)" }}
-              >
-                <div
-                  className="font-semibold text-ink mb-2"
-                  style={{ fontSize: "0.8125rem", color: "var(--accent)" }}
-                >
+              <div className="border border-line bg-paper p-3">
+                <div className="text-sm font-semibold text-ink mb-2">
                   ทรงผมที่แนะนำ ({gender === "female" ? "ผู้หญิง" : "ผู้ชาย"})
                 </div>
-                <ul className="space-y-1 text-ink-2" style={{ fontSize: "0.8125rem" }}>
+                <ul className="space-y-1 text-sm text-ink-2">
                   {currentStyling.hairstyles.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-1">
-                      <span className="text-accent" style={{ marginTop: 2 }}>
-                        •
-                      </span>
-                      <span>{tip}</span>
+                    <li key={i}>
+                      {tip}
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Glasses */}
-              <div
-                className="rounded-viewer p-3 border border-line"
-                style={{ backgroundColor: "var(--notice)" }}
-              >
-                <div
-                  className="font-semibold text-ink mb-2"
-                  style={{ fontSize: "0.8125rem", color: "var(--accent)" }}
-                >
+              <div className="border border-line bg-paper p-3">
+                <div className="text-sm font-semibold text-ink mb-2">
                   แว่นตาที่รับกับรูปหน้า ({gender === "female" ? "ผู้หญิง" : "ผู้ชาย"})
                 </div>
-                <ul className="space-y-1 text-ink-2" style={{ fontSize: "0.8125rem" }}>
+                <ul className="space-y-1 text-sm text-ink-2">
                   {currentStyling.glasses.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-1">
-                      <span className="text-accent" style={{ marginTop: 2 }}>
-                        •
-                      </span>
-                      <span>{tip}</span>
+                    <li key={i}>
+                      {tip}
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Aesthetic Focus */}
-              <div
-                className="rounded-viewer p-3 border border-line"
-                style={{ backgroundColor: "var(--notice)" }}
-              >
-                <div
-                  className="font-semibold text-ink mb-2"
-                  style={{ fontSize: "0.8125rem", color: "var(--accent)" }}
-                >
+              <div className="border border-line bg-paper p-3">
+                <div className="text-sm font-semibold text-ink mb-2">
                   จุดเน้นเสริมมิติโครงหน้า ({gender === "female" ? "ผู้หญิง" : "ผู้ชาย"})
                 </div>
-                <ul className="space-y-1 text-ink-2" style={{ fontSize: "0.8125rem" }}>
+                <ul className="space-y-1 text-sm text-ink-2">
                   {currentStyling.aesthetic_focus.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-1">
-                      <span className="text-accent" style={{ marginTop: 2 }}>
-                        •
-                      </span>
-                      <span>{tip}</span>
+                    <li key={i}>
+                      {tip}
                     </li>
                   ))}
                 </ul>

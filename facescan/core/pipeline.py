@@ -28,10 +28,12 @@ import numpy as np
 from facescan._version import __version__
 from facescan.core.assemble import FrontalAssembler, ProfileAssembler, ProfileContext, metric_values
 from facescan.core.config import EngineConfig, Settings, load_settings
+from facescan.core.demographics import DemographicsPredictor
 from facescan.core.detector import FaceDetection, FaceDetector, HairSegmenter
 from facescan.core.errors import ImageMismatchError, InvalidInputError
 from facescan.core.frontal_points import ExtractedPoints, extract_frontal_points
 from facescan.core.geometry import apply_affine, invert_affine, similarity_transform
+from facescan.core.trichion_model import TrichionModel
 from facescan.core.landmark_map import FRONTAL_POINT_NAMES
 from facescan.core.locale import Strings
 from facescan.core.locale import user_view as _user_view
@@ -44,7 +46,7 @@ from facescan.core.quality import (aggregate_burst, face_count_check, frame_pass
                                    summarize)
 from facescan.core.recommend import ReportBuilder, load_rules, validate_rules
 from facescan.core.schema import (
-    SCHEMA_VERSION, CameraInfo, Frames, FrontalResult, HeadPose, ImageSize, Override, Point2D, ProfileResult, Quality,
+    SCHEMA_VERSION, CameraInfo, DemographicsResult, Frames, FrontalResult, HeadPose, ImageSize, Override, Point2D, ProfileResult, Quality,
     QualityCheck, Report, SubjectInfo,
 )
 from facescan.core.uncertainty import landmark_sd, metric_sd, tta_transforms, warp
@@ -105,6 +107,21 @@ class FaceScanEngine:
         except Exception:
             self._detector.close()
             raise
+        self._demographics = DemographicsPredictor(self.config.demographics_model)
+        self._trichion_model = None
+        if self.config.trichion_model is not None:
+            self._trichion_model = TrichionModel(self.config.trichion_model)
+        if self.config.enable_trichion_fallback:
+            new_hl = self.settings.capture.hairline.model_copy(update={"enable_model_fallback": True})
+            new_cap = self.settings.capture.model_copy(update={"hairline": new_hl})
+            self.settings = Settings(
+                capture=new_cap,
+                norms=self.settings.norms,
+                locales=self.settings.locales,
+                rules=self.settings.rules,
+                config_hash=self.settings.config_hash,
+                rules_hash=self.settings.rules_hash,
+            )
 
     # ------------------------------------------------------------------ lifecycle
 
@@ -141,8 +158,28 @@ class FaceScanEngine:
     # ------------------------------------------------------------------ frontal
 
     def analyze_frontal(self, images: LoadedImage | Sequence[LoadedImage], *, subject: SubjectInfo | Mapping,
-                        overrides: Mapping[str, Override] | None = None) -> FrontalResult:
+                        overrides: Mapping[str, Override] | None = None,
+                        enable_trichion_fallback: bool | None = None) -> FrontalResult:
         """Analyze one frontal photo (TTA uncertainty) or a burst of 3–15 frames of identical size."""
+        orig_settings = self.settings
+        if enable_trichion_fallback is not None and enable_trichion_fallback != self.settings.capture.hairline.enable_model_fallback:
+            new_hl = self.settings.capture.hairline.model_copy(update={"enable_model_fallback": enable_trichion_fallback})
+            new_cap = self.settings.capture.model_copy(update={"hairline": new_hl})
+            self.settings = Settings(
+                capture=new_cap,
+                norms=self.settings.norms,
+                locales=self.settings.locales,
+                rules=self.settings.rules,
+                config_hash=self.settings.config_hash,
+                rules_hash=self.settings.rules_hash,
+            )
+        try:
+            return self._analyze_frontal_inner(images, subject=subject, overrides=overrides)
+        finally:
+            self.settings = orig_settings
+
+    def _analyze_frontal_inner(self, images: LoadedImage | Sequence[LoadedImage], *, subject: SubjectInfo | Mapping,
+                              overrides: Mapping[str, Override] | None = None) -> FrontalResult:
         frames = self._check_frames(images)
         subject = subject if isinstance(subject, SubjectInfo) else SubjectInfo.model_validate(subject)
         if subject.norms_profile not in self.norms.profile_names:
@@ -187,11 +224,50 @@ class FaceScanEngine:
             landmarks = self._assembler.with_overrides(landmarks, ovs)
         metrics, calibration = self._assembler.metrics(landmarks, subject, run_u=run_u, previous=None,
                                                        quant_sd=extra_sd)
+        inferred = None
+        if self._demographics.is_available:
+            ref_det = next((obs_item.det for idx, obs_item in face_obs if idx == ref_i), face_obs[0][1].det)
+            bbox = None
+            if ref_det is not None and len(ref_det.xy) > 0:
+                x_min, y_min = np.min(ref_det.xy, axis=0)
+                x_max, y_max = np.max(ref_det.xy, axis=0)
+                bbox = (int(x_min), int(y_min), int(x_max), int(y_max))
+            est = self._demographics.predict(frames[ref_i].pixels, bbox=bbox)
+            if est is not None:
+                inferred = DemographicsResult(
+                    predicted_sex=est.predicted_sex,
+                    sex_confidence=est.sex_confidence,
+                    predicted_age=est.predicted_age,
+                    age_sd=est.age_sd,
+                )
+                if subject.sex == "unspecified":
+                    eff_subject = subject.model_copy(update={"sex": est.predicted_sex})
+                    metrics, calibration = self._assembler.metrics(landmarks, eff_subject, run_u=run_u, previous=None, quant_sd=extra_sd)
+
+        ai_harmony = None
+        try:
+            from facescan.core.harmony_model import predict_ai_harmony
+            ref_det = next((obs_item.det for idx, obs_item in face_obs if idx == ref_i), face_obs[0][1].det)
+            if ref_det is not None and hasattr(ref_det, "landmarks"):
+                g = subject.sex if subject.sex != "unspecified" else (inferred.predicted_sex if inferred else "female")
+                ai_harmony = predict_ai_harmony(ref_det.landmarks, gender=g, race=subject.norms_profile)
+        except Exception:
+            pass
+
+        facial_sagging = None
+        try:
+            from facescan.core.facemesh import analyze_facemesh_sagging
+            ref_det = next((obs_item.det for idx, obs_item in face_obs if idx == ref_i), face_obs[0][1].det)
+            if ref_det is not None and hasattr(ref_det, "landmarks"):
+                facial_sagging = analyze_facemesh_sagging(ref_det.landmarks)
+        except Exception:
+            pass
+
         return FrontalResult(
             status="ok" if quality.passed else "quality_failed",
             camera=frames[ref_i].camera,
             frames=Frames(count=len(frames), used=used, reference_frame=ref_i, reference_sha256=frames[ref_i].sha256),
-            quality=quality, pose=pose, calibration=calibration, landmarks=landmarks, metrics=metrics, **base)
+            quality=quality, pose=pose, calibration=calibration, inferred_demographics=inferred, landmarks=landmarks, metrics=metrics, ai_harmony=ai_harmony, facial_sagging=facial_sagging, **base)
 
     def apply_overrides(self, result: FrontalResult | ProfileResult,
                         overrides: Mapping[str, Override]) -> FrontalResult | ProfileResult:
@@ -320,14 +396,15 @@ class FaceScanEngine:
     # ------------------------------------------------------------------ outputs
 
     def render_overlay(self, image: LoadedImage, result: FrontalResult | ProfileResult, *, layers: set[str],
-                       style: Literal["user", "clinical"] = "user", locale: str = "th") -> np.ndarray:
+                       style: Literal["user", "clinical"] = "user", locale: str = "en") -> np.ndarray:
         """Annotated RGB image. Raises ``ImageMismatchError`` if ``image`` is not the result's reference frame."""
         from facescan.render.overlay import render_overlay
 
         if result.frames is None or image.sha256 != result.frames.reference_sha256:
             raise ImageMismatchError("image does not match the result's reference_sha256")
+        # Overlays render labels in English to prevent font glyph corruption across platforms
         return render_overlay(image.pixels, result, layers=set(layers), style=style,
-                              strings=Strings(self.settings.locales, locale), font_path=self._font_path,
+                              strings=Strings(self.settings.locales, "en"), font_path=self._font_path,
                               columella_fit=self.settings.capture.profile.contour.columella_fit)
 
     def user_view(self, obj: FrontalResult | ProfileResult | Report, *, locale: str = "th") -> dict[str, Any]:
@@ -377,7 +454,7 @@ class FaceScanEngine:
             return _FrameObs(n_faces=len(faces))
         det = faces[0]
         checks = frontal_checks(frame.pixels, det, frame.camera, self.settings.capture)
-        ext = extract_frontal_points(det, frame.pixels, self._segmenter, self.settings.capture)
+        ext = extract_frontal_points(det, frame.pixels, self._segmenter, self.settings.capture, trichion_model=self._trichion_model)
         return _FrameObs(n_faces=1, det=det, checks=checks, ext=ext)
 
     def _tta(self, frame: LoadedImage, det: FaceDetection) -> list[ExtractedPoints]:
@@ -390,7 +467,7 @@ class FaceScanEngine:
             faces = self._detector.detect(warped)
             if len(faces) != 1:
                 continue
-            ext = extract_frontal_points(faces[0], warped, self._segmenter, self.settings.capture)
+            ext = extract_frontal_points(faces[0], warped, self._segmenter, self.settings.capture, trichion_model=self._trichion_model)
             out.append(ext.mapped(invert_affine(A)))
         if len(out) < self.settings.capture.frontal.tta.min_successful_runs:
             return []

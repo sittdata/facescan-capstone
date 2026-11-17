@@ -197,7 +197,12 @@ class FrontalAssembler(_Assembler):
         self.validate(ovs, result.image)
         landmarks = self.with_overrides(result.landmarks, ovs)
         metrics, calibration = self.metrics(landmarks, result.subject, run_u=None, previous=result.metrics)
-        return FrontalResult(**{**dict(result), "landmarks": landmarks, "metrics": metrics, "calibration": calibration})
+        from facescan.core.harmony import calculate_harmony_score
+        from facescan.core.procedure_recommender import recommend_procedures
+
+        harmony = calculate_harmony_score(metrics)
+        procedure_recommendations = recommend_procedures(metrics, sagging=getattr(result, "facial_sagging", None))
+        return FrontalResult(**{**dict(result), "landmarks": landmarks, "metrics": metrics, "calibration": calibration, "harmony": harmony, "procedure_recommendations": procedure_recommendations})
 
 
 class ProfileContext:

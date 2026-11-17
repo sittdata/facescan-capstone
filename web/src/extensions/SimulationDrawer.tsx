@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { X, Sliders, RotateCcw, Download, Sparkles, SplitSquareHorizontal } from "lucide-react";
+import type { ProcedureRecommendation } from "../api/schemas";
 import type { SimulationParams } from "./types";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   photoUrl: string | null;
+  recommendedProcedures?: ProcedureRecommendation[] | null;
 }
 
-export function SimulationDrawer({ open, onClose, photoUrl }: Props) {
+export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedures }: Props) {
   const [params, setParams] = useState<SimulationParams>({
     rhinoplasty: 0,
     lip_augmentation: 0,
@@ -23,7 +25,7 @@ export function SimulationDrawer({ open, onClose, photoUrl }: Props) {
 
   if (!open || !photoUrl) return null;
 
-  const handleSimulate = async () => {
+  const runSimulation = async (simParams: SimulationParams) => {
     setLoading(true);
     setError(null);
     try {
@@ -32,9 +34,9 @@ export function SimulationDrawer({ open, onClose, photoUrl }: Props) {
 
       const formData = new FormData();
       formData.append("file", blob, "photo.jpg");
-      formData.append("rhinoplasty", (params.rhinoplasty / 100).toString());
-      formData.append("lip_augmentation", (params.lip_augmentation / 100).toString());
-      formData.append("chin_augmentation", (params.chin_augmentation / 100).toString());
+      formData.append("rhinoplasty", (simParams.rhinoplasty / 100).toString());
+      formData.append("lip_augmentation", (simParams.lip_augmentation / 100).toString());
+      formData.append("chin_augmentation", (simParams.chin_augmentation / 100).toString());
 
       const res = await fetch("/v1/simulation/warp", {
         method: "POST",
@@ -53,6 +55,32 @@ export function SimulationDrawer({ open, onClose, photoUrl }: Props) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSimulate = async () => {
+    await runSimulation(params);
+  };
+
+  const handleApplyGoldenRatio = () => {
+    const getIntensity = (name: string, defaultVal: number): number => {
+      if (!recommendedProcedures || recommendedProcedures.length === 0) {
+        return defaultVal;
+      }
+      const rec = recommendedProcedures.find((r) => r.procedure === name);
+      if (rec && rec.intensity > 0) {
+        return Math.round(rec.intensity * 100);
+      }
+      return defaultVal;
+    };
+
+    const nextParams: SimulationParams = {
+      rhinoplasty: getIntensity("rhinoplasty", 35),
+      lip_augmentation: getIntensity("lip_augmentation", 40),
+      chin_augmentation: getIntensity("chin_augmentation", 30),
+    };
+
+    setParams(nextParams);
+    void runSimulation(nextParams);
   };
 
   const handleReset = () => {
@@ -185,6 +213,16 @@ export function SimulationDrawer({ open, onClose, photoUrl }: Props) {
               <h3 className="text-sm font-semibold text-ink border-b border-line pb-2">
                 ระดับการปรับรูปทรง (Procedure Intensity)
               </h3>
+
+              <button
+                type="button"
+                onClick={handleApplyGoldenRatio}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 rounded-control border border-accent bg-paper py-2 text-sm font-medium text-accent hover:bg-notice transition-all disabled:cursor-not-allowed"
+              >
+                <Sparkles style={{ width: 16, height: 16 }} />
+                <span>Apply AI Golden Ratio</span>
+              </button>
 
               {/* Slider 1: Rhinoplasty */}
               <div>

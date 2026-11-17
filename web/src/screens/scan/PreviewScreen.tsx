@@ -45,7 +45,6 @@ export function PreviewScreen({ config, view }: { config: ClientConfig; view: Vi
           >
             {source === "library" ? t("preview.chooseAnother") : t("preview.retake")}
           </Button>
-          {view === "frontal" && <AutoAlignCard compact />}
           <Button variant="primary" onClick={() => navigate(scanPath(view, "analyzing"))} disabled={picker.busy}>
             {t("preview.use")}
           </Button>
@@ -70,6 +69,7 @@ export function PreviewScreen({ config, view }: { config: ClientConfig; view: Vi
         toggle={false}
       />
       {view === "profile" && <FacingChoice value={state.profile.facing} onChange={setFacing} help="check" className="mt-6" />}
+      {view === "frontal" && <AutoAlignCard className="mt-6" />}
       <p className="mt-4 text-ink-2">{t("preview.help")}</p>
     </Screen>
   );

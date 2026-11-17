@@ -195,19 +195,21 @@ export interface ScanMockOptions {
 export function scanHandlers({ outcomes = ["ok"], profileOutcomes = ["ok"], calls }: ScanMockOptions = {}) {
   let n = 0;
   let m = 0;
+  const handleFrontal = async ({ request }: { request: Request }) => {
+    const parts = await readParts(request);
+    const meta = JSON.parse(field(parts, "meta")) as Record<string, unknown>;
+    const frames = parts.filter((p) => p.name === "frames").map(filePart);
+    calls?.analyze.push({ meta, frames });
+    const outcome = outcomes[Math.min(n, outcomes.length - 1)]!;
+    n += 1;
+    const lang = (meta.locale === "en" ? "en" : "th") as Lang;
+    let body = ANALYSES[outcome][lang] as Record<string, unknown>;
+    if (body.status === "ok") body = { ...body, overlay: dataUri(`overlay_ok.${lang}.jpg`) };
+    return HttpResponse.json(body, { headers: { ...CORS_HEADERS, "X-Request-ID": "req_mock" } });
+  };
   return [
-    http.post(`${MOCK_API}/v1/frontal/analyze`, async ({ request }) => {
-      const parts = await readParts(request);
-      const meta = JSON.parse(field(parts, "meta")) as Record<string, unknown>;
-      const frames = parts.filter((p) => p.name === "frames").map(filePart);
-      calls?.analyze.push({ meta, frames });
-      const outcome = outcomes[Math.min(n, outcomes.length - 1)]!;
-      n += 1;
-      const lang = (meta.locale === "en" ? "en" : "th") as Lang;
-      let body = ANALYSES[outcome][lang] as Record<string, unknown>;
-      if (body.status === "ok") body = { ...body, overlay: dataUri(`overlay_ok.${lang}.jpg`) };
-      return HttpResponse.json(body, { headers: { ...CORS_HEADERS, "X-Request-ID": "req_mock" } });
-    }),
+    http.post(`${MOCK_API}/v1/frontal/analyze`, handleFrontal),
+    http.post(`${MOCK_API}/v1/simulation/auto-align`, handleFrontal),
     http.post(`${MOCK_API}/v1/profile/analyze`, async ({ request }) => {
       const parts = await readParts(request);
       const meta = JSON.parse(field(parts, "meta")) as Record<string, unknown>;

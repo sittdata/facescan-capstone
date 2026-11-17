@@ -149,6 +149,76 @@ export type Facing = z.infer<typeof FacingSchema>;
  * also has `facing` and the stored silhouette `contour` (≤ 400 points, image pixels), which
  * the adjustment snaps points to; a profile without them is an error.
  */
+export const InferredDemographicsSchema = z
+  .object({
+    predicted_sex: z.enum(["female", "male", "unspecified"]),
+    sex_confidence: z.number(),
+    predicted_age: z.number(),
+    age_sd: z.number().optional(),
+  })
+  .nullable();
+export type InferredDemographics = z.infer<typeof InferredDemographicsSchema>;
+
+export const HarmonySubscoresSchema = z.object({
+  vertical_thirds: z.number(),
+  transverse_fifths: z.number(),
+  lip_harmony: z.number(),
+  symmetry: z.number(),
+});
+export type HarmonySubscores = z.infer<typeof HarmonySubscoresSchema>;
+
+export const HarmonyScoreSchema = z.object({
+  overall: z.number(),
+  subscores: HarmonySubscoresSchema,
+});
+export type HarmonyScore = z.infer<typeof HarmonyScoreSchema>;
+
+export const FeatureAttributionSchema = z.object({
+  feature: z.string(),
+  name_th: z.string(),
+  name_en: z.string(),
+  user_value: z.number(),
+  reference_median: z.number(),
+  impact_score: z.number(),
+  is_positive: z.boolean(),
+  description: z.string(),
+});
+export type FeatureAttribution = z.infer<typeof FeatureAttributionSchema>;
+
+export const AIHarmonyResultSchema = z.object({
+  overall_score: z.number(),
+  raw_model_score: z.number(),
+  percentile: z.number(),
+  rating_th: z.string(),
+  rating_en: z.string(),
+  key_strengths: z.array(FeatureAttributionSchema),
+  key_improvements: z.array(FeatureAttributionSchema),
+  total_features_evaluated: z.number(),
+});
+export type AIHarmonyResult = z.infer<typeof AIHarmonyResultSchema>;
+
+export const FacialSaggingResultSchema = z.object({
+  tier: z.number().int().min(1).max(3),
+  tier_name: z.enum(["Firm", "Moderate", "Advanced"]),
+  laxity_score: z.number().min(0).max(100),
+  confidence: z.number().min(0).max(1),
+  probabilities: z.record(z.string(), z.number()),
+  rating_th: z.string(),
+  rating_en: z.string(),
+  features: z.record(z.string(), z.number()).optional(),
+  description_th: z.string(),
+  description_en: z.string(),
+});
+export type FacialSaggingResult = z.infer<typeof FacialSaggingResultSchema>;
+
+export const ProcedureRecommendationSchema = z.object({
+  procedure: z.string(),
+  intensity: z.number(),
+  rationale: z.string(),
+  triggering_metrics: z.array(z.string()),
+});
+export type ProcedureRecommendation = z.infer<typeof ProcedureRecommendationSchema>;
+
 export const ResultSchema = z
   .object({
     schema_version: z.string(),
@@ -162,6 +232,11 @@ export const ResultSchema = z
     reference_note: z.string(),
     image: z.object({ width: z.number().int().positive(), height: z.number().int().positive() }),
     frames: z.object({ count: z.number().int(), reference_frame: z.number().int(), reference_sha256: z.string() }),
+    inferred_demographics: InferredDemographicsSchema.optional(),
+    harmony: HarmonyScoreSchema.optional().nullable(),
+    ai_harmony: AIHarmonyResultSchema.optional().nullable(),
+    facial_sagging: FacialSaggingResultSchema.optional().nullable(),
+    procedure_recommendations: z.array(ProcedureRecommendationSchema).optional().nullable(),
     calibration: z.object({ method: z.string(), available: z.boolean() }).nullable(),
     adjustable_points: z.array(z.object({ id: z.string(), name: z.string(), instruction: z.string() })),
     landmarks: z.record(z.string(), LandmarkSchema),
@@ -187,8 +262,11 @@ export const AnalyzeResponseSchema = z.discriminatedUnion("status", [
     hints: z.array(z.string()),
     warnings: z.array(z.string()),
     result: ResultSchema,
+    facial_sagging: FacialSaggingResultSchema.optional().nullable(),
     result_token: z.string().min(1),
     overlay: z.string().optional(),
+    aligned_photo: z.string().optional(),
+    roll_deg: z.number().optional(),
     versions: VersionsSchema,
   }),
   z.object({
@@ -237,6 +315,9 @@ export const ReportSchema = z.object({
   locale: z.enum(["th", "en"]),
   frontal: ResultSchema,
   profile: ResultSchema.nullable(),
+  harmony: HarmonyScoreSchema.optional().nullable(),
+  ai_harmony: AIHarmonyResultSchema.optional().nullable(),
+  procedure_recommendations: z.array(ProcedureRecommendationSchema).optional().nullable(),
   consideration_intro: z.string(),
   considerations: z.array(ConsiderationSchema),
   no_considerations_note: z.string().nullable(),

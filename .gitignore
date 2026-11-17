@@ -9,3 +9,17 @@ dist/
 models/
 # CLI / capture outputs.
 out/
+
+# Large dataset files & archives (>100MB GitHub limit)
+faces.zip
+dataset/
+*.parquet
+*.zip
+
+# Agent caches and worktrees
+.agents/
+.claude/
+
+# Temporary fix scripts
+fix_age_cell2.py
+

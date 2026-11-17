@@ -145,6 +145,7 @@ def _result_view(r: FrontalResult | ProfileResult, S: Strings, adjustable: list[
         "reference_note": S.get("reference.note"),
         "image": r.image.model_dump() if r.image else None,
         "frames": r.frames.model_dump() if r.frames else None,
+        "inferred_demographics": r.inferred_demographics.model_dump() if r.inferred_demographics else None,
         "calibration": None if r.calibration is None else {
             "method": r.calibration.method, "available": r.calibration.mm_per_px is not None},
         "adjustable_points": [
@@ -160,6 +161,10 @@ def _result_view(r: FrontalResult | ProfileResult, S: Strings, adjustable: list[
         "metrics": {
             mid: _metric_view(mid, m, S, defs[mid].area if mid in defs else None)
             for mid, m in r.metrics.items() if m.display == "user"},
+        "harmony": r.harmony.model_dump() if getattr(r, "harmony", None) else None,
+        "ai_harmony": r.ai_harmony.model_dump() if getattr(r, "ai_harmony", None) else None,
+        "facial_sagging": r.facial_sagging.model_dump() if getattr(r, "facial_sagging", None) else None,
+        "procedure_recommendations": [p.model_dump() for p in r.procedure_recommendations] if getattr(r, "procedure_recommendations", None) else None,
     })
     if isinstance(r, ProfileResult):
         out["facing"] = r.facing
@@ -206,6 +211,10 @@ def _report_view(rep: Report, S: Strings, adjustable: Mapping[str, list[str]]) -
         "locale": S.locale,
         "frontal": None if rep.frontal is None else _result_view(rep.frontal, S, adjustable.get("frontal", [])),
         "profile": None if rep.profile is None else _result_view(rep.profile, S, adjustable.get("profile", [])),
+        "harmony": rep.harmony.model_dump() if rep.harmony else None,
+        "ai_harmony": (rep.frontal.ai_harmony.model_dump() if getattr(rep.frontal, "ai_harmony", None) else None) if rep.frontal else None,
+        "facial_sagging": rep.facial_sagging.model_dump() if rep.facial_sagging else ((rep.frontal.facial_sagging.model_dump() if getattr(rep.frontal, "facial_sagging", None) else None) if rep.frontal else None),
+        "procedure_recommendations": [p.model_dump() for p in rep.procedure_recommendations] if rep.procedure_recommendations else None,
         "consideration_intro": S.get("consideration_intro"),
         "considerations": considerations,
         "no_considerations_note": None if considerations else S.get("consideration_none"),

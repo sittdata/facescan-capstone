@@ -19,8 +19,11 @@ import { Button, LinkButton } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { Notice } from "../../components/ui/Notice";
 import { PhotoViewer } from "../../components/viewer/PhotoViewer";
-import { SegmentedControl } from "../../components/ui/SegmentedControl";
-import { DsiAnatomicalRegionsCard } from "../../extensions/DsiAnatomicalRegionsCard";
+import { DemographicsCard } from "../../components/results/DemographicsCard";
+import { HarmonyCard } from "../../components/results/HarmonyCard";
+import { FacialSaggingCard } from "../../components/results/FacialSaggingCard";
+import { ProcedureRecommendationCard } from "../../components/results/ProcedureRecommendationCard";
+import { SimulationDrawer } from "../../extensions/SimulationDrawer";
 import { useScan } from "../../scan/ScanContext";
 import { hasProfilePhoto, type View } from "../../scan/session";
 import { scanPath } from "../paths";
@@ -33,8 +36,7 @@ export function ResultScreen({ view }: { view: View }) {
   const scan = useScan();
   const { latest, photoUrl, announcement } = scan.state[view];
   const [confirmNew, setConfirmNew] = useState(false);
-  const [metricsTab, setMetricsTab] = useState<"standard" | "dsi">("standard");
-  const [viewerMode, setViewerMode] = useState<"overlay" | "dsi" | "original">("overlay");
+  const [showSimulation, setShowSimulation] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const { dispatch } = scan;
 
@@ -102,12 +104,6 @@ export function ResultScreen({ view }: { view: View }) {
               photoUrl={photoUrl}
               overlayUrl={latest.overlay}
               result={result}
-              mode={viewerMode}
-              onModeChange={(m) => {
-                setViewerMode(m);
-                if (m === "dsi") setMetricsTab("dsi");
-                else if (m === "overlay") setMetricsTab("standard");
-              }}
             />
             {latest.overlayProblem === "failed" && <p className="mt-3 text-sm text-ink-2">{t("results.overlayFailed")}</p>}
             {message && <p className="mt-3 text-sm text-ink-2" aria-hidden="true">{message}</p>}
@@ -116,6 +112,11 @@ export function ResultScreen({ view }: { view: View }) {
                 <LinkButton to={scanPath(view, "adjust")} variant="secondary">
                   {t("results.adjust")}
                 </LinkButton>
+              )}
+              {view === "frontal" && (
+                <Button variant="secondary" onClick={() => setShowSimulation(true)}>
+                  จำลองรูปหน้า
+                </Button>
               )}
               {view === "profile" && (
                 <LinkButton to={scanPath("profile", "guide")} variant="secondary">
@@ -128,6 +129,20 @@ export function ResultScreen({ view }: { view: View }) {
         </div>
 
         <div className="grid content-start gap-4 lg:col-span-7">
+          {view === "frontal" && (
+            <>
+              <DemographicsCard demographics={result.inferred_demographics} />
+              <HarmonyCard harmony={result.harmony} result={result} />
+              <FacialSaggingCard
+                sagging={result.facial_sagging}
+                recommendations={result.procedure_recommendations}
+              />
+              <ProcedureRecommendationCard
+                recommendations={result.procedure_recommendations}
+                onOpenSimulation={() => setShowSimulation(true)}
+              />
+            </>
+          )}
           {result.warnings.map((w) => (
             <Notice key={w.key} data-warning={w.key}>
               <p>{w.text}</p>
@@ -142,31 +157,7 @@ export function ResultScreen({ view }: { view: View }) {
             <p>{result.side_note}</p>
             <p className="mt-2">{result.reference_note}</p>
           </Notice>
-          {
-          /* Toggle between friend's clinical sheet and DSI314 4-region card */
-          view === "frontal" && (
-            <div className="flex items-center justify-between pb-1">
-              <SegmentedControl
-                label="โหมดการแสดงผลสัดส่วน"
-                value={metricsTab}
-                onChange={(val) => {
-                  const nextTab = val as "standard" | "dsi";
-                  setMetricsTab(nextTab);
-                  if (nextTab === "dsi" && viewerMode !== "dsi") setViewerMode("dsi");
-                  else if (nextTab === "standard" && viewerMode === "dsi") setViewerMode("overlay");
-                }}
-                options={[
-                  { value: "standard", label: "การวัดมาตรฐานคลินิก" },
-                  { value: "dsi", label: "สัดส่วน 4 บริเวณกายวิภาค" },
-                ]}
-              />
-            </div>
-          )}
-          {metricsTab === "standard" || view !== "frontal" ? (
-            <MeasurementSheet metrics={result.metrics} />
-          ) : (
-            <DsiAnatomicalRegionsCard result={result} />
-          )}
+          <MeasurementSheet metrics={result.metrics} />
           <p className="text-ink-2">{result.disclaimer}</p>
           <ScanMeta date={new Date(latest.analyzedAt)} versions={latest.versions} />
           <p className="flex flex-wrap items-center gap-x-6">
@@ -186,6 +177,12 @@ export function ResultScreen({ view }: { view: View }) {
         confirm={t("newScan.confirm")}
         cancel={t("newScan.cancel")}
         onConfirm={startOver}
+      />
+      <SimulationDrawer
+        open={showSimulation}
+        onClose={() => setShowSimulation(false)}
+        photoUrl={photoUrl}
+        recommendedProcedures={result.procedure_recommendations}
       />
     </Screen>
   );

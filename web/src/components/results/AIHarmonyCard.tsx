@@ -1,0 +1,175 @@
+import { BrainCircuit, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import type { AIHarmonyResult } from "../../api/schemas";
+
+interface Props {
+  aiHarmony?: AIHarmonyResult | null;
+  onOpenSimulation?: () => void;
+}
+
+export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
+  if (!aiHarmony) return null;
+
+  const score = Math.round(aiHarmony.overall_score);
+  const percentile = Math.round(aiHarmony.percentile);
+
+  return (
+    <div className="border border-line bg-surface p-4 transition-all">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex size-8 items-center justify-center rounded-viewer bg-accent/10 text-accent">
+            <BrainCircuit size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-ink">
+                AI Facial Harmony & Balance Index
+              </h3>
+              <span className="rounded-control bg-accent/15 px-2 py-1 text-sm font-semibold text-accent">
+                XGBoost + SHAP
+              </span>
+            </div>
+            <p className="text-sm text-ink-2">
+              โมเดลการเรียนรู้เชิงลึกด้านสัดส่วนทองคำและดุลยภาพใบหน้า (SCUT-FBP5500 Benchmark)
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-semibold text-ink">{score}</span>
+          <span className="text-sm text-ink-3">/ 100</span>
+        </div>
+      </div>
+
+      {/* Main Score & Distribution */}
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="border border-line bg-paper p-3 md:col-span-2">
+          <div className="flex items-center justify-between text-sm text-ink-2">
+            <span>ระดับดุลยภาพรูปหน้า</span>
+            <span className="font-semibold text-ink">Percentile {percentile}%</span>
+          </div>
+          <div className="mt-1 text-sm font-semibold text-accent">
+            {aiHarmony.rating_th}
+          </div>
+          <div className="mt-3 h-2 w-full overflow-hidden rounded-control bg-line">
+            <div
+              className="h-full rounded-control bg-accent transition-all duration-500"
+              style={{ width: `${Math.min(100, Math.max(5, score))}%` }}
+            />
+          </div>
+          <div className="mt-2 flex justify-between text-sm text-ink-3">
+            <span>เกณฑ์มาตรฐาน</span>
+            <span>กลุ่มสมดุลสูง (Top 25%)</span>
+            <span>ระดับยอดเยี่ยม (Top 10%)</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between border border-line bg-paper p-3">
+          <div className="text-sm text-ink-2">สถิติการประเมิน (XAI)</div>
+          <div className="my-1">
+            <div className="text-lg font-semibold text-ink">
+              {aiHarmony.total_features_evaluated}{" "}
+              <span className="text-sm font-normal text-ink-3">มิติกายวิภาค</span>
+            </div>
+            <div className="text-sm text-ink-3">
+              Pearson Correlation r = 0.763 (Optuna 5-Fold)
+            </div>
+          </div>
+          {onOpenSimulation && (
+            <button
+              type="button"
+              onClick={onOpenSimulation}
+              className="mt-2 w-full rounded-control border border-line bg-surface py-1 text-sm font-medium text-ink transition hover:bg-line/20"
+            >
+              จำลองสัดส่วนทองคำ
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* SHAP Feature Impact Breakdown */}
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+        {/* Positive Drivers */}
+        <div className="border border-line bg-paper p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <CheckCircle2 size={16} className="text-emerald-600" />
+            <span>จุดเด่นที่ส่งเสริมความกลมกลืน (Key Strengths)</span>
+          </div>
+          <div className="mt-3 space-y-3">
+            {aiHarmony.key_strengths.length === 0 ? (
+              <div className="text-sm text-ink-3">สัดส่วนกระจายตัวใกล้เคียงค่ามาตรฐาน</div>
+            ) : (
+              aiHarmony.key_strengths.map((item) => (
+                <div
+                  key={item.feature}
+                  className="rounded-control border border-line bg-surface p-3 text-sm"
+                >
+                  <div className="flex items-center justify-between font-medium">
+                    <span className="text-ink">{item.name_th}</span>
+                    <span className="font-semibold text-emerald-600">
+                      +{item.impact_score.toFixed(1)} impact
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-sm text-ink-3">
+                    <span>
+                      วัดได้: <strong className="text-ink-2">{item.user_value}</strong>
+                    </span>
+                    <span>
+                      ค่ากลางกลุ่มตัวอย่าง:{" "}
+                      <strong className="text-ink-2">{item.reference_median}</strong>
+                    </span>
+                  </div>
+                  <div className="mt-1 text-sm text-ink-3">{item.description}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Improvement Areas */}
+        <div className="border border-line bg-paper p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <AlertCircle size={16} className="text-amber-600" />
+            <span>มิติที่มีความเบี่ยงเบนสัดส่วน (Key Variance Drivers)</span>
+          </div>
+          <div className="mt-3 space-y-3">
+            {aiHarmony.key_improvements.length === 0 ? (
+              <div className="text-sm text-ink-3">ไม่มีจุดเบี่ยงเบนเด่นชัด</div>
+            ) : (
+              aiHarmony.key_improvements.map((item) => (
+                <div
+                  key={item.feature}
+                  className="rounded-control border border-line bg-surface p-3 text-sm"
+                >
+                  <div className="flex items-center justify-between font-medium">
+                    <span className="text-ink">{item.name_th}</span>
+                    <span className="font-semibold text-amber-600">
+                      {item.impact_score.toFixed(1)} impact
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-sm text-ink-3">
+                    <span>
+                      วัดได้: <strong className="text-ink-2">{item.user_value}</strong>
+                    </span>
+                    <span>
+                      เกณฑ์สัดส่วนทองคำ:{" "}
+                      <strong className="text-ink-2">{item.reference_median}</strong>
+                    </span>
+                  </div>
+                  <div className="mt-1 text-sm text-ink-3">{item.description}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-2 text-sm text-ink-3">
+        <Info size={14} />
+        <span>
+          การคำนวณ Feature Impact ใช้หลักการ Tree Attribution (SHAP Approximation) เพื่ออธิบายเหตุผลเบื้องหลังคะแนนอย่างโปร่งใส
+        </span>
+      </div>
+    </div>
+  );
+}

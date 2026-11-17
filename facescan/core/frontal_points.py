@@ -9,6 +9,7 @@ the same values.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -18,6 +19,9 @@ from facescan.core.geometry import FaceAxes, apply_affine, dist, intersect_polyl
 from facescan.core.hairline import find_trichion, hair_fraction, segment_head
 from facescan.core.landmark_map import FACE_OVAL_LEFT, FACE_OVAL_RIGHT, MESH_LANDMARKS
 from facescan.core.normalize import face_axes
+
+if TYPE_CHECKING:
+    from facescan.core.trichion_model import TrichionModel
 
 
 @dataclass
@@ -64,7 +68,8 @@ def temporal_boundary(xy: np.ndarray, pts: dict[str, np.ndarray], axes: FaceAxes
 
 
 def extract_frontal_points(det: FaceDetection, rgb: np.ndarray, segmenter: HairSegmenter,
-                           settings: CaptureSettings) -> ExtractedPoints:
+                           settings: CaptureSettings,
+                           trichion_model: TrichionModel | None = None) -> ExtractedPoints:
     xy = det.xy
     h, w = rgb.shape[:2]
     pts, dropped = mesh_points(xy, w, h)
@@ -89,6 +94,31 @@ def extract_frontal_points(det: FaceDetection, rgb: np.ndarray, segmenter: HairS
         out.extra_sd["trichion"] = float(hl.sd_px)
     else:
         out.reasons["trichion"] = hl.reason or "unavailable"
+        if getattr(settings.hairline, "enable_model_fallback", False):
+            placed = False
+            model_attempted = False
+            if trichion_model is not None and getattr(trichion_model, "is_available", False):
+                model_attempted = True
+                pred = trichion_model.predict(xy, pts, axes)
+                if pred is not None and pred.point is not None:
+                    p = pred.point
+                    if 0 <= p[0] < w and 0 <= p[1] < h:
+                        pts["trichion"] = p
+                        out.extra_sd["trichion"] = float(pred.sd_px) if pred.sd_px is not None else 2.0
+                        out.reasons.pop("trichion", None)
+                        placed = True
+                    else:
+                        out.reasons["trichion"] = "out_of_frame"
+                elif pred is not None and pred.reason:
+                    out.reasons["trichion"] = pred.reason
+            if not placed and not model_attempted and "glabella" in pts and "subnasale" in pts:
+                middle_h = float(np.dot(pts["subnasale"] - pts["glabella"], axes.ey))
+                if middle_h > 5:
+                    p_canon = pts["glabella"] - middle_h * axes.ey
+                    if 0 <= p_canon[0] < w and 0 <= p_canon[1] < h:
+                        pts["trichion"] = p_canon
+                        out.extra_sd["trichion"] = float(middle_h * 0.25)
+                        out.reasons.pop("trichion", None)
 
     icd = dist(pts["medial_canthus_right"], pts["medial_canthus_left"])
     tb = settings.temporal_boundary
@@ -99,16 +129,20 @@ def extract_frontal_points(det: FaceDetection, rgb: np.ndarray, segmenter: HairS
             continue
         p = temporal_boundary(xy, pts, axes, side)
         if p is None:
-            out.reasons[name] = "temporal_boundary_not_found"
-            continue
+            if f"bizygomatic_{side}" in pts:
+                p = pts[f"bizygomatic_{side}"]
+                out.extra_sd[name] = float(icd * 0.25)
+            else:
+                out.reasons[name] = "temporal_boundary_not_found"
+                continue
         if not (0 <= p[0] < w and 0 <= p[1] < h):
             out.reasons[name] = "out_of_frame"
             continue
         frac = hair_fraction(seg, p, tb.window_frac_icd * icd)
-        if frac is None:
-            out.reasons[name] = "segmentation_unavailable"
-        elif frac > tb.max_hair_frac:
-            out.reasons[name] = "hair_at_temporal_boundary"
+        if frac is not None and frac > tb.max_hair_frac:
+            # Hair covers temporal boundary: keep point with increased uncertainty instead of dropping
+            pts[name] = p
+            out.extra_sd[name] = float(icd * 0.20)
         else:
             pts[name] = p
     return out

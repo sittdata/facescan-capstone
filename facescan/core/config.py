@@ -147,6 +147,7 @@ class HairlineSettings(_Settings):
     max_scan_frac: float
     lateral_offset_frac_icd: float
     max_lateral_spread_frac: float
+    enable_model_fallback: bool = False
 
 
 class TemporalBoundarySettings(_Settings):
@@ -197,13 +198,31 @@ class EngineConfig(BaseModel):
     config_dir: Path = DEFAULT_CONFIG_DIR
     font_path: Path | None = None
     rules_path: Path | None = None  # Phase 3
+    demographics_model: Path | None = None
+    trichion_model: Path | None = None
+    enable_trichion_fallback: bool = False
 
     @classmethod
     def from_models_dir(cls, models_dir: str | Path = "models", **kwargs: Any) -> "EngineConfig":
         models_dir = Path(models_dir)
+        demographics_model = kwargs.pop("demographics_model", None)
+        if demographics_model is None:
+            for candidate in ("genderage.onnx", "demographics_mobilenetv3.onnx", "demographics_mobilenetv3.pt"):
+                if (models_dir / candidate).is_file():
+                    demographics_model = models_dir / candidate
+                    break
+        trichion_model = kwargs.pop("trichion_model", None)
+        if trichion_model is None:
+            candidate = models_dir / "trichion_regressor.onnx"
+            if candidate.is_file():
+                trichion_model = candidate
+        enable_trichion_fallback = kwargs.pop("enable_trichion_fallback", False)
         return cls(
             face_landmarker_model=models_dir / FACE_LANDMARKER_FILE,
             segmenter_model=models_dir / SEGMENTER_FILE,
+            demographics_model=demographics_model,
+            trichion_model=trichion_model,
+            enable_trichion_fallback=enable_trichion_fallback,
             **kwargs,
         )
 

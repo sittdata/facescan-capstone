@@ -52,6 +52,7 @@ class WorkerConfig:
     overlay_max_side: int
     overlay_jpeg_quality: int
     rules_path: str
+    enable_trichion_fallback: bool = True
 
 
 @dataclass(frozen=True)
@@ -85,7 +86,11 @@ _CFG: WorkerConfig | None = None
 def default_engine_factory(cfg: WorkerConfig) -> Any:
     from facescan import EngineConfig, FaceScanEngine
 
-    return FaceScanEngine(EngineConfig.from_models_dir(cfg.models_dir, rules_path=cfg.rules_path))
+    return FaceScanEngine(EngineConfig.from_models_dir(
+        cfg.models_dir,
+        rules_path=cfg.rules_path,
+        enable_trichion_fallback=cfg.enable_trichion_fallback,
+    ))
 
 
 def _init_worker(factory: Callable[[WorkerConfig], Any], cfg: WorkerConfig, ready_queue: Any) -> None:

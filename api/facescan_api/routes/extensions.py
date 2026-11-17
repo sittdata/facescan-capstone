@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import base64
 import io
+import json
 from pathlib import Path
 from typing import Any, Optional
 import uuid
@@ -16,7 +17,7 @@ import uuid
 import cv2
 import numpy as np
 from PIL import Image, ImageOps
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse, Response
 from starlette.concurrency import run_in_threadpool
 
@@ -49,7 +50,14 @@ def get_detector() -> FaceDetector:
 def get_engine() -> FaceScanEngine:
     global _engine
     if _engine is None:
-        _engine = FaceScanEngine()
+        models_dir = Path("models")
+        if not models_dir.is_dir():
+            models_dir = Path(__file__).resolve().parent.parent.parent.parent / "models"
+        from facescan import EngineConfig
+        _engine = FaceScanEngine(EngineConfig.from_models_dir(
+            models_dir,
+            enable_trichion_fallback=True,
+        ))
     return _engine
 
 
@@ -114,7 +122,8 @@ async def warp_endpoint(
     landmarks_xy = detections[0].xy
     rules = get_rules()
 
-    warped_rgb, _ = rules.apply_composite_procedures(
+    warped_rgb, _ = await run_in_threadpool(
+        rules.apply_composite_procedures,
         rgb,
         landmarks_xy,
         rhino_intensity=rhinoplasty,
@@ -133,7 +142,10 @@ async def warp_endpoint(
 
 @router.post("/auto-align")
 async def auto_align_endpoint(
-    file: UploadFile = File(...),
+    request: Request,
+    file: Optional[UploadFile] = File(None),
+    frames: Optional[list[UploadFile]] = File(None),
+    meta: Optional[str] = Form(None),
     sex: str = Form("female"),
     age: int = Form(25),
     locale: str = Form("th"),
@@ -141,14 +153,73 @@ async def auto_align_endpoint(
     """
     Performs 2D affine roll alignment and analyzes frontal facial geometry
     bypassing clinical quality gate rejection (No-Reject Auto-Align Mode).
+    Accepts either (file, sex, age, locale) or (frames, meta).
     """
-    raw_bytes = await file.read()
+    req_layers = {"landmarks", "thirds", "fifths", "eyes_brows", "nose_lips", "labels"}
+    if meta:
+        try:
+            meta_dict = json.loads(meta)
+            subj = meta_dict.get("subject", {})
+            sex = subj.get("sex", sex)
+            age = int(subj.get("age", age))
+            locale = meta_dict.get("locale", locale)
+            if "overlay" in meta_dict and "layers" in meta_dict["overlay"]:
+                req_layers = set(meta_dict["overlay"]["layers"])
+        except Exception:
+            pass
+
+    target_file = None
+    if frames and len(frames) > 0:
+        target_file = frames[0]
+    elif file is not None:
+        target_file = file
+    else:
+        form = await request.form()
+        val = form.get("file") or form.get("frames")
+        if isinstance(val, UploadFile):
+            target_file = val
+
+    if target_file is None:
+        raise HTTPException(status_code=400, detail="No image file provided")
+
+    raw_bytes = await target_file.read()
     rgb = read_image_to_rgb(raw_bytes)
 
     detector = get_detector()
     detections = detector.detect(rgb)
     if not detections:
-        raise HTTPException(status_code=422, detail="No face detected in the image")
+        return JSONResponse({
+            "status": "no_face",
+            "request_id": str(uuid.uuid4()),
+            "result": None,
+            "result_token": None,
+            "overlay": None,
+            "hints": ["ไม่พบใบหน้าในภาพ กรุณาถ่ายภาพหน้าตรงที่มีใบหน้าชัดเจน" if locale == "th" else "No face detected in the photo"],
+            "failed_checks": ["no_face"],
+            "warnings": [],
+            "versions": {
+                "api": "0.1.0",
+                "core": "0.1.0",
+                "schema": SCHEMA_VERSION,
+            },
+        })
+
+    if len(detections) > 1:
+        return JSONResponse({
+            "status": "multiple_faces",
+            "request_id": str(uuid.uuid4()),
+            "result": None,
+            "result_token": None,
+            "overlay": None,
+            "hints": ["พบใบหน้ามากกว่า 1 หน้าในภาพ กรุณาถ่ายภาพเดี่ยว" if locale == "th" else "Multiple faces detected in the photo"],
+            "failed_checks": ["multiple_faces"],
+            "warnings": [],
+            "versions": {
+                "api": "0.1.0",
+                "core": "0.1.0",
+                "schema": SCHEMA_VERSION,
+            },
+        })
 
     landmarks_xy = detections[0].xy
     aligned_rgb, roll_deg = affine_align_face(rgb, landmarks_xy)
@@ -173,7 +244,7 @@ async def auto_align_endpoint(
         overlay_rgb = engine.render_overlay(
             aligned_loaded,
             forced_res,
-            layers={"landmarks", "thirds", "fifths", "eyes_brows", "nose_lips", "labels"},
+            layers=req_layers,
             style="user",
             locale=locale,
         )
@@ -191,17 +262,16 @@ async def auto_align_endpoint(
             "overlay": f"data:image/jpeg;base64,{overlay_b64}",
             "aligned_photo": f"data:image/jpeg;base64,{aligned_b64}",
             "roll_deg": round(float(roll_deg), 2),
-            "warnings": [
-                {"key": "auto_aligned", "text": "ภาพได้รับการชดเชยมุมเอียงด้วยระบบ Affine Alignment อัตโนมัติ"}
-            ],
+            "warnings": ["auto_aligned"],
             "failed_checks": [],
             "hints": [],
             "versions": {
+                "api": "0.1.0",
                 "core": engine.core_version,
                 "schema": SCHEMA_VERSION,
-                "config_hash": engine.config_hash,
             },
         }
 
     data = await run_in_threadpool(_run_analysis)
     return JSONResponse(content=data)
+

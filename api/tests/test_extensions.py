@@ -146,3 +146,20 @@ def test_api_endpoints_with_real_photo():
         assert "aligned_photo" in data_align
         assert "roll_deg" in data_align
         assert len(data_align["result"]["metrics"]) > 0
+
+        # Test /v1/simulation/auto-align with JSON meta payload
+        import json
+        meta_payload = json.dumps({
+            "subject": {"sex": "male", "age": 32},
+            "locale": "th",
+            "overlay": {"layers": ["landmarks", "thirds"]},
+        })
+        res_align_meta = client.post(
+            "/v1/simulation/auto-align",
+            files={"frames": ("photo.jpg", photo_bytes, "image/jpeg")},
+            data={"meta": meta_payload},
+        )
+        assert res_align_meta.status_code == 200
+        data_meta = res_align_meta.json()
+        assert data_meta["status"] == "ok"
+        assert "result" in data_meta

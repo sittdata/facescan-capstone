@@ -18,7 +18,7 @@ from facescan_api.errors import PROBLEM_MEDIA_TYPE, ApiError
 from facescan_api.openapi import DESCRIPTION, TITLE, build_openapi
 from facescan_api.ratelimit import RateLimiter
 from facescan_api.request_ids import RequestIdMiddleware
-from facescan_api.routes import health, v1, extensions
+from facescan_api.routes import health, v1, extensions, scan
 from facescan_api.routes.common import ApiState
 from facescan_api.settings import Settings
 from facescan_api.workers import WorkerConfig, WorkerPool, default_engine_factory
@@ -38,7 +38,8 @@ def create_app(settings: Settings | None = None, *, engine_factory: Callable[[Wo
         WorkerConfig(models_dir=str(settings.models_dir), norms_profile=settings.norms_profile,
                      max_pixels=settings.max_pixels, max_burst_pixels=settings.max_burst_pixels,
                      overlay_max_side=settings.overlay_max_side, overlay_jpeg_quality=settings.overlay_jpeg_quality,
-                     rules_path=str(settings.rules_path)),
+                     rules_path=str(settings.rules_path),
+                     enable_trichion_fallback=settings.enable_trichion_fallback),
         workers=settings.workers, max_tasks=settings.worker_max_tasks, queue_capacity=settings.queue_capacity,
         require_raqm=settings.require_raqm, engine_factory=engine_factory or default_engine_factory)
     api = ApiState(settings=settings, pool=pool, limiter=RateLimiter(settings.rate_limit_ip_per_minute, clock=clock))
@@ -73,6 +74,7 @@ def create_app(settings: Settings | None = None, *, engine_factory: Callable[[Wo
     app.include_router(health.router)
     app.include_router(v1.router)
     app.include_router(extensions.router)
+    app.include_router(scan.router)
     app.add_middleware(RequestIdMiddleware)   # outermost: sees every response
     app.openapi = lambda: build_openapi(app)  # type: ignore[method-assign]
     return app

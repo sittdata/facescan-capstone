@@ -28,6 +28,8 @@ import { scanPath, type AnalyzeState } from "./paths";
 import { ScanErrorPanel } from "./scan/ScanErrorPanel";
 import { step } from "./steps";
 import { FaceShapeCard } from "../extensions/FaceShapeCard";
+import { DemographicsCard } from "../components/results/DemographicsCard";
+import { FacialSaggingCard } from "../components/results/FacialSaggingCard";
 import { SimulationDrawer } from "../extensions/SimulationDrawer";
 
 function ViewTables({ view, result, photoUrl, overlayUrl }: { view: View; result: Result; photoUrl: string | null; overlayUrl: string | null }) {
@@ -156,10 +158,21 @@ export function ReportScreen() {
             )}
           </section>
 
+          <DemographicsCard demographics={state.frontal.latest?.result.inferred_demographics} />
+
           <FaceShapeCard
             photoUrl={state.frontal.photoUrl}
-            initialSex={state.subject?.sex || state.draft?.sex}
+            initialSex={
+              state.frontal.latest?.result.inferred_demographics?.predicted_sex ||
+              (state.subject?.sex !== "unspecified" ? state.subject?.sex : null) ||
+              state.draft?.sex
+            }
             onOpenSimulation={() => setShowSimulation(true)}
+          />
+
+          <FacialSaggingCard
+            sagging={report.frontal.facial_sagging}
+            recommendations={report.frontal.procedure_recommendations}
           />
 
           <section aria-labelledby={allId} className="border-t border-line pt-4">

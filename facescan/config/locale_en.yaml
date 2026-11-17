@@ -234,6 +234,17 @@ consideration:
   example_dental_assessment: "Teeth and jaw alignment, which a dentist can assess"
   example_alar_base: "Nostril and nose base width"
 
+procedure:
+  chin_augmentation:
+    name: "Chin Augmentation"
+    description: "Adjusts lower facial third height and chin projection"
+  lip_augmentation:
+    name: "Lip Augmentation"
+    description: "Adjusts upper and lower lip vermilion fullness and balance"
+  rhinoplasty:
+    name: "Rhinoplasty"
+    description: "Adjusts nasal alar width, tip projection, and tip rotation"
+
 # Clinic export and QA only; never shown in the consumer app.
 clinical:
   metric:

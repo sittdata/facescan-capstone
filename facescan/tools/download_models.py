@@ -26,6 +26,10 @@ MODELS: dict[str, tuple[str, str]] = {
         "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite",
         "c6748b1253a99067ef71f7e26ca71096cd449baefa8f101900ea23016507e0e0",
     ),
+    "genderage.onnx": (
+        "https://huggingface.co/deepghs/insightface/resolve/main/buffalo_s/genderage.onnx",
+        "4fde69b1c810857b88c64a335084f1c3fe8f01246c9a191b48c7bb756d6652fb",
+    ),
 }
 
 
