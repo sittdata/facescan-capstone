@@ -71,7 +71,7 @@ describe("FacialSaggingCard", () => {
       screen.getByText("การประเมินความหย่อนคล้อยและแนวกราม (Facial Sagging & Laxity Index)")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("MediaPipe 478 Mesh + Logistic Regression (UTKFace)")
+      screen.getByText("การประเมินโครงสร้างทางกายวิภาค (Anatomical Evaluation)")
     ).toBeInTheDocument();
   });
 
@@ -183,7 +183,7 @@ describe("FacialSaggingCard", () => {
     expect(screen.getByText("-0.0300")).toBeInTheDocument();
     expect(screen.getByText("0.0180")).toBeInTheDocument();
     expect(screen.getByText("ปกติ (Minimal)")).toBeInTheDocument();
-    expect(screen.getByText("กระชับรูปไข่ (V-Shape ∇)")).toBeInTheDocument();
+    expect(screen.getByText("กระชับรูปไข่ (V-Shape)")).toBeInTheDocument();
     expect(screen.getByText("มุมปากยกกระชับ (Uplifted)")).toBeInTheDocument();
     expect(screen.getByText("คมชัดเรียบเนียน (Sharp)")).toBeInTheDocument();
   });

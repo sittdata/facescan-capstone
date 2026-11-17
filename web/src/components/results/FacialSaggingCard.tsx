@@ -61,17 +61,17 @@ const FEATURE_CONFIGS: Record<string, FeatureDisplayConfig> = {
   },
   malar_to_jaw_ratio: {
     nameTh: "สัดส่วนโหนกแก้มต่อกราม (Malar-to-Jaw Ratio)",
-    nameEn: "Facial Youth Triangle (∇ → Δ)",
-    description: "สัดส่วนความกว้างโหนกแก้มต่อแนวกราม สะท้อนการเปลี่ยนรูปสามเหลี่ยมใบหน้า",
+    nameEn: "Facial Proportion Vector (Malar-to-Jaw)",
+    description: "สัดส่วนความกว้างโหนกแก้มต่อแนวกราม สะท้อนความกระชับของกรอบหน้าส่วนล่าง",
     fallbackKeys: ["malar_jaw_ratio"],
     interpret: (val: number) => {
       if (val >= 1.11) {
-        return { label: "กระชับรูปไข่ (V-Shape ∇)", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
+        return { label: "กระชับรูปไข่ (V-Shape)", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
       }
       if (val >= 1.07) {
         return { label: "เริ่มขยายตัว (Transitional)", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
       }
-      return { label: "ฐานกรามขยาย (Inverted Δ)", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
+      return { label: "แนวกรามกว้างกว่าโหนกแก้ม (Wider Jaw)", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
     },
   },
   oral_commissure_droop: {
@@ -92,7 +92,7 @@ const FEATURE_CONFIGS: Record<string, FeatureDisplayConfig> = {
   jawline_irregularity: {
     nameTh: "ความคมชัดของขอบกราม (Mandibular Contour)",
     nameEn: "Jawline Smoothness & Definition",
-    description: "ความเรียบเนียนของแนวกระดูกขากรรไกรล่าง ไม่สะดุดด้วยเนื้อส่วนเกิน",
+    description: "ความเรียบสม่ำเสมอของแนวขอบกระดูกขากรรไกรล่าง",
     fallbackKeys: ["mandibular_contour_irregularity", "mandibular_irregularity"],
     interpret: (val: number) => {
       if (val <= 0.020) {
@@ -161,12 +161,12 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
               การประเมินความหย่อนคล้อยและแนวกราม (Facial Sagging & Laxity Index)
             </h3>
             <p className="text-sm text-ink-2">
-              ประเมินโครงสร้างกายวิภาคส่วนล่างและแนวกรามด้วย 478 MediaPipe Dense Mesh
+              ประเมินโครงสร้างเนื้อเยื่อและแนวกรามตามเกณฑ์กายวิภาคศาสตร์คลินิก
             </p>
           </div>
         </div>
         <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-2">
-          MediaPipe 478 Mesh + Logistic Regression (UTKFace)
+          การประเมินโครงสร้างทางกายวิภาค (Anatomical Evaluation)
         </span>
       </div>
 

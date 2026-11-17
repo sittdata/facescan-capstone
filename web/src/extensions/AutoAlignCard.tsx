@@ -124,11 +124,11 @@ export function AutoAlignCard({ className = "", compact = false }: AutoAlignCard
           className="font-medium text-ink-2"
           style={{ padding: "2px 8px", fontSize: "11px", borderRadius: "9999px", backgroundColor: "rgba(0, 0, 0, 0.06)" }}
         >
-          No Reject
+          ภาพถ่ายทั่วไป
         </span>
       </div>
       <p className="mt-2 text-sm text-ink-2">
-        หมุนปรับระดับระนาบดวงตา (Affine Roll Alignment) ชดเชยมุมเอียง และคำนวณสัดส่วนใบหน้าทันทีโดยข้าม Quality Gate ทางคลินิก (เหมาะสำหรับภาพถ่ายทั่วไป / เซลฟี่)
+        ปรับระดับระนาบสายตาให้ตรงโดยอัตโนมัติ เพื่อประเมินสัดส่วนเบื้องต้นสำหรับภาพถ่ายทั่วไป
       </p>
 
       {error && (
@@ -144,7 +144,7 @@ export function AutoAlignCard({ className = "", compact = false }: AutoAlignCard
           disabled={busy}
           className="w-full"
         >
-          {busy ? "กำลังปรับระนาบและคำนวณ..." : "วิเคราะห์ต่อทันทีด้วย Auto-Alignment (ข้ามเกณฑ์คัดกรอง)"}
+          {busy ? "กำลังปรับระนาบและคำนวณ..." : "ปรับระนาบและวิเคราะห์ต่อ (Auto-Align)"}
         </Button>
       </div>
     </section>

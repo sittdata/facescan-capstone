@@ -211,7 +211,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
           >
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-ink border-b border-line pb-2">
-                ระดับการปรับรูปทรง (Procedure Intensity)
+                ระดับการจำลองการปรับแต่ง (Simulation Intensity)
               </h3>
 
               <button
@@ -221,7 +221,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
                 className="w-full flex items-center justify-center gap-2 rounded-control border border-accent bg-paper py-2 text-sm font-medium text-accent hover:bg-notice transition-all disabled:cursor-not-allowed"
               >
                 <Sparkles style={{ width: 16, height: 16 }} />
-                <span>Apply AI Golden Ratio</span>
+                <span>ตั้งค่าตามสัดส่วนที่แนะนำ</span>
               </button>
 
               {/* Slider 1: Rhinoplasty */}

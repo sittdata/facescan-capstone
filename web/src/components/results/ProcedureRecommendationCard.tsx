@@ -171,7 +171,7 @@ export function ProcedureRecommendationCard({ recommendations, onOpenSimulation 
       {onOpenSimulation && (
         <div className="mt-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-t border-line pt-3">
           <p className="text-sm text-ink-2">
-            ทดลองจำลองรูปทรงใบหน้าด้วยระบบ Thin Plate Spline (TPS)
+            ทดลองจำลองการปรับแต่งรูปทรงใบหน้าตามสัดส่วนที่แนะนำ
           </p>
           <Button variant="secondary" onClick={onOpenSimulation}>
             <Sliders size={16} className="text-accent" />

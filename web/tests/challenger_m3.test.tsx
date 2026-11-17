@@ -323,7 +323,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
         />,
       );
 
-      const applyBtn = screen.getByRole("button", { name: /Apply AI Golden Ratio/i });
+      const applyBtn = screen.getByRole("button", { name: /ตั้งค่าตามสัดส่วนที่แนะนำ|Apply AI Golden Ratio/i });
       await userEvent.click(applyBtn);
 
       await waitFor(() => {
@@ -366,7 +366,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
         />,
       );
 
-      const applyBtn = screen.getByRole("button", { name: /Apply AI Golden Ratio/i });
+      const applyBtn = screen.getByRole("button", { name: /ตั้งค่าตามสัดส่วนที่แนะนำ|Apply AI Golden Ratio/i });
       await userEvent.click(applyBtn);
 
       await waitFor(() => {
@@ -413,7 +413,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
         />,
       );
 
-      const applyBtn = screen.getByRole("button", { name: /Apply AI Golden Ratio/i });
+      const applyBtn = screen.getByRole("button", { name: /ตั้งค่าตามสัดส่วนที่แนะนำ|Apply AI Golden Ratio/i });
       await userEvent.click(applyBtn);
 
       await waitFor(() => {

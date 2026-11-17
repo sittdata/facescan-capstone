@@ -23,14 +23,14 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-ink">
-                AI Facial Harmony & Balance Index
+                ดัชนีความสมดุลของใบหน้า (Facial Balance Index)
               </h3>
               <span className="rounded-control bg-accent/15 px-2 py-1 text-sm font-semibold text-accent">
-                XGBoost + SHAP
+                การประเมินสัดส่วน
               </span>
             </div>
             <p className="text-sm text-ink-2">
-              โมเดลการเรียนรู้เชิงลึกด้านสัดส่วนทองคำและดุลยภาพใบหน้า (SCUT-FBP5500 Benchmark)
+              ประเมินความสมดุลและสัดส่วนใบหน้าตามเกณฑ์กายวิภาคศาสตร์คลินิก
             </p>
           </div>
         </div>
@@ -45,7 +45,7 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="border border-line bg-paper p-3 md:col-span-2">
           <div className="flex items-center justify-between text-sm text-ink-2">
-            <span>ระดับดุลยภาพรูปหน้า</span>
+            <span>ระดับความสมดุลของรูปหน้า</span>
             <span className="font-semibold text-ink">Percentile {percentile}%</span>
           </div>
           <div className="mt-1 text-sm font-semibold text-accent">
@@ -65,14 +65,14 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
         </div>
 
         <div className="flex flex-col justify-between border border-line bg-paper p-3">
-          <div className="text-sm text-ink-2">สถิติการประเมิน (XAI)</div>
+          <div className="text-sm text-ink-2">มิติที่ใช้ประเมิน</div>
           <div className="my-1">
             <div className="text-lg font-semibold text-ink">
               {aiHarmony.total_features_evaluated}{" "}
               <span className="text-sm font-normal text-ink-3">มิติกายวิภาค</span>
             </div>
             <div className="text-sm text-ink-3">
-              Pearson Correlation r = 0.763 (Optuna 5-Fold)
+              เปรียบเทียบกับเกณฑ์ประชากรมาตรฐาน
             </div>
           </div>
           {onOpenSimulation && (
@@ -81,19 +81,19 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
               onClick={onOpenSimulation}
               className="mt-2 w-full rounded-control border border-line bg-surface py-1 text-sm font-medium text-ink transition hover:bg-line/20"
             >
-              จำลองสัดส่วนทองคำ
+              จำลองการปรับสัดส่วน
             </button>
           )}
         </div>
       </div>
 
-      {/* SHAP Feature Impact Breakdown */}
+      {/* Feature Impact Breakdown */}
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Positive Drivers */}
         <div className="border border-line bg-paper p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <CheckCircle2 size={16} className="text-emerald-600" />
-            <span>จุดเด่นที่ส่งเสริมความกลมกลืน (Key Strengths)</span>
+            <span>จุดที่ได้สัดส่วนสมดุล (Key Strengths)</span>
           </div>
           <div className="mt-3 space-y-3">
             {aiHarmony.key_strengths.length === 0 ? (
@@ -130,7 +130,7 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
         <div className="border border-line bg-paper p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <AlertCircle size={16} className="text-amber-600" />
-            <span>มิติที่มีความเบี่ยงเบนสัดส่วน (Key Variance Drivers)</span>
+            <span>จุดที่เบี่ยงเบนจากเกณฑ์อ้างอิง (Proportion Variance)</span>
           </div>
           <div className="mt-3 space-y-3">
             {aiHarmony.key_improvements.length === 0 ? (
@@ -152,7 +152,7 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
                       วัดได้: <strong className="text-ink-2">{item.user_value}</strong>
                     </span>
                     <span>
-                      เกณฑ์สัดส่วนทองคำ:{" "}
+                      ค่าอ้างอิงมาตรฐาน:{" "}
                       <strong className="text-ink-2">{item.reference_median}</strong>
                     </span>
                   </div>
@@ -167,7 +167,7 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
       <div className="mt-3 flex items-center gap-2 text-sm text-ink-3">
         <Info size={14} />
         <span>
-          การคำนวณ Feature Impact ใช้หลักการ Tree Attribution (SHAP Approximation) เพื่ออธิบายเหตุผลเบื้องหลังคะแนนอย่างโปร่งใส
+          การวิเคราะห์มิติสัดส่วนแสดงผลกระทบเชิงกายวิภาค เพื่อช่วยระบุบริเวณที่สอดคล้องหรือเบี่ยงเบนจากเกณฑ์มาตรฐาน
         </span>
       </div>
     </div>

@@ -84,17 +84,14 @@ export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation }: Props)
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-accent" />
           <div>
-            <h3 className="text-sm font-semibold text-ink">รูปทรงใบหน้า & สไตล์ลิ่ง</h3>
+            <h3 className="text-sm font-semibold text-ink">รูปทรงใบหน้าและแนวทางการเลือกสไตล์</h3>
             <p className="text-sm text-ink-2">
-              วิเคราะห์อัตราส่วนโครงหน้าตามเกณฑ์มานุษยวิทยาคลินิก
+              วิเคราะห์รูปทรงใบหน้าและสัดส่วนโครงหน้าเบื้องต้น
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-2">
-            พร้อมใช้งาน
-          </span>
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
@@ -150,7 +147,7 @@ export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation }: Props)
 
           {/* Gender Selector for Styling */}
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-sm text-ink-2">คำแนะนำสไตล์ลิ่งเฉพาะเพศ:</span>
+            <span className="text-sm text-ink-2">คำแนะนำสำหรับทรงผมและกรอบแว่นตา:</span>
             <div className="inline-flex rounded-control border border-line bg-surface" style={{ padding: 2 }}>
               <button
                 type="button"

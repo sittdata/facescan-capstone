@@ -20,16 +20,13 @@ export function DemographicsCard({ demographics }: Props) {
           <Sparkles size={16} className="text-accent" />
           <div>
             <h3 className="text-sm font-semibold text-ink">
-              ระบบทำนายเพศและอายุอัตโนมัติ
+              ข้อมูลประชากรศาสตร์ (Demographic Profile)
             </h3>
             <p className="text-sm text-ink-2">
-              ประมวลผลด้วยโมเดลที่เราพัฒนา 
+              การประเมินเพศและช่วงอายุเบื้องต้นเพื่อเทียบเคียงเกณฑ์มาตรฐาน
             </p>
           </div>
         </div>
-        <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-2">
-          พร้อมใช้งาน
-        </span>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -38,10 +35,10 @@ export function DemographicsCard({ demographics }: Props) {
           <div className="flex items-center gap-3">
             <User size={20} className="text-accent" />
             <div>
-              <div className="text-sm text-ink-2">เพศสภาพที่ทำนายได้</div>
+              <div className="text-sm text-ink-2">เพศที่ประเมินได้</div>
               <div className="text-base font-semibold text-ink">{sexLabel}</div>
               <div className="text-sm text-ink-3">
-                ความมั่นใจ: <span className="text-ink-2">{confPercent}%</span>
+                ระดับความสอดคล้อง: <span className="text-ink-2">{confPercent}%</span>
               </div>
             </div>
           </div>
@@ -52,7 +49,7 @@ export function DemographicsCard({ demographics }: Props) {
           <div className="flex items-center gap-3">
             <Calendar size={20} className="text-accent" />
             <div>
-              <div className="text-sm text-ink-2">อายุโดยประมาณ</div>
+              <div className="text-sm text-ink-2">ช่วงอายุโดยประมาณ</div>
               <div className="text-base font-semibold text-ink">
                 {predicted_age.toFixed(1)} ปี
                 {age_sd ? (
@@ -60,7 +57,7 @@ export function DemographicsCard({ demographics }: Props) {
                 ) : null}
               </div>
               <div className="text-sm text-ink-3">
-                สถานะ: <span className="text-ink-2">Auto-routed Norms</span>
+                การเทียบเกณฑ์: <span className="text-ink-2">เกณฑ์ประชากรตามช่วงอายุ</span>
               </div>
             </div>
           </div>
