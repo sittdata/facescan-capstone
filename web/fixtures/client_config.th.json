@@ -1,5 +1,5 @@
 {
-  "config_hash": "sha256:c2d2e91fc9752f59dbaf927f35c0f24beb23f2549010453eb72bdc5b30da220b",
+  "config_hash": "sha256:5434a62b482a1b1d8785ba5f648ac8e97ce5c8db810f4f514c3299d00839e16a",
   "core_version": "0.1.0",
   "frontal": {
     "burst": {
@@ -14,9 +14,9 @@
       "camera_distance_recommended_m": 1.5,
       "exposure_clip_high": 250,
       "exposure_clip_low": 5,
-      "exposure_clipped_max_frac": 0.02,
-      "exposure_mean_max": 205.0,
-      "exposure_mean_min": 60.0,
+      "exposure_clipped_max_frac": 0.05,
+      "exposure_mean_max": 220.0,
+      "exposure_mean_min": 40.0,
       "expression": {
         "browInnerUp": 0.3,
         "eyeBlinkLeft": 0.4,
@@ -26,10 +26,10 @@
         "mouthSmileRight": 0.2
       },
       "ipd_min_px": 150.0,
-      "pitch_max_deg": 5.0,
+      "pitch_max_deg": 7.0,
       "roi_width_px": 256,
       "roll_max_deg": 10.0,
-      "sharpness_min": 25.0,
+      "sharpness_min": 15.0,
       "yaw_max_deg": 5.0
     },
     "guided_capture": {

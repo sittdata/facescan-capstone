@@ -8,7 +8,7 @@ interface Props {
   onOpenSimulation?: () => void;
 }
 
-export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation }: Props) {
+export function FaceShapeCard({ photoUrl, initialSex, onOpenSimulation: _onOpenSimulation }: Props) {
   const [data, setData] = useState<FaceShapeResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

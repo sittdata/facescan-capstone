@@ -8,7 +8,6 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http } from "msw";
 import { describe, expect, it } from "vitest";
-import configEn from "../fixtures/client_config.en.json" with { type: "json" };
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import contourFailedTh from "../fixtures/profile_contour_failed.th.json" with { type: "json" };
 import profileAdjustedTh from "../fixtures/profile_adjusted.th.json" with { type: "json" };

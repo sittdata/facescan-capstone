@@ -10,7 +10,6 @@ import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import reportFrontalOnlyTh from "../fixtures/report_frontal_only.th.json" with { type: "json" };
-import reportOkEn from "../fixtures/report_ok.en.json" with { type: "json" };
 import reportOkTh from "../fixtures/report_ok.th.json" with { type: "json" };
 import { STORAGE_KEYS } from "../src/app/storage";
 import { AREA_TEXT } from "../src/i18n/areas";

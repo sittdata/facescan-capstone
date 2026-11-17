@@ -4,16 +4,14 @@
  */
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { delay, http, HttpResponse } from "msw";
-import configEn from "../fixtures/client_config.en.json" with { type: "json" };
+import { http } from "msw";
 import { describe, expect, it } from "vitest";
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import failedTh from "../fixtures/frontal_quality_failed.th.json" with { type: "json" };
 import okTh from "../fixtures/frontal_ok.th.json" with { type: "json" };
 import adjustedTh from "../fixtures/frontal_adjusted.th.json" with { type: "json" };
 import { STORAGE_KEYS } from "../src/app/storage";
-import i18n from "../src/i18n";
-import { CORS_HEADERS, fixtureBytes, MOCK_API, newCalls, problem, scanHandlers, type AnalysisOutcome } from "./mocks/handlers";
+import { fixtureBytes, MOCK_API, newCalls, problem, scanHandlers, type AnalysisOutcome } from "./mocks/handlers";
 import { server } from "./mocks/server";
 import { renderApp } from "./renderApp";
 

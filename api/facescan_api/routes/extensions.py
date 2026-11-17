@@ -39,10 +39,12 @@ _engine: Optional[FaceScanEngine] = None
 def get_detector() -> FaceDetector:
     global _detector
     if _detector is None:
-        model_path = Path("models") / "face_landmarker.task"
-        if not model_path.is_file():
-            # Try parent path
-            model_path = Path(__file__).resolve().parent.parent.parent.parent / "models" / "face_landmarker.task"
+        candidates = [
+            Path("models") / "face_landmarker.task",
+            Path(__file__).resolve().parent.parent.parent / "models" / "face_landmarker.task",
+            Path(__file__).resolve().parent.parent.parent.parent / "models" / "face_landmarker.task",
+        ]
+        model_path = next((p for p in candidates if p.is_file()), candidates[0])
         _detector = FaceDetector(model_path=model_path, mode="image", max_faces=1)
     return _detector
 
@@ -50,9 +52,12 @@ def get_detector() -> FaceDetector:
 def get_engine() -> FaceScanEngine:
     global _engine
     if _engine is None:
-        models_dir = Path("models")
-        if not models_dir.is_dir():
-            models_dir = Path(__file__).resolve().parent.parent.parent.parent / "models"
+        candidates = [
+            Path("models"),
+            Path(__file__).resolve().parent.parent.parent / "models",
+            Path(__file__).resolve().parent.parent.parent.parent / "models",
+        ]
+        models_dir = next((p for p in candidates if p.is_dir() and (p / "face_landmarker.task").is_file()), candidates[0])
         from facescan import EngineConfig
         _engine = FaceScanEngine(EngineConfig.from_models_dir(
             models_dir,

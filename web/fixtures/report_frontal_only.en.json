@@ -4,13 +4,13 @@
   "report": {
     "schema_version": "2.0",
     "core_version": "0.1.0",
-    "config_hash": "sha256:c2d2e91fc9752f59dbaf927f35c0f24beb23f2549010453eb72bdc5b30da220b",
+    "config_hash": "sha256:5434a62b482a1b1d8785ba5f648ac8e97ce5c8db810f4f514c3299d00839e16a",
     "status": "ok",
     "locale": "en",
     "frontal": {
       "schema_version": "2.0",
       "core_version": "0.1.0",
-      "config_hash": "sha256:c2d2e91fc9752f59dbaf927f35c0f24beb23f2549010453eb72bdc5b30da220b",
+      "config_hash": "sha256:5434a62b482a1b1d8785ba5f648ac8e97ce5c8db810f4f514c3299d00839e16a",
       "view": "frontal",
       "status": "ok",
       "locale": "en",
@@ -46,6 +46,7 @@
         "reference_frame": 0,
         "reference_sha256": "35d791710f87bca81bff2d31bf95a97c49be71b0ca7bee65549f675bfb6d09f7"
       },
+      "inferred_demographics": null,
       "calibration": {
         "method": "iris",
         "available": true
@@ -1136,7 +1137,7 @@
           "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
           "area": "brows",
           "role": "primary",
-          "value": 7.105427357601002e-14,
+          "value": 2.1316282072803006e-13,
           "unit": "%ICD",
           "value_text": "0.0% of eye spacing",
           "uncertainty": 0.01,
@@ -1159,7 +1160,7 @@
           "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
           "area": "brows",
           "role": "primary",
-          "value": 2.2737367544323204e-14,
+          "value": 6.821210263296962e-14,
           "unit": "mm",
           "value_text": "0.0 mm",
           "uncertainty": 0.01,
@@ -1182,7 +1183,7 @@
           "description": "Length of the inner part of the eyebrow (up to its highest point) compared with the outer part.",
           "area": "brows",
           "role": "primary",
-          "value": 2.000000000000006,
+          "value": 2.0000000000000187,
           "unit": "ratio",
           "value_text": "2.00",
           "uncertainty": 0.01,
@@ -1297,7 +1298,7 @@
           "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
           "area": "brows",
           "role": "primary",
-          "value": 7.105427357601002e-14,
+          "value": 2.1316282072803006e-13,
           "unit": "%ICD",
           "value_text": "0.0% of eye spacing",
           "uncertainty": 0.01,
@@ -1320,7 +1321,7 @@
           "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
           "area": "brows",
           "role": "primary",
-          "value": 2.2737367544323204e-14,
+          "value": 6.821210263296962e-14,
           "unit": "mm",
           "value_text": "0.0 mm",
           "uncertainty": 0.01,
@@ -1343,7 +1344,7 @@
           "description": "Length of the inner part of the eyebrow (up to its highest point) compared with the outer part.",
           "area": "brows",
           "role": "primary",
-          "value": 2.000000000000006,
+          "value": 2.0000000000000187,
           "unit": "ratio",
           "value_text": "2.00",
           "uncertainty": 0.01,
@@ -1542,9 +1543,71 @@
           "confidence_text": "Approximate: this point is hard to place automatically",
           "flags": []
         }
-      }
+      },
+      "harmony": {
+        "overall": 97.2,
+        "subscores": {
+          "vertical_thirds": 100.0,
+          "transverse_fifths": 97.7,
+          "lip_harmony": 100.0,
+          "symmetry": 91.2
+        }
+      },
+      "ai_harmony": null,
+      "facial_sagging": null,
+      "procedure_recommendations": [
+        {
+          "procedure": "chin_augmentation",
+          "intensity": 0.0,
+          "rationale": "Chin projection and vertical proportions are within reference ranges.",
+          "triggering_metrics": []
+        },
+        {
+          "procedure": "lip_augmentation",
+          "intensity": 0.0,
+          "rationale": "Lip vermilion fullness and sagittal projection are within reference ranges.",
+          "triggering_metrics": []
+        },
+        {
+          "procedure": "rhinoplasty",
+          "intensity": 0.0,
+          "rationale": "Nasal proportions, tip rotation, and projection are within reference ranges.",
+          "triggering_metrics": []
+        }
+      ]
     },
     "profile": null,
+    "harmony": {
+      "overall": 97.2,
+      "subscores": {
+        "vertical_thirds": 100.0,
+        "transverse_fifths": 97.7,
+        "lip_harmony": 100.0,
+        "symmetry": 91.2
+      }
+    },
+    "ai_harmony": null,
+    "facial_sagging": null,
+    "procedure_recommendations": [
+      {
+        "procedure": "chin_augmentation",
+        "intensity": 0.0,
+        "rationale": "Chin projection and vertical proportions are within reference ranges.",
+        "triggering_metrics": []
+      },
+      {
+        "procedure": "lip_augmentation",
+        "intensity": 0.0,
+        "rationale": "Lip vermilion fullness and sagittal projection are within reference ranges.",
+        "triggering_metrics": []
+      },
+      {
+        "procedure": "rhinoplasty",
+        "intensity": 0.0,
+        "rationale": "Nasal proportions, tip rotation, and projection are within reference ranges.",
+        "triggering_metrics": []
+      }
+    ],
     "consideration_intro": "Features you may want to discuss with a licensed plastic surgeon",
     "considerations": [],
     "no_considerations_note": "No discussion topics were generated from this scan. This does not replace an in-person consultation.",

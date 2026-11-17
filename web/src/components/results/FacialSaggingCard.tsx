@@ -1,4 +1,4 @@
-import { Activity, Sparkles, CheckCircle2, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Activity, Sparkles, CheckCircle2, ShieldAlert } from "lucide-react";
 import type { FacialSaggingResult, ProcedureRecommendation } from "../../api/schemas";
 import { PROCEDURE_TITLES, translateRationale } from "./ProcedureRecommendationCard";
 

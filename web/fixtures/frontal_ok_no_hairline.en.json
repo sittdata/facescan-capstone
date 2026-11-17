@@ -43,6 +43,7 @@
       "reference_frame": 0,
       "reference_sha256": "35d791710f87bca81bff2d31bf95a97c49be71b0ca7bee65549f675bfb6d09f7"
     },
+    "inferred_demographics": null,
     "calibration": {
       "method": "iris",
       "available": true
@@ -1243,7 +1244,7 @@
         "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
         "area": "brows",
         "role": "primary",
-        "value": 7.105427357601002e-14,
+        "value": 2.1316282072803006e-13,
         "unit": "%ICD",
         "value_text": "0.0% of eye spacing",
         "uncertainty": null,
@@ -1271,7 +1272,7 @@
         "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
         "area": "brows",
         "role": "primary",
-        "value": 2.2737367544323204e-14,
+        "value": 6.821210263296962e-14,
         "unit": "mm",
         "value_text": "0.0 mm",
         "uncertainty": null,
@@ -1299,7 +1300,7 @@
         "description": "Length of the inner part of the eyebrow (up to its highest point) compared with the outer part.",
         "area": "brows",
         "role": "primary",
-        "value": 2.000000000000006,
+        "value": 2.0000000000000187,
         "unit": "ratio",
         "value_text": "2.00",
         "uncertainty": null,
@@ -1439,7 +1440,7 @@
         "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
         "area": "brows",
         "role": "primary",
-        "value": 7.105427357601002e-14,
+        "value": 2.1316282072803006e-13,
         "unit": "%ICD",
         "value_text": "0.0% of eye spacing",
         "uncertainty": null,
@@ -1467,7 +1468,7 @@
         "description": "Sideways distance of the eyebrow's highest point from a vertical line through the outer edge of the iris.",
         "area": "brows",
         "role": "primary",
-        "value": 2.2737367544323204e-14,
+        "value": 6.821210263296962e-14,
         "unit": "mm",
         "value_text": "0.0 mm",
         "uncertainty": null,
@@ -1495,7 +1496,7 @@
         "description": "Length of the inner part of the eyebrow (up to its highest point) compared with the outer part.",
         "area": "brows",
         "role": "primary",
-        "value": 2.000000000000006,
+        "value": 2.0000000000000187,
         "unit": "ratio",
         "value_text": "2.00",
         "uncertainty": null,
@@ -1749,7 +1750,38 @@
           }
         ]
       }
-    }
+    },
+    "harmony": {
+      "overall": 97.2,
+      "subscores": {
+        "vertical_thirds": 100.0,
+        "transverse_fifths": 97.7,
+        "lip_harmony": 100.0,
+        "symmetry": 91.2
+      }
+    },
+    "ai_harmony": null,
+    "facial_sagging": null,
+    "procedure_recommendations": [
+      {
+        "procedure": "chin_augmentation",
+        "intensity": 0.0,
+        "rationale": "Chin projection and vertical proportions are within reference ranges.",
+        "triggering_metrics": []
+      },
+      {
+        "procedure": "lip_augmentation",
+        "intensity": 0.0,
+        "rationale": "Lip vermilion fullness and sagittal projection are within reference ranges.",
+        "triggering_metrics": []
+      },
+      {
+        "procedure": "rhinoplasty",
+        "intensity": 0.0,
+        "rationale": "Nasal proportions, tip rotation, and projection are within reference ranges.",
+        "triggering_metrics": []
+      }
+    ]
   },
   "result_token": "fixture-token-frontal-no-hairline",
   "versions": {

@@ -7,9 +7,12 @@ interface Props {
   result?: Result | null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DsiGridState = Record<string, any>;
+
 export function HarmonyCard({ harmony, result }: Props) {
   // Listen to live DSI grid changes and local storage
-  const [dsiGrid, setDsiGrid] = useState<any>(() => {
+  const [dsiGrid, setDsiGrid] = useState<DsiGridState | null>(() => {
     if (!result?.image) return null;
     const storageKey = `dsi_clinical_grid_${result.image.width}x${result.image.height}`;
     try {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   HarmonyScoreSchema,
@@ -73,7 +73,8 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
     });
 
     it("validates backwards compatibility on existing Result fixtures (missing harmony/procedures)", () => {
-      const parsed = ResultSchema.parse(frontalTh.result);
+      const strippedResult = { ...frontalTh.result, harmony: undefined, procedure_recommendations: undefined };
+      const parsed = ResultSchema.parse(strippedResult);
       expect(parsed.status).toBe("ok");
       expect(parsed.harmony).toBeUndefined();
       expect(parsed.procedure_recommendations).toBeUndefined();
@@ -115,8 +116,9 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
     });
 
     it("validates ReportSchema with nullable/optional harmony and procedure recommendations", () => {
-      // Existing fixture without new fields
-      const parsedOld = ReportSchema.parse(reportTh.report);
+      // Existing fixture with stripped fields
+      const strippedOld = { ...reportTh.report, harmony: undefined, procedure_recommendations: undefined };
+      const parsedOld = ReportSchema.parse(strippedOld);
       expect(parsedOld.harmony).toBeUndefined();
       expect(parsedOld.procedure_recommendations).toBeUndefined();
 
