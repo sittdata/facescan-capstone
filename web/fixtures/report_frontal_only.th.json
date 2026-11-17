@@ -1555,6 +1555,7 @@
       },
       "ai_harmony": null,
       "facial_sagging": null,
+      "cephalometric": null,
       "procedure_recommendations": [
         {
           "procedure": "chin_augmentation",
@@ -1588,6 +1589,7 @@
     },
     "ai_harmony": null,
     "facial_sagging": null,
+    "cephalometric": null,
     "procedure_recommendations": [
       {
         "procedure": "chin_augmentation",
