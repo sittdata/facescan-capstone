@@ -274,6 +274,32 @@ class FacialSaggingResultModel(_Model):
     description_en: str
 
 
+class CephalometricResultModel(_Model):
+    skeletal_class: int = Field(ge=0, le=2)
+    skeletal_class_name: Literal["Class_I", "Class_II", "Class_III"]
+    confidence: float = Field(ge=0.0, le=1.0)
+    probabilities: dict[str, float]
+    severity: Literal["Normal", "Mild", "Moderate", "Severe"]
+    primary_etiology: str
+    vertical_pattern: Literal["Normodivergent", "Hypodivergent", "Hyperdivergent"]
+    surgical_indication: Literal["none", "camouflage_or_orthognathic", "orthognathic_indicated", "orthognathic_strongly_recommended"]
+    label_th: str
+    label_en: str
+    description_th: str
+    description_en: str
+    features: dict[str, float] = Field(default_factory=dict)
+    inference_time_ms: float | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_from_measurements(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "skeletal_class" not in data:
+            from facescan.core.cephalometric_model import classify_cephalometric_skeletal
+            res = classify_cephalometric_skeletal(data)
+            return res.model_dump()
+        return data
+
+
 class ProcedureRecommendation(_Model):
     procedure: str
     intensity: float = Field(ge=0.0, le=1.0)
@@ -314,6 +340,7 @@ class FrontalResult(_ResultBase):
     harmony: HarmonyScore | None = None
     ai_harmony: AIHarmonyResultModel | None = None
     facial_sagging: FacialSaggingResultModel | None = None
+    cephalometric: CephalometricResultModel | None = None
     procedure_recommendations: list[ProcedureRecommendation] | None = None
 
     @model_validator(mode="before")
@@ -332,7 +359,9 @@ class FrontalResult(_ResultBase):
 
                 try:
                     data["procedure_recommendations"] = recommend_procedures(
-                        data["metrics"], sagging=data.get("facial_sagging")
+                        data["metrics"],
+                        sagging=data.get("facial_sagging"),
+                        cephalometric=data.get("cephalometric"),
                     )
                 except Exception:
                     pass
@@ -347,6 +376,7 @@ class ProfileResult(_ResultBase):
     # Silhouette simplified to ≤ 400 points (pixel coordinates), so clients can snap
     # dragged points on-device and apply_overrides can re-snap them.
     contour: list[Point2D] | None = None
+    cephalometric: CephalometricResultModel | None = None
 
 
 class Consideration(_Model):
@@ -384,6 +414,7 @@ class Report(_Model):
     profile: ProfileResult | None = None
     harmony: HarmonyScore | None = None
     facial_sagging: FacialSaggingResultModel | None = None
+    cephalometric: CephalometricResultModel | None = None
     procedure_recommendations: list[ProcedureRecommendation] | None = None
     considerations: list[Consideration] = Field(default_factory=list)
     rules_version: str | None = None
@@ -409,14 +440,32 @@ class Report(_Model):
                         data["facial_sagging"] = frontal.get("facial_sagging")
                     else:
                         data["facial_sagging"] = getattr(frontal, "facial_sagging", None)
+            if data.get("cephalometric") is None:
+                profile = data.get("profile")
+                if profile is not None:
+                    if isinstance(profile, dict):
+                        data["cephalometric"] = profile.get("cephalometric")
+                    else:
+                        data["cephalometric"] = getattr(profile, "cephalometric", None)
+                if data.get("cephalometric") is None:
+                    frontal = data.get("frontal")
+                    if frontal is not None:
+                        if isinstance(frontal, dict):
+                            data["cephalometric"] = frontal.get("cephalometric")
+                        else:
+                            data["cephalometric"] = getattr(frontal, "cephalometric", None)
             if data.get("procedure_recommendations") is None:
                 frontal = data.get("frontal")
                 profile = data.get("profile")
-                if frontal is not None or profile is not None:
+                if frontal is not None or profile is not None or data.get("cephalometric") is not None:
                     from facescan.core.procedure_recommender import recommend_procedures
 
                     try:
-                        data["procedure_recommendations"] = recommend_procedures(frontal=frontal, profile=profile)
+                        data["procedure_recommendations"] = recommend_procedures(
+                            frontal=frontal,
+                            profile=profile,
+                            cephalometric=data.get("cephalometric"),
+                        )
                     except Exception:
                         if isinstance(frontal, dict):
                             data["procedure_recommendations"] = frontal.get("procedure_recommendations")

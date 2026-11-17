@@ -211,6 +211,29 @@ export const FacialSaggingResultSchema = z.object({
 });
 export type FacialSaggingResult = z.infer<typeof FacialSaggingResultSchema>;
 
+export const CephalometricResultSchema = z.object({
+  skeletal_class: z.number().int().min(0).max(2),
+  skeletal_class_name: z.enum(["Class_I", "Class_II", "Class_III"]),
+  confidence: z.number().min(0).max(1),
+  probabilities: z.record(z.string(), z.number()),
+  severity: z.enum(["Normal", "Mild", "Moderate", "Severe"]),
+  primary_etiology: z.string(),
+  vertical_pattern: z.enum(["Normodivergent", "Hypodivergent", "Hyperdivergent"]),
+  surgical_indication: z.enum([
+    "none",
+    "camouflage_or_orthognathic",
+    "orthognathic_indicated",
+    "orthognathic_strongly_recommended",
+  ]),
+  label_th: z.string(),
+  label_en: z.string(),
+  description_th: z.string(),
+  description_en: z.string(),
+  features: z.record(z.string(), z.number()).default({}),
+  inference_time_ms: z.number().nullable().optional(),
+});
+export type CephalometricResult = z.infer<typeof CephalometricResultSchema>;
+
 export const ProcedureRecommendationSchema = z.object({
   procedure: z.string(),
   intensity: z.number(),
@@ -236,6 +259,7 @@ export const ResultSchema = z
     harmony: HarmonyScoreSchema.optional().nullable(),
     ai_harmony: AIHarmonyResultSchema.optional().nullable(),
     facial_sagging: FacialSaggingResultSchema.optional().nullable(),
+    cephalometric: CephalometricResultSchema.optional().nullable(),
     procedure_recommendations: z.array(ProcedureRecommendationSchema).optional().nullable(),
     calibration: z.object({ method: z.string(), available: z.boolean() }).nullable(),
     adjustable_points: z.array(z.object({ id: z.string(), name: z.string(), instruction: z.string() })),
@@ -263,6 +287,7 @@ export const AnalyzeResponseSchema = z.discriminatedUnion("status", [
     warnings: z.array(z.string()),
     result: ResultSchema,
     facial_sagging: FacialSaggingResultSchema.optional().nullable(),
+    cephalometric: CephalometricResultSchema.optional().nullable(),
     result_token: z.string().min(1),
     overlay: z.string().optional(),
     aligned_photo: z.string().optional(),
@@ -317,6 +342,8 @@ export const ReportSchema = z.object({
   profile: ResultSchema.nullable(),
   harmony: HarmonyScoreSchema.optional().nullable(),
   ai_harmony: AIHarmonyResultSchema.optional().nullable(),
+  facial_sagging: FacialSaggingResultSchema.optional().nullable(),
+  cephalometric: CephalometricResultSchema.optional().nullable(),
   procedure_recommendations: z.array(ProcedureRecommendationSchema).optional().nullable(),
   consideration_intro: z.string(),
   considerations: z.array(ConsiderationSchema),

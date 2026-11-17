@@ -22,6 +22,7 @@ import { PhotoViewer } from "../../components/viewer/PhotoViewer";
 import { DemographicsCard } from "../../components/results/DemographicsCard";
 import { HarmonyCard } from "../../components/results/HarmonyCard";
 import { FacialSaggingCard } from "../../components/results/FacialSaggingCard";
+import { CephalometricCard } from "../../components/results/CephalometricCard";
 import { ProcedureRecommendationCard } from "../../components/results/ProcedureRecommendationCard";
 import { SimulationDrawer } from "../../extensions/SimulationDrawer";
 import { useScan } from "../../scan/ScanContext";
@@ -135,6 +136,10 @@ export function ResultScreen({ view }: { view: View }) {
               <HarmonyCard harmony={result.harmony} result={result} />
               <FacialSaggingCard
                 sagging={result.facial_sagging}
+                recommendations={result.procedure_recommendations}
+              />
+              <CephalometricCard
+                cephalometric={result.cephalometric}
                 recommendations={result.procedure_recommendations}
               />
               <ProcedureRecommendationCard

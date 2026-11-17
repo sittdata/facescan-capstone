@@ -30,6 +30,7 @@ import { step } from "./steps";
 import { FaceShapeCard } from "../extensions/FaceShapeCard";
 import { DemographicsCard } from "../components/results/DemographicsCard";
 import { FacialSaggingCard } from "../components/results/FacialSaggingCard";
+import { CephalometricCard } from "../components/results/CephalometricCard";
 import { SimulationDrawer } from "../extensions/SimulationDrawer";
 
 function ViewTables({ view, result, photoUrl, overlayUrl }: { view: View; result: Result; photoUrl: string | null; overlayUrl: string | null }) {
@@ -173,6 +174,11 @@ export function ReportScreen() {
           <FacialSaggingCard
             sagging={report.frontal.facial_sagging}
             recommendations={report.frontal.procedure_recommendations}
+          />
+
+          <CephalometricCard
+            cephalometric={report.cephalometric || report.profile?.cephalometric || report.frontal.cephalometric}
+            recommendations={report.procedure_recommendations || report.frontal.procedure_recommendations}
           />
 
           <section aria-labelledby={allId} className="border-t border-line pt-4">

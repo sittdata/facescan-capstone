@@ -23,7 +23,7 @@ frontal:
       eyeBlinkRight: 0.40
       browInnerUp: 0.30
     # Face size: inter-pupillary distance in pixels.
-    ipd_min_px: 30.0
+    ipd_min_px: 150.0
     # Sharpness: variance of the Laplacian on the face ROI after resizing the
     # ROI to `roi_width_px` wide (so the value does not depend on resolution).
     sharpness_min: 15.0

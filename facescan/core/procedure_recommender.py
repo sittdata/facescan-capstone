@@ -91,6 +91,82 @@ def _extract_sagging_data(sagging: Any = None, frontal: Any = None) -> tuple[int
     return tier, laxity_score, features
 
 
+def _extract_cephalometric_data(
+    cephalometric: Any = None,
+    *fallbacks: Any,
+) -> tuple[int | None, str | None, str | None, str | None, dict[str, float]]:
+    """Extract (skeletal_class, class_name, severity, surgical_indication, features)."""
+    target = cephalometric
+    if target is None:
+        for fb in fallbacks:
+            if fb is None:
+                continue
+            if hasattr(fb, "cephalometric") and getattr(fb, "cephalometric") is not None:
+                target = getattr(fb, "cephalometric")
+                break
+            if isinstance(fb, Mapping):
+                if fb.get("cephalometric") is not None:
+                    target = fb["cephalometric"]
+                    break
+                p = fb.get("profile")
+                if isinstance(p, Mapping) and p.get("cephalometric") is not None:
+                    target = p["cephalometric"]
+                    break
+                elif hasattr(p, "cephalometric") and getattr(p, "cephalometric") is not None:
+                    target = getattr(p, "cephalometric")
+                    break
+                f = fb.get("frontal")
+                if isinstance(f, Mapping) and f.get("cephalometric") is not None:
+                    target = f["cephalometric"]
+                    break
+                elif hasattr(f, "cephalometric") and getattr(f, "cephalometric") is not None:
+                    target = getattr(f, "cephalometric")
+                    break
+
+    if target is None:
+        return None, None, None, None, {}
+
+    # If target is raw cephalometric measurements without skeletal_class, auto-classify
+    if isinstance(target, Mapping) and "skeletal_class" not in target:
+        from facescan.core.cephalometric_model import FEATURE_NAMES, classify_cephalometric_skeletal
+
+        if any(k in target for k in FEATURE_NAMES):
+            target = classify_cephalometric_skeletal(target)
+
+    cls_id: int | None = None
+    cls_name: str | None = None
+    severity: str | None = None
+    surgical_ind: str | None = None
+    features: dict[str, float] = {}
+
+    if hasattr(target, "skeletal_class"):
+        cls_id = getattr(target, "skeletal_class", None)
+        cls_name = getattr(target, "skeletal_class_name", None)
+        severity = getattr(target, "severity", None)
+        surgical_ind = getattr(target, "surgical_indication", None)
+        features = getattr(target, "features", {}) or {}
+    elif isinstance(target, Mapping):
+        cls_id = target.get("skeletal_class")
+        cls_name = target.get("skeletal_class_name")
+        severity = target.get("severity")
+        surgical_ind = target.get("surgical_indication")
+        features = target.get("features", {}) or {}
+
+    try:
+        cls_id = int(cls_id) if cls_id is not None else None
+    except (ValueError, TypeError):
+        cls_id = None
+
+    if cls_name is not None:
+        cls_name = str(cls_name)
+    if severity is not None:
+        severity = str(severity)
+    if surgical_ind is not None:
+        surgical_ind = str(surgical_ind)
+
+    return cls_id, cls_name, severity, surgical_ind, features
+
+
 class ProcedureRecommender:
     """Clinical aesthetic procedure evaluation and recommendation engine."""
 
@@ -98,6 +174,7 @@ class ProcedureRecommender:
         self,
         frontal_metrics: Mapping[str, Any],
         profile_metrics: Mapping[str, Any] | None = None,
+        cephalometric: Any = None,
     ) -> ProcedureRecommendation:
         """Evaluate indication for Chin Augmentation.
 
@@ -109,10 +186,53 @@ class ProcedureRecommender:
         - Profile:
           - P4_eline_upper_lip_mm > -2.0
           - P4_eline_lower_lip_mm > -1.0
+        - Cephalometric:
+          - Class III: Chin filler/implant is strictly contraindicated.
+          - Class II: Mild cases benefit from camouflage; severe cases note surgical necessity.
         """
+        # Cross-check cephalometric skeletal deformity
+        ceph_class, ceph_name, ceph_sev, ceph_surg, ceph_feats = _extract_cephalometric_data(
+            cephalometric, profile_metrics, frontal_metrics
+        )
+
+        if ceph_class == 2 or ceph_name == "Class_III":
+            return ProcedureRecommendation(
+                procedure="chin_augmentation",
+                intensity=0.0,
+                rationale=(
+                    "Chin augmentation (filler or implant) is contraindicated due to Skeletal Class III prognathism "
+                    "(mandibular excess or midface hypoplasia). Adding chin volume would exacerbate lower-face anterior protrusion; "
+                    "orthognathic surgical consultation is recommended instead."
+                ),
+                triggering_metrics=["cephalometric_class_iii"],
+            )
+
         triggering_metrics: list[str] = []
         components: list[float] = []
         rationales: list[str] = []
+
+        # Cephalometric Class II enhancement
+        if ceph_class == 1 or ceph_name == "Class_II":
+            triggering_metrics.append("cephalometric_class_ii")
+            if ceph_sev == "Severe":
+                components.append(0.35)
+                rationales.append(
+                    "Cephalometric skeletal analysis confirms severe Skeletal Class II retrognathia. Soft-tissue chin filler "
+                    "provides only limited aesthetic camouflage and cannot correct underlying mandibular hypoplasia or airway compromise; "
+                    "corrective orthognathic surgery is the primary clinical treatment."
+                )
+            elif ceph_sev == "Moderate":
+                components.append(0.50)
+                rationales.append(
+                    "Cephalometric skeletal analysis confirms moderate Skeletal Class II retrognathia. Chin filler or implant can offer "
+                    "partial aesthetic camouflage, but orthognathic mandibular advancement is recommended for definitive skeletal correction."
+                )
+            else:  # Mild
+                components.append(0.40)
+                rationales.append(
+                    "Cephalometric skeletal analysis confirms mild Skeletal Class II retrognathia, which is well-suited for non-surgical "
+                    "chin filler or implant camouflage."
+                )
 
         # Frontal checks
         f1_lower = _extract_metric_val(frontal_metrics, "F1_lower_third")
@@ -164,6 +284,9 @@ class ProcedureRecommender:
 
         if components:
             raw_intensity = max(components)
+            # If severe Class II, cap non-surgical chin filler at 0.50 to avoid overpromising
+            if ceph_class == 1 and ceph_sev == "Severe":
+                raw_intensity = min(0.50, raw_intensity)
             intensity = round(max(0.01, min(1.0, raw_intensity)), 2)
             rationale = " ".join(rationales)
         else:
@@ -473,6 +596,95 @@ class ProcedureRecommender:
             triggering_metrics=triggering_metrics,
         )
 
+    def evaluate_orthognathic_surgery(
+        self,
+        cephalometric: Any = None,
+        profile_metrics: Mapping[str, Any] | None = None,
+        frontal_metrics: Mapping[str, Any] | None = None,
+        *,
+        profile: Any = None,
+        frontal: Any = None,
+    ) -> ProcedureRecommendation:
+        """Evaluate indication for Orthognathic (Corrective Jaw) Surgery.
+
+        Evaluates sagittal and vertical skeletal discrepancies (Skeletal Class II retrognathism,
+        Skeletal Class III prognathism) to differentiate between non-surgical aesthetic camouflage
+        (chin filler/genioplasty) vs surgical orthognathic intervention.
+        """
+        ceph_class, ceph_name, ceph_sev, ceph_surg, ceph_feats = _extract_cephalometric_data(
+            cephalometric, profile, frontal, profile_metrics, frontal_metrics
+        )
+
+        triggering_metrics: list[str] = []
+        intensity = 0.0
+        rationale = "Skeletal jaw relationships are balanced (Class I); orthognathic surgery is not indicated."
+
+        if ceph_class is not None and ceph_name is not None:
+            if ceph_class == 0 or ceph_name == "Class_I":
+                intensity = 0.0
+                rationale = "Cephalometric analysis indicates harmonious skeletal jaw bases (Skeletal Class I); corrective orthognathic surgery is not clinically indicated."
+            elif ceph_class == 1 or ceph_name == "Class_II":
+                triggering_metrics.append("skeletal_class_ii")
+                if "anb_angle" in ceph_feats:
+                    triggering_metrics.append("anb_angle")
+                if "wits_appraisal_mm" in ceph_feats:
+                    triggering_metrics.append("wits_appraisal_mm")
+
+                if ceph_sev == "Mild":
+                    intensity = 0.25
+                    rationale = (
+                        "Mild Skeletal Class II retrognathia. Corrective orthognathic jaw surgery is an elective option; "
+                        "aesthetic camouflage (chin filler or implant) or orthodontic compensation is generally preferred."
+                    )
+                elif ceph_sev == "Moderate":
+                    intensity = 0.65
+                    rationale = (
+                        "Moderate Skeletal Class II malocclusion with mandibular retrognathia. "
+                        "Orthognathic bilateral sagittal split osteotomy (BSSO) mandibular advancement is clinically indicated "
+                        "to establish functional occlusion and restore lower-face projection."
+                    )
+                else:  # Severe
+                    intensity = 0.95
+                    rationale = (
+                        "Severe Skeletal Class II mandibular deficiency with high sagittal discrepancy. "
+                        "Corrective orthognathic surgery (BSSO advancement ± Le Fort I osteotomy) is strongly recommended "
+                        "to resolve substantial skeletal disharmony, masticatory dysfunction, and potential pharyngeal airway collapse."
+                    )
+            elif ceph_class == 2 or ceph_name == "Class_III":
+                triggering_metrics.append("skeletal_class_iii")
+                if "anb_angle" in ceph_feats:
+                    triggering_metrics.append("anb_angle")
+                if "wits_appraisal_mm" in ceph_feats:
+                    triggering_metrics.append("wits_appraisal_mm")
+
+                if ceph_sev == "Mild":
+                    intensity = 0.35
+                    rationale = (
+                        "Mild Skeletal Class III discrepancy. Orthognathic surgery may be considered if orthodontic dental camouflage "
+                        "is insufficient. Non-surgical chin volume addition is contraindicated."
+                    )
+                elif ceph_sev == "Moderate":
+                    intensity = 0.75
+                    rationale = (
+                        "Moderate Skeletal Class III malocclusion with mandibular prognathism or midface retrusion. "
+                        "Corrective orthognathic surgery (mandibular setback ± maxillary advancement) is clinically indicated "
+                        "for functional bite correction and profile balance."
+                    )
+                else:  # Severe
+                    intensity = 1.00
+                    rationale = (
+                        "Severe Skeletal Class III skeletal deformity (prominent mandibular excess and negative overjet). "
+                        "Two-jaw corrective orthognathic surgery (Le Fort I maxillary advancement with BSSO mandibular setback) "
+                        "is strongly recommended to restore chewing function, TMJ stability, and facial harmony."
+                    )
+
+        return ProcedureRecommendation(
+            procedure="orthognathic_surgery",
+            intensity=intensity,
+            rationale=rationale,
+            triggering_metrics=triggering_metrics,
+        )
+
     def evaluate_sagging_treatments(
         self,
         sagging: Any = None,
@@ -498,6 +710,8 @@ class ProcedureRecommender:
         only_recommended: bool = False,
         sagging: Any = None,
         include_sagging: bool = False,
+        cephalometric: Any = None,
+        include_cephalometric: bool = False,
     ) -> list[ProcedureRecommendation]:
         """Generate procedure recommendations for aesthetic proportions and structural laxity.
 
@@ -511,11 +725,34 @@ class ProcedureRecommender:
         frontal_metrics = _get_metrics(frontal)
         profile_metrics = _get_metrics(profile)
 
-        chin = self.evaluate_chin_augmentation(frontal_metrics, profile_metrics)
+        # Check for cephalometric data in args, profile, or frontal
+        ceph_target = cephalometric
+        if ceph_target is None and profile is not None:
+            if hasattr(profile, "cephalometric") and getattr(profile, "cephalometric") is not None:
+                ceph_target = getattr(profile, "cephalometric")
+            elif isinstance(profile, Mapping) and profile.get("cephalometric") is not None:
+                ceph_target = profile["cephalometric"]
+        if ceph_target is None and frontal is not None:
+            if hasattr(frontal, "cephalometric") and getattr(frontal, "cephalometric") is not None:
+                ceph_target = getattr(frontal, "cephalometric")
+            elif isinstance(frontal, Mapping) and frontal.get("cephalometric") is not None:
+                ceph_target = frontal["cephalometric"]
+
+        chin = self.evaluate_chin_augmentation(frontal_metrics, profile_metrics, cephalometric=ceph_target)
         lip = self.evaluate_lip_augmentation(frontal_metrics, profile_metrics)
         rhino = self.evaluate_rhinoplasty(frontal_metrics, profile_metrics)
 
         all_recs = [chin, lip, rhino]
+
+        # Check if cephalometric data is present or requested
+        has_ceph_data = ceph_target is not None or include_cephalometric
+        if has_ceph_data:
+            ortho = self.evaluate_orthognathic_surgery(
+                cephalometric=ceph_target,
+                profile_metrics=profile_metrics,
+                frontal_metrics=frontal_metrics,
+            )
+            all_recs.append(ortho)
 
         # Check if sagging data is present or requested
         has_sagging_data = (
@@ -541,6 +778,8 @@ def recommend_procedures(
     only_recommended: bool = False,
     sagging: Any = None,
     include_sagging: bool = False,
+    cephalometric: Any = None,
+    include_cephalometric: bool = False,
 ) -> list[ProcedureRecommendation]:
     """Calculate aesthetic procedure recommendations for facial proportions and sagging laxity.
 
@@ -553,6 +792,8 @@ def recommend_procedures(
         only_recommended=only_recommended,
         sagging=sagging,
         include_sagging=include_sagging,
+        cephalometric=cephalometric,
+        include_cephalometric=include_cephalometric,
     )
 
 
@@ -569,9 +810,33 @@ def recommend_sagging_procedures(
     )
 
 
+def recommend_orthognathic_procedures(
+    cephalometric: Any = None,
+    profile: Any = None,
+    frontal: Any = None,
+    *,
+    only_recommended: bool = False,
+) -> list[ProcedureRecommendation]:
+    """Calculate clinical treatments indicated for cephalometric skeletal malocclusions."""
+    recommender = ProcedureRecommender()
+    profile_metrics = _get_metrics(profile)
+    frontal_metrics = _get_metrics(frontal)
+    rec = recommender.evaluate_orthognathic_surgery(
+        cephalometric=cephalometric,
+        profile_metrics=profile_metrics,
+        frontal_metrics=frontal_metrics,
+        profile=profile,
+        frontal=frontal,
+    )
+    if only_recommended and rec.intensity == 0.0:
+        return []
+    return [rec]
+
+
 __all__ = [
     "ProcedureRecommendation",
     "ProcedureRecommender",
     "recommend_procedures",
     "recommend_sagging_procedures",
+    "recommend_orthognathic_procedures",
 ]
