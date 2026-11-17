@@ -27,7 +27,7 @@ describe.each([
     // One action, and the way to the method page.
     const bar = screen.getByRole("link", { name: s.landing.start });
     expect(bar).toHaveAttribute("href", "#/subject");
-    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual([s.nav.otherLanguage]);
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
     await user.click(screen.getByRole("link", { name: s.method.link }));
     await screen.findByRole("heading", { level: 1, name: s.method.title });
   });
