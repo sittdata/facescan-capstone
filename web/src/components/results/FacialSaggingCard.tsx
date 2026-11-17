@@ -151,7 +151,7 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
   const features = sagging.features ?? {};
 
   return (
-    <div className="border border-line bg-surface p-4">
+    <div className="border border-line bg-surface p-4 overflow-hidden">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
         <div className="flex items-center gap-2">
@@ -249,16 +249,16 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
           </div>
 
           {/* Zone Labels */}
-          <div className="mt-2 flex flex-wrap justify-between gap-1 text-sm text-ink-3">
+          <div className="mt-2 flex flex-col gap-1 text-xs text-ink-3 sm:flex-row sm:justify-between">
             <span className="text-emerald-600 font-medium">กระชับ Firm (0–35%)</span>
             <span className="text-amber-600 font-medium">หย่อนคล้อยปานกลาง Moderate (36–65%)</span>
             <span className="text-rose-600 font-medium">หย่อนคล้อยชัดเจน Advanced (66–100%)</span>
           </div>
 
           {/* Tier Probability Breakdown */}
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line/60 pt-2 text-sm text-ink-3">
-            <span>ความน่าจะเป็นตามระดับ (Posterior Probability):</span>
-            <div className="flex items-center gap-3">
+          <div className="mt-3 flex flex-col gap-1 border-t border-line/60 pt-2 text-xs text-ink-3 sm:flex-row sm:items-center sm:justify-between">
+            <span>ความน่าจะเป็นตามระดับ:</span>
+            <div className="flex flex-wrap items-center gap-2">
               <span>
                 Firm: <strong className="text-ink-2">{probFirm.toFixed(1)}%</strong>
               </span>
@@ -297,22 +297,22 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
             const interp = config.interpret(val);
 
             return (
-              <div key={key} className="border border-line bg-paper p-3">
-                <div className="flex items-center justify-between">
+              <div key={key} className="border border-line bg-paper p-3 overflow-hidden break-words">
+                <div className="flex flex-wrap items-center justify-between gap-1">
                   <span className="text-sm font-semibold text-ink">{config.nameTh}</span>
                   {hasVal && (
-                    <span className={`border px-2 py-1 text-sm rounded-control ${interp.badgeClass}`}>
+                    <span className={`border px-2 py-0.5 text-xs rounded-control ${interp.badgeClass}`}>
                       {interp.label}
                     </span>
                   )}
                 </div>
-                <div className="mt-1 flex items-baseline justify-between">
-                  <span className="text-sm text-ink-3">{config.nameEn}</span>
+                <div className="mt-1 flex flex-wrap items-baseline justify-between gap-1">
+                  <span className="text-xs text-ink-3 break-all">{config.nameEn}</span>
                   <span className="text-sm font-semibold text-ink">
                     {hasVal ? val.toFixed(4) : "—"}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-ink-2">{config.description}</p>
+                <p className="mt-1 text-sm text-ink-2 break-words">{config.description}</p>
               </div>
             );
           })}
