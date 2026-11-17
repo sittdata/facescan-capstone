@@ -8,6 +8,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http } from "msw";
 import { describe, expect, it } from "vitest";
+import configEn from "../fixtures/client_config.en.json" with { type: "json" };
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import contourFailedTh from "../fixtures/profile_contour_failed.th.json" with { type: "json" };
 import profileAdjustedTh from "../fixtures/profile_adjusted.th.json" with { type: "json" };
@@ -219,6 +220,20 @@ describe("profile flow (photo mode)", () => {
     const protocol = screen.getByTestId("full-protocol");
     expect(within(protocol).getByRole("heading", { level: 2, name: configTh.strings.capture.profile.title })).toBeInTheDocument();
     for (const text of configTh.strings.capture.profile.steps) expect(within(protocol).getByText(text)).toBeInTheDocument();
+  });
+
+  it("switching language with side results analyzes both photos again, then shows the side results", async () => {
+    const { user, calls } = await toProfileResults();
+    await screen.findByRole("heading", { level: 1, name: "ผลการวัดภาพด้านข้าง" });
+    await user.click(within(screen.getByRole("banner")).getByRole("button", { name: "English" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("วิเคราะห์ภาพเดิมทั้งสองภาพอีกครั้ง");
+    await user.click(within(dialog).getByRole("button", { name: "เปลี่ยนภาษาและวิเคราะห์อีกครั้ง" }));
+    await screen.findByRole("heading", { level: 1, name: "Side photo results" }, { timeout: 3000 });
+    expect(calls.analyze.map((c) => c.meta.locale)).toEqual(["th", "en"]);
+    expect(calls.profile.map((c) => c.meta.locale)).toEqual(["th", "en"]);
+    expect(calls.profile[1]!.meta.frontal_token).toBe("fixture-token-frontal");
+    expect(screen.getAllByText(configEn.strings.reference.canon, { exact: false }).length).toBeGreaterThan(0);
   });
 
   it("a scan that ended while sending the side photo analyzes both photos again", async () => {

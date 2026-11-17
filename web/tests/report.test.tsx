@@ -10,6 +10,7 @@ import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import reportFrontalOnlyTh from "../fixtures/report_frontal_only.th.json" with { type: "json" };
+import reportOkEn from "../fixtures/report_ok.en.json" with { type: "json" };
 import reportOkTh from "../fixtures/report_ok.th.json" with { type: "json" };
 import { STORAGE_KEYS } from "../src/app/storage";
 import { AREA_TEXT } from "../src/i18n/areas";
@@ -180,14 +181,20 @@ describe("report", () => {
     await screen.findByRole("heading", { level: 1, name: "เพศของคุณ" });
   });
 
-  it("saves as PDF or prints through the browser", async () => {
+  it("saves as PDF or prints through the browser, and switching language gets the report in that language", async () => {
     const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
-    const { user } = await toProfileResults();
+    const { user, calls } = await toProfileResults();
     await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
     await screen.findByTestId("example-rules");
     await user.click(screen.getByRole("button", { name: "บันทึกเป็น PDF หรือพิมพ์" }));
     expect(print).toHaveBeenCalledTimes(1);
+    await user.click(within(screen.getByRole("banner")).getByRole("button", { name: "English" }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "เปลี่ยนภาษาและวิเคราะห์อีกครั้ง" }));
+    await screen.findByRole("heading", { level: 2, name: reportOkEn.report.consideration_intro }, { timeout: 3000 });
+    expect(screen.getByRole("heading", { level: 1, name: "Report" })).toBeInTheDocument();
+    expect(calls.report.map((b) => b.locale)).toEqual(["th", "en"]);
     // No counts or summaries of findings.
     expect(screen.getByRole("main").textContent).not.toMatch(/\b\d+ (topics?|features?|findings?|considerations?)\b/i);
+    expect(calls.analyze.map((c) => c.meta.locale)).toEqual(["th", "en"]);
   });
 });

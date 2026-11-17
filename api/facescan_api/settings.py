@@ -21,6 +21,14 @@ def core_rules_path() -> Path:
     return Path(spec.origin).parent / "config" / "rules.example.yaml"
 
 
+def default_models_dir() -> Path:
+    candidates = [
+        Path("models"),
+        Path(__file__).resolve().parent.parent.parent / "models",
+    ]
+    return next((p for p in candidates if (p / "face_landmarker.task").is_file()), Path("models"))
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=False, extra="ignore", frozen=True)
 
@@ -32,7 +40,7 @@ class Settings(BaseSettings):
     max_token_chars: int = Field(default=256 * 1024, ge=1024)   # real tokens are ~8–20 kB
 
     # --- core engine (per worker)
-    models_dir: Path = Path("models")
+    models_dir: Path = Field(default_factory=default_models_dir)
     norms_profile: str = "canon"
     rules_path: Path = Field(default_factory=core_rules_path)
     enable_trichion_fallback: bool = True

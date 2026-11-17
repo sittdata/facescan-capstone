@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { ICON } from "../ui/icon";
 import { useTranslation } from "react-i18next";
 import { cx } from "../ui/cx";
+import { LanguageToggle } from "./LanguageToggle";
 
 export interface Step {
   current: number;
@@ -39,6 +40,7 @@ export function TopBar({ onBack, step, wide = false }: TopBarProps) {
         <p className="min-w-0 flex-1 text-sm text-ink-2">
           {step ? t("steps.indicator", { current: step.current, total: step.total, label: step.label }) : null}
         </p>
+        <LanguageToggle />
         {step && (
           // The step as a thin line along the bar's lower edge, over the hairline.
           <div aria-hidden="true" className="absolute inset-x-0 -bottom-px h-[2px]">
