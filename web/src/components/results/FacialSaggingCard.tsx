@@ -249,14 +249,14 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
           </div>
 
           {/* Zone Labels */}
-          <div className="mt-2 flex flex-col gap-1 text-xs text-ink-3 sm:flex-row sm:justify-between">
+          <div className="mt-2 flex flex-col gap-1 text-sm text-ink-3 md:flex-row md:justify-between">
             <span className="text-emerald-600 font-medium">กระชับ Firm (0–35%)</span>
             <span className="text-amber-600 font-medium">หย่อนคล้อยปานกลาง Moderate (36–65%)</span>
             <span className="text-rose-600 font-medium">หย่อนคล้อยชัดเจน Advanced (66–100%)</span>
           </div>
 
           {/* Tier Probability Breakdown */}
-          <div className="mt-3 flex flex-col gap-1 border-t border-line/60 pt-2 text-xs text-ink-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-3 flex flex-col gap-1 border-t border-line/60 pt-2 text-sm text-ink-3 md:flex-row md:items-center md:justify-between">
             <span>ความน่าจะเป็นตามระดับ:</span>
             <div className="flex flex-wrap items-center gap-2">
               <span>
@@ -301,13 +301,13 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
                 <div className="flex flex-wrap items-center justify-between gap-1">
                   <span className="text-sm font-semibold text-ink">{config.nameTh}</span>
                   {hasVal && (
-                    <span className={`border px-2 py-0.5 text-xs rounded-control ${interp.badgeClass}`}>
+                    <span className={`border px-2 py-1 text-sm rounded-control ${interp.badgeClass}`}>
                       {interp.label}
                     </span>
                   )}
                 </div>
                 <div className="mt-1 flex flex-wrap items-baseline justify-between gap-1">
-                  <span className="text-xs text-ink-3 break-all">{config.nameEn}</span>
+                  <span className="text-sm text-ink-3 break-all">{config.nameEn}</span>
                   <span className="text-sm font-semibold text-ink">
                     {hasVal ? val.toFixed(4) : "—"}
                   </span>
