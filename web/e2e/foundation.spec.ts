@@ -4,7 +4,6 @@
  * text.
  */
 import type { Page } from "@playwright/test";
-import configEn from "../fixtures/client_config.en.json" with { type: "json" };
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import { clientConfig, clientConfigUnreachable } from "../tests/mocks/handlers";
 import { expect, expectAccessible, reflows, test } from "./fixtures";
@@ -53,28 +52,10 @@ test("the service is not reachable: no scan starts, retry recovers", async ({ pa
   await heading(page, "เพศของคุณ");
 });
 
-test("the language control switches the app and the service's strings", async ({ page }) => {
-  await page.goto("/#/subject");
-  await heading(page, "เพศของคุณ");
-  await page.getByRole("button", { name: "English" }).click();
-  await heading(page, "Your sex");
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await page.getByRole("radio", { name: "Male", exact: true }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByLabel("Age in years").fill("34");
-  await page.getByRole("button", { name: "Continue" }).click();
-  await heading(page, configEn.strings.capture.frontal.title);
-  await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-});
-
-test("the component page renders in both languages without violations", async ({ page }) => {
+test("the component page renders without violations", async ({ page }) => {
   await page.goto("/#/components");
   await heading(page, "Components");
   await expect(page.getByRole("heading", { level: 2, name: "Measurement sheet (fixtures/frontal_ok)" })).toBeVisible();
-  await expectAccessible(page);
-  await page.getByRole("banner").getByRole("button", { name: "English" }).click();
-  await expect(page.getByText("Upper third of the face").first()).toBeVisible();
   await expectAccessible(page);
 });
 

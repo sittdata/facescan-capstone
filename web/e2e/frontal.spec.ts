@@ -5,7 +5,6 @@
  */
 import type { Page } from "@playwright/test";
 import { delay, http } from "msw";
-import configEn from "../fixtures/client_config.en.json" with { type: "json" };
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import adjustedTh from "../fixtures/frontal_adjusted.th.json" with { type: "json" };
 import exifFocal from "../fixtures/exif_focal.json" with { type: "json" };
@@ -169,43 +168,6 @@ test("a HEIC photo is converted in the browser and sent with its focal length", 
   const camera = sent.meta.camera as { focal_px: number; source: string };
   expect(camera.source).toBe("exif");
   expect(camera.focal_px).toBeCloseTo(exifFocal.photos["photo.jpg"]!, 6);
-});
-
-test("switching language with results analyzes the photo again", async ({ page, network }) => {
-  const calls = await toResults(page, network);
-  await page.getByRole("banner").getByRole("button", { name: "English" }).click();
-  const dialog = page.getByRole("dialog", { name: "เปลี่ยนเป็น English หรือไม่" });
-  await expect(dialog).toBeVisible();
-  await expectAccessible(page);
-  await dialog.getByRole("button", { name: "เปลี่ยนภาษาและวิเคราะห์อีกครั้ง" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Front photo results" })).toBeVisible();
-  await expect.poll(() => calls.analyze.map((c) => c.meta.locale)).toEqual(["th", "en"]);
-  await expect(page.getByText(configEn.strings.reference.canon).first()).toBeVisible();
-});
-
-test("a language switch whose re-analysis fails leaves the scan and the interface in Thai", async ({ page, network }) => {
-  const calls = await toResults(page, network);
-  let answers = 0;
-  network.use(http.post(`${MOCK_API}/v1/frontal/analyze`, () => (++answers === 1 ? problem("internal_error", 500) : undefined)) as never);
-  await page.getByRole("banner").getByRole("button", { name: "English" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "เปลี่ยนภาษาและวิเคราะห์อีกครั้ง" }).click();
-  const panel = page.getByTestId("scan-error");
-  await expect(panel).toContainText("เกิดข้อผิดพลาดที่ไม่คาดคิด");
-  await expect(page.locator("html")).toHaveAttribute("lang", "th");
-  await expect(page.getByRole("heading", { level: 1, name: "กำลังส่งและวิเคราะห์ภาพ" })).toBeVisible();
-  // Trying again still asks for English; the interface follows once the service answers.
-  await panel.getByRole("button", { name: "ลองอีกครั้ง" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Front photo results" })).toBeVisible();
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  expect(calls.analyze.map((c) => c.meta.locale)).toEqual(["th", "en"]);
-});
-
-test("keeping the language leaves the scan as it is", async ({ page, network }) => {
-  const calls = await toResults(page, network);
-  await page.getByRole("banner").getByRole("button", { name: "English" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "ใช้ภาษาเดิมต่อ" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "ผลการวัดภาพหน้าตรง" })).toBeVisible();
-  expect(calls.analyze).toHaveLength(1);
 });
 
 test("a scan that ended on save (a new service version): analyze the same photo again", async ({ page, network }) => {

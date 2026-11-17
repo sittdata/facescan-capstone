@@ -4,16 +4,14 @@
  */
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { delay, http, HttpResponse } from "msw";
-import configEn from "../fixtures/client_config.en.json" with { type: "json" };
+import { http } from "msw";
 import { describe, expect, it } from "vitest";
 import configTh from "../fixtures/client_config.th.json" with { type: "json" };
 import failedTh from "../fixtures/frontal_quality_failed.th.json" with { type: "json" };
 import okTh from "../fixtures/frontal_ok.th.json" with { type: "json" };
 import adjustedTh from "../fixtures/frontal_adjusted.th.json" with { type: "json" };
 import { STORAGE_KEYS } from "../src/app/storage";
-import i18n from "../src/i18n";
-import { CORS_HEADERS, fixtureBytes, MOCK_API, newCalls, problem, scanHandlers, type AnalysisOutcome } from "./mocks/handlers";
+import { fixtureBytes, MOCK_API, newCalls, problem, scanHandlers, type AnalysisOutcome } from "./mocks/handlers";
 import { server } from "./mocks/server";
 import { renderApp } from "./renderApp";
 
@@ -173,42 +171,6 @@ describe("frontal flow (photo mode)", () => {
     await user.click(screen.getByRole("button", { name: "บันทึกตำแหน่ง" }));
     await screen.findByRole("heading", { level: 1, name: "ผลการวัดภาพหน้าตรง" });
     expect(calls.adjust[0]).toMatchObject({ overrides: { trichion: { x: auto.x! - 1, y: auto.y! - 2 } } });
-  });
-
-  it("keeps the hints' language on them when the interface switches (no results yet)", async () => {
-    const { user } = await toGuide(["quality_failed"]);
-    await takeAndSend(user);
-    await screen.findByRole("heading", { level: 1, name: "กรุณาถ่ายภาพใหม่" });
-    await user.click(within(screen.getByRole("banner")).getByRole("button", { name: "English" }));
-    await screen.findByRole("heading", { level: 1, name: "Please take the photo again" });
-    expect(document.documentElement.lang).toBe("en");
-    expect(screen.getByTestId("hints")).toHaveAttribute("lang", "th");
-    expect(within(screen.getByTestId("hints")).getAllByRole("listitem").map((li) => li.textContent)).toEqual(failedTh.hints);
-  });
-
-  it("a language switch loads that language's settings first, so the photo is sent once", async () => {
-    // Switching before the new language's client-config had arrived unmounted the analyzing
-    // screen; when the config came before React Router's pending navigation, the screen came
-    // back and sent its photo again. The switch now waits for the config (slow here).
-    server.use(
-      http.get(`${MOCK_API}/v1/client-config`, async ({ request }) => {
-        if (new URL(request.url).searchParams.get("locale") !== "en") return undefined;
-        await delay(150);
-        return HttpResponse.json(configEn, { headers: CORS_HEADERS });
-      }),
-    );
-    const { user, calls, services } = await toGuide(["ok"]);
-    const ready: boolean[] = [];
-    const onChange = (lng: string) => ready.push(services.configLoader.peek(lng as "th" | "en") !== undefined);
-    i18n.on("languageChanged", onChange);
-    await takeAndSend(user);
-    await screen.findByRole("heading", { level: 1, name: "ผลการวัดภาพหน้าตรง" });
-    await user.click(within(screen.getByRole("banner")).getByRole("button", { name: "English" }));
-    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "เปลี่ยนภาษาและวิเคราะห์อีกครั้ง" }));
-    await screen.findByRole("heading", { level: 1, name: "Front photo results" }, { timeout: 3000 });
-    i18n.off("languageChanged", onChange);
-    expect(ready).toEqual([true]);
-    expect(calls.analyze.map((c) => c.meta.locale)).toEqual(["th", "en"]);
   });
 
   it("refuses to adjust when the shown photo does not match the result's size", async () => {

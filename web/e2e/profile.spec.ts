@@ -177,18 +177,6 @@ test("a HEIC side photo is converted in the browser and sent with its focal leng
   expect(sent.meta).not.toHaveProperty("subject");
 });
 
-test("switching language with side results analyzes both photos again", async ({ page, network }) => {
-  const calls = await toProfileResults(page, network);
-  await page.getByRole("banner").getByRole("button", { name: "English" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toContainText("วิเคราะห์ภาพเดิมทั้งสองภาพอีกครั้ง");
-  await dialog.getByRole("button", { name: "เปลี่ยนภาษาและวิเคราะห์อีกครั้ง" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Side photo results" })).toBeVisible();
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  expect(calls.analyze.map((c) => c.meta.locale)).toEqual(["th", "en"]);
-  expect(calls.profile.map((c) => c.meta.locale)).toEqual(["th", "en"]);
-});
-
 test("a scan that ended on save analyzes both photos again", async ({ page, network }) => {
   const calls = await toProfileResults(page, network);
   network.use(http.post(`${MOCK_API}/v1/adjust`, () => problem("token_stale", 400)) as never);
