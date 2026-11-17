@@ -685,6 +685,373 @@ class ProcedureRecommender:
             triggering_metrics=triggering_metrics,
         )
 
+    def evaluate_botulinum_toxin_masseter(
+        self,
+        frontal_metrics: Mapping[str, Any],
+        cephalometric: Any = None,
+        profile_metrics: Mapping[str, Any] | None = None,
+    ) -> ProcedureRecommendation:
+        """Evaluate indication for Masseter Botulinum Toxin injection.
+
+        Anatomic indication:
+        - Masseter muscle hypertrophy causing widened lower face or square jaw contour.
+        - Trigger criteria & Clinical standards:
+          - Cephalometric:
+            - Gonial angle <= 122.0° (acute/square mandibular angle; normal range 120-130°).
+            - FMA angle <= 22.0° (hypodivergent low-angle facial pattern with elevated bite force).
+          - Frontal:
+            - F10_golden_ratio < 1.30 (short, wide facial proportion).
+            - F1_middle_lower_ratio < 0.92 (wide, compact lower facial third).
+        """
+        ceph_class, ceph_name, ceph_sev, ceph_surg, ceph_feats = _extract_cephalometric_data(
+            cephalometric, profile_metrics, frontal_metrics
+        )
+
+        triggering_metrics: list[str] = []
+        components: list[float] = []
+        rationales: list[str] = []
+
+        gonial = ceph_feats.get("gonial_angle")
+        if gonial is not None and gonial <= 122.0:
+            intensity_comp = (122.0 - gonial) / 15.0 + 0.35
+            components.append(intensity_comp)
+            triggering_metrics.append("gonial_angle")
+            rationales.append(
+                f"Gonial angle ({gonial:.1f}°) indicates strong masseteric muscle attachment and square jaw pattern; "
+                "botulinum toxin type A to masseter muscles can significantly reduce transverse lower face width."
+            )
+
+        fma = ceph_feats.get("fma_angle")
+        if fma is not None and fma <= 22.0:
+            intensity_comp = (22.0 - fma) / 10.0 + 0.30
+            components.append(intensity_comp)
+            triggering_metrics.append("fma_angle")
+            rationales.append(
+                f"Hypodivergent skeletal pattern (FMA: {fma:.1f}°) indicates high masticatory muscle tone and masseter hypertrophy."
+            )
+
+        f10 = _extract_metric_val(frontal_metrics, "F10_golden_ratio")
+        if f10 is not None and f10 < 1.30:
+            intensity_comp = (1.30 - f10) / 0.25
+            components.append(intensity_comp)
+            triggering_metrics.append("F10_golden_ratio")
+            rationales.append(
+                f"Vertical-to-bizygomatic facial ratio (F10: {f10:.2f}) indicates transverse lower facial width dominance."
+            )
+
+        f1_ratio = _extract_metric_val(frontal_metrics, "F1_middle_lower_ratio")
+        if f1_ratio is not None and f1_ratio < 0.92:
+            intensity_comp = (0.95 - f1_ratio) / 0.20
+            components.append(intensity_comp)
+            triggering_metrics.append("F1_middle_lower_ratio")
+            rationales.append(
+                f"Middle-to-lower third ratio (F1: {f1_ratio:.2f}) indicates wide, square lower facial morphology."
+            )
+
+        if components:
+            raw_intensity = max(components)
+            intensity = round(max(0.01, min(1.0, raw_intensity)), 2)
+            rationale = " ".join(rationales)
+        else:
+            intensity = 0.0
+            rationale = "Mandibular angle width and masseter volume are in harmony with facial proportions."
+
+        return ProcedureRecommendation(
+            procedure="botulinum_toxin_masseter",
+            intensity=intensity,
+            rationale=rationale,
+            triggering_metrics=triggering_metrics,
+        )
+
+    def evaluate_botulinum_toxin_wrinkles(
+        self,
+        frontal_metrics: Mapping[str, Any],
+        profile_metrics: Mapping[str, Any] | None = None,
+        sagging: Any = None,
+    ) -> ProcedureRecommendation:
+        """Evaluate indication for Upper-Face Anti-Wrinkle Botulinum Toxin.
+
+        Anatomic indication:
+        - Dynamic rhytids of forehead (frontalis), glabella (corrugator/procerus), and periorbital crow's feet.
+        - Measured by:
+          - F1_upper_third > 0.355 (frontalis dynamic strain) or < 0.30 (corrugator frown furrowing).
+          - F11_asym_brow_apex_ratio > 0.15 (brow apex elevation asymmetry from uneven frontalis tone).
+          - F11_asym_brow_head_offset > 7.0 %ICD (corrugator depressor tone imbalance).
+          - Profile P5_forehead_inclination > 14.0° (sloping forehead prompting dynamic strain).
+        """
+        triggering_metrics: list[str] = []
+        components: list[float] = []
+        rationales: list[str] = []
+
+        f1_upper = _extract_metric_val(frontal_metrics, "F1_upper_third")
+        if f1_upper is not None:
+            if f1_upper > 0.355:
+                intensity_comp = (f1_upper - 0.333) / 0.10
+                components.append(intensity_comp)
+                triggering_metrics.append("F1_upper_third")
+                rationales.append(
+                    f"Upper facial third height (F1: {f1_upper:.3f}) indicates elevated frontalis dynamic strain and forehead line tendency."
+                )
+            elif f1_upper < 0.30:
+                intensity_comp = (0.333 - f1_upper) / 0.10
+                components.append(intensity_comp)
+                triggering_metrics.append("F1_upper_third")
+                rationales.append(
+                    f"Upper facial third (F1: {f1_upper:.3f}) is compressed, associated with persistent glabellar frown depressor hyperactivity."
+                )
+
+        asym_apex = _extract_metric_val(frontal_metrics, "F11_asym_brow_apex_ratio")
+        if asym_apex is not None and asym_apex > 0.15:
+            intensity_comp = (asym_apex - 0.10) / 0.25
+            components.append(intensity_comp)
+            triggering_metrics.append("F11_asym_brow_apex_ratio")
+            rationales.append(
+                f"Brow apex height asymmetry (F11: {asym_apex:.2f}) indicates uneven frontalis muscle contraction; micro-botulinum toxin can balance brow vectors."
+            )
+
+        asym_head = _extract_metric_val(frontal_metrics, "F11_asym_brow_head_offset")
+        if asym_head is not None and abs(asym_head) > 7.0:
+            intensity_comp = (abs(asym_head) - 5.0) / 10.0
+            components.append(intensity_comp)
+            triggering_metrics.append("F11_asym_brow_head_offset")
+            rationales.append(
+                f"Medial brow offset asymmetry (F11: {asym_head:.1f} %ICD) reflects asymmetrical corrugator supercilii tone."
+            )
+
+        if profile_metrics:
+            p5 = _extract_metric_val(profile_metrics, "P5_forehead_inclination")
+            if p5 is not None and p5 > 14.0:
+                intensity_comp = (p5 - 12.0) / 10.0
+                components.append(intensity_comp)
+                triggering_metrics.append("P5_forehead_inclination")
+                rationales.append(
+                    f"Posterior forehead inclination (P5: {p5:.1f}°) promotes compensatory dynamic frontalis elevation rhytids."
+                )
+
+        tier, laxity_score, feats = _extract_sagging_data(sagging, frontal_metrics)
+        if laxity_score is not None and laxity_score >= 35.0:
+            intensity_comp = (laxity_score - 25.0) / 75.0
+            components.append(intensity_comp)
+            triggering_metrics.append("laxity_score")
+
+        if components:
+            raw_intensity = max(components)
+            intensity = round(max(0.01, min(1.0, raw_intensity)), 2)
+            rationale = " ".join(rationales)
+        else:
+            intensity = 0.0
+            rationale = "Upper facial dynamic lines and brow vector symmetry are well-balanced."
+
+        return ProcedureRecommendation(
+            procedure="botulinum_toxin_wrinkles",
+            intensity=intensity,
+            rationale=rationale,
+            triggering_metrics=triggering_metrics,
+        )
+
+    def evaluate_hyaluronic_acid_filler_nasolabial(
+        self,
+        frontal_metrics: Mapping[str, Any],
+        profile_metrics: Mapping[str, Any] | None = None,
+        sagging: Any = None,
+        cephalometric: Any = None,
+    ) -> ProcedureRecommendation:
+        """Evaluate indication for Nasolabial Fold Hyaluronic Acid Filler.
+
+        Anatomic indication:
+        - Deepening of the nasolabial fold from pyriform aperture bone resorption,
+          malar fat pad descent, and acute nasolabial angle.
+        - Measured by:
+          - Sagging oral commissure droop > 0.010 or jowl sagging index > 0.020.
+          - Sagging tier >= 2 or laxity score >= 28.0%.
+          - Profile P2 nasolabial angle < 95.0° (pyriform/maxillary bone recession).
+          - Cephalometric SNA angle < 80.0° (skeletal midface hypoplasia).
+          - Frontal F1 middle-to-lower ratio > 1.05.
+        """
+        triggering_metrics: list[str] = []
+        components: list[float] = []
+        rationales: list[str] = []
+
+        tier, laxity_score, feats = _extract_sagging_data(sagging, frontal_metrics)
+        commissure_droop = feats.get("oral_commissure_droop", 0.0)
+        if commissure_droop > 0.010:
+            intensity_comp = min(0.85, commissure_droop * 30.0)
+            components.append(intensity_comp)
+            triggering_metrics.append("oral_commissure_droop")
+            rationales.append(
+                "Perioral soft tissue descent accentuates nasolabial crease deepening."
+            )
+
+        jowl_idx = feats.get("jowl_sagging_index", 0.0)
+        if jowl_idx > 0.020:
+            intensity_comp = min(0.80, jowl_idx * 20.0)
+            components.append(intensity_comp)
+            triggering_metrics.append("jowl_sagging_index")
+
+        if laxity_score is not None and laxity_score >= 28.0:
+            intensity_comp = (laxity_score - 20.0) / 60.0
+            components.append(intensity_comp)
+            triggering_metrics.append("laxity_score")
+            rationales.append(
+                f"Midfacial structural laxity ({laxity_score:.1f}%) contributes to medial fat pad descent over the nasolabial fold."
+            )
+
+        if profile_metrics:
+            p2 = _extract_metric_val(profile_metrics, "P2_nasolabial_angle")
+            if p2 is not None and p2 < 95.0:
+                intensity_comp = (95.0 - p2) / 15.0
+                components.append(intensity_comp)
+                triggering_metrics.append("P2_nasolabial_angle")
+                rationales.append(
+                    f"Acute nasolabial angle (P2: {p2:.1f}°) reflects deep pyriform aperture recession, benefiting from structural HA filler bolus."
+                )
+
+        ceph_class, ceph_name, ceph_sev, ceph_surg, ceph_feats = _extract_cephalometric_data(
+            cephalometric, profile_metrics, frontal_metrics
+        )
+        sna = ceph_feats.get("sna_angle")
+        if sna is not None and sna < 80.0:
+            intensity_comp = (82.0 - sna) / 8.0
+            components.append(intensity_comp)
+            triggering_metrics.append("sna_angle")
+            rationales.append(
+                f"Cephalometric maxillary retrusion (SNA: {sna:.1f}°) predisposes to deep paranasal hollows."
+            )
+
+        f1_ratio = _extract_metric_val(frontal_metrics, "F1_middle_lower_ratio")
+        if f1_ratio is not None and f1_ratio > 1.05:
+            intensity_comp = (f1_ratio - 1.00) / 0.30
+            components.append(intensity_comp)
+            triggering_metrics.append("F1_middle_lower_ratio")
+
+        if components:
+            raw_intensity = max(components)
+            intensity = round(max(0.01, min(1.0, raw_intensity)), 2)
+            rationale = " ".join(rationales)
+        else:
+            intensity = 0.0
+            rationale = "Nasolabial transition and paranasal structural volume are youthful and well-supported."
+
+        return ProcedureRecommendation(
+            procedure="hyaluronic_acid_filler_nasolabial",
+            intensity=intensity,
+            rationale=rationale,
+            triggering_metrics=triggering_metrics,
+        )
+
+    def evaluate_hyaluronic_acid_filler_temple(
+        self,
+        frontal_metrics: Mapping[str, Any],
+        profile_metrics: Mapping[str, Any] | None = None,
+    ) -> ProcedureRecommendation:
+        """Evaluate indication for Temporal Hollow Hyaluronic Acid Filler.
+
+        Anatomic indication:
+        - Bitemporal fossa volume loss (skeletonization), making zygomatic arches appear protruding.
+        - Measured by:
+          - Neoclassical Facial Fifths Canon (Farkas): F3 outer fifths target is 0.200.
+          - F3_fifth_outer_right or F3_fifth_outer_left < 0.185 indicates temporal constriction.
+          - F11_asym_outer_fifth > 0.12 indicates bitemporal volume asymmetry.
+        """
+        triggering_metrics: list[str] = []
+        components: list[float] = []
+        rationales: list[str] = []
+
+        outer_r = _extract_metric_val(frontal_metrics, "F3_fifth_outer_right")
+        outer_l = _extract_metric_val(frontal_metrics, "F3_fifth_outer_left")
+
+        outers = [v for v in (outer_r, outer_l) if v is not None]
+        if outers:
+            min_outer = min(outers)
+            if min_outer < 0.185:
+                intensity_comp = (0.200 - min_outer) / 0.05
+                components.append(intensity_comp)
+                triggering_metrics.append("F3_fifth_outer")
+                rationales.append(
+                    f"Temporal width in outer facial fifths (F3: {min_outer:.3f}) falls below Neoclassical canon (0.200), indicating temporal fossa hollowing."
+                )
+
+        asym_outer = _extract_metric_val(frontal_metrics, "F11_asym_outer_fifth")
+        if asym_outer is not None and asym_outer > 0.12:
+            intensity_comp = (asym_outer - 0.08) / 0.20
+            components.append(intensity_comp)
+            triggering_metrics.append("F11_asym_outer_fifth")
+            rationales.append(
+                f"Outer facial fifth asymmetry (F11: {asym_outer:.2f}) indicates uneven bitemporal soft-tissue volume."
+            )
+
+        if components:
+            raw_intensity = max(components)
+            intensity = round(max(0.01, min(1.0, raw_intensity)), 2)
+            rationale = " ".join(rationales)
+        else:
+            intensity = 0.0
+            rationale = "Temporal fossa contour and bitemporal-to-zygomatic proportions are well-balanced."
+
+        return ProcedureRecommendation(
+            procedure="hyaluronic_acid_filler_temple",
+            intensity=intensity,
+            rationale=rationale,
+            triggering_metrics=triggering_metrics,
+        )
+
+    def evaluate_mandibular_contouring(
+        self,
+        frontal_metrics: Mapping[str, Any],
+        cephalometric: Any = None,
+        profile_metrics: Mapping[str, Any] | None = None,
+    ) -> ProcedureRecommendation:
+        """Evaluate indication for Surgical Mandibular Angle Ostectomy / Jaw Contouring.
+
+        Anatomic indication:
+        - Severe bony mandibular flare / square jaw osteal hypertrophy that cannot be corrected
+          by masseter botulinum toxin alone.
+        - Measured by:
+          - Cephalometric gonial angle < 115.0° (severe acute bony mandibular angle; canon 120-130°).
+          - Cephalometric FMA angle < 20.0° (extreme hypodivergent skeletal pattern).
+        """
+        ceph_class, ceph_name, ceph_sev, ceph_surg, ceph_feats = _extract_cephalometric_data(
+            cephalometric, profile_metrics, frontal_metrics
+        )
+
+        triggering_metrics: list[str] = []
+        components: list[float] = []
+        rationales: list[str] = []
+
+        gonial = ceph_feats.get("gonial_angle")
+        if gonial is not None and gonial < 115.0:
+            intensity_comp = (118.0 - gonial) / 12.0
+            components.append(intensity_comp)
+            triggering_metrics.append("gonial_angle")
+            rationales.append(
+                f"Cephalometric gonial angle ({gonial:.1f}° < 115°) indicates marked bony mandibular angle prominence; "
+                "surgical mandibular angle ostectomy is indicated as bone flare cannot be resolved by neuromodulators alone."
+            )
+
+        fma = ceph_feats.get("fma_angle")
+        if fma is not None and fma < 20.0:
+            intensity_comp = (20.0 - fma) / 8.0
+            components.append(intensity_comp)
+            triggering_metrics.append("fma_angle")
+            rationales.append(
+                f"Severe hypodivergent skeletal base (FMA: {fma:.1f}°) with pronounced bony mandibular flare."
+            )
+
+        if components:
+            raw_intensity = max(components)
+            intensity = round(max(0.01, min(1.0, raw_intensity)), 2)
+            rationale = " ".join(rationales)
+        else:
+            intensity = 0.0
+            rationale = "Mandibular bony contour and gonial angle are within physiological aesthetic boundaries."
+
+        return ProcedureRecommendation(
+            procedure="mandibular_contouring",
+            intensity=intensity,
+            rationale=rationale,
+            triggering_metrics=triggering_metrics,
+        )
+
     def evaluate_sagging_treatments(
         self,
         sagging: Any = None,
@@ -712,10 +1079,13 @@ class ProcedureRecommender:
         include_sagging: bool = False,
         cephalometric: Any = None,
         include_cephalometric: bool = False,
+        comprehensive: bool = False,
     ) -> list[ProcedureRecommendation]:
         """Generate procedure recommendations for aesthetic proportions and structural laxity.
 
         Accepts FrontalResult, ProfileResult, Report, or metrics dictionaries.
+        When comprehensive=False (default), evaluates the canonical set (chin, lip, rhino, + ortho/sagging if present).
+        When comprehensive=True, evaluates the full 12-procedure clinical spectrum sorted by intensity descending.
         """
         # If frontal is a Report, extract frontal and profile from it if profile not given
         if profile is None and hasattr(frontal, "frontal") and hasattr(frontal, "profile"):
@@ -738,33 +1108,98 @@ class ProcedureRecommender:
             elif isinstance(frontal, Mapping) and frontal.get("cephalometric") is not None:
                 ceph_target = frontal["cephalometric"]
 
+        # Check for sagging data in args or frontal
+        sag_target = sagging
+        if sag_target is None and frontal is not None:
+            if hasattr(frontal, "facial_sagging") and getattr(frontal, "facial_sagging") is not None:
+                sag_target = getattr(frontal, "facial_sagging")
+            elif isinstance(frontal, Mapping) and frontal.get("facial_sagging") is not None:
+                sag_target = frontal["facial_sagging"]
+
         chin = self.evaluate_chin_augmentation(frontal_metrics, profile_metrics, cephalometric=ceph_target)
         lip = self.evaluate_lip_augmentation(frontal_metrics, profile_metrics)
         rhino = self.evaluate_rhinoplasty(frontal_metrics, profile_metrics)
 
-        all_recs = [chin, lip, rhino]
+        if not comprehensive:
+            all_recs = [chin, lip, rhino]
 
-        # Check if cephalometric data is present or requested
-        has_ceph_data = ceph_target is not None or include_cephalometric
-        if has_ceph_data:
-            ortho = self.evaluate_orthognathic_surgery(
-                cephalometric=ceph_target,
-                profile_metrics=profile_metrics,
-                frontal_metrics=frontal_metrics,
-            )
-            all_recs.append(ortho)
+            # Check if cephalometric data is present or requested
+            has_ceph_data = ceph_target is not None or include_cephalometric
+            if has_ceph_data:
+                ortho = self.evaluate_orthognathic_surgery(
+                    cephalometric=ceph_target,
+                    profile_metrics=profile_metrics,
+                    frontal_metrics=frontal_metrics,
+                    profile=profile,
+                    frontal=frontal,
+                )
+                all_recs.append(ortho)
 
-        # Check if sagging data is present or requested
-        has_sagging_data = (
-            sagging is not None
-            or include_sagging
-            or (hasattr(frontal, "facial_sagging") and getattr(frontal, "facial_sagging") is not None)
-            or (isinstance(frontal, Mapping) and frontal.get("facial_sagging") is not None)
+            # Check if sagging data is present or requested
+            has_sagging_data = sag_target is not None or include_sagging
+
+            if has_sagging_data:
+                sagging_recs = self.evaluate_sagging_treatments(sagging=sag_target, frontal=frontal)
+                all_recs.extend(sagging_recs)
+
+            if only_recommended:
+                return [r for r in all_recs if r.intensity > 0.0]
+            return all_recs
+
+        # Comprehensive 12-procedure evaluation across the full clinical spectrum
+        masseter = self.evaluate_botulinum_toxin_masseter(
+            frontal_metrics=frontal_metrics,
+            cephalometric=ceph_target,
+            profile_metrics=profile_metrics,
         )
+        wrinkles = self.evaluate_botulinum_toxin_wrinkles(
+            frontal_metrics=frontal_metrics,
+            profile_metrics=profile_metrics,
+            sagging=sag_target,
+        )
+        nasolabial = self.evaluate_hyaluronic_acid_filler_nasolabial(
+            frontal_metrics=frontal_metrics,
+            profile_metrics=profile_metrics,
+            sagging=sag_target,
+            cephalometric=ceph_target,
+        )
+        temple = self.evaluate_hyaluronic_acid_filler_temple(
+            frontal_metrics=frontal_metrics,
+            profile_metrics=profile_metrics,
+        )
+        skin = self.evaluate_skin_tightening(sagging=sag_target, frontal=frontal)
+        thread = self.evaluate_thread_lift(sagging=sag_target, frontal=frontal)
+        mandibular = self.evaluate_mandibular_contouring(
+            frontal_metrics=frontal_metrics,
+            cephalometric=ceph_target,
+            profile_metrics=profile_metrics,
+        )
+        ortho = self.evaluate_orthognathic_surgery(
+            cephalometric=ceph_target,
+            profile_metrics=profile_metrics,
+            frontal_metrics=frontal_metrics,
+            profile=profile,
+            frontal=frontal,
+        )
+        facelift = self.evaluate_surgical_facelift(sagging=sag_target, frontal=frontal)
 
-        if has_sagging_data:
-            sagging_recs = self.evaluate_sagging_treatments(sagging=sagging, frontal=frontal)
-            all_recs.extend(sagging_recs)
+        all_recs = [
+            chin,
+            lip,
+            rhino,
+            masseter,
+            wrinkles,
+            nasolabial,
+            temple,
+            skin,
+            thread,
+            mandibular,
+            ortho,
+            facelift,
+        ]
+
+        # Sort descending by intensity / priority % (highest recommended at top)
+        all_recs.sort(key=lambda r: (-r.intensity, r.procedure))
 
         if only_recommended:
             return [r for r in all_recs if r.intensity > 0.0]
@@ -780,10 +1215,12 @@ def recommend_procedures(
     include_sagging: bool = False,
     cephalometric: Any = None,
     include_cephalometric: bool = False,
+    comprehensive: bool = False,
 ) -> list[ProcedureRecommendation]:
-    """Calculate aesthetic procedure recommendations for facial proportions and sagging laxity.
+    """Calculate aesthetic procedure recommendations for facial proportions and structural laxity.
 
     Intensities are bounded in [0.0, 1.0] and rounded to 2 decimal places. 0.0 indicates no recommendation.
+    When comprehensive=True, covers the full 12-procedure clinical spectrum sorted by intensity descending.
     """
     recommender = ProcedureRecommender()
     return recommender.recommend(
@@ -794,6 +1231,32 @@ def recommend_procedures(
         include_sagging=include_sagging,
         cephalometric=cephalometric,
         include_cephalometric=include_cephalometric,
+        comprehensive=comprehensive,
+    )
+
+
+def recommend_comprehensive_procedures(
+    frontal: Any,
+    profile: Any = None,
+    *,
+    only_recommended: bool = False,
+    sagging: Any = None,
+    cephalometric: Any = None,
+) -> list[ProcedureRecommendation]:
+    """Calculate aesthetic procedure recommendations covering the full 12-procedure clinical spectrum.
+
+    Sorted by priority / recommendation intensity descending.
+    """
+    recommender = ProcedureRecommender()
+    return recommender.recommend(
+        frontal,
+        profile,
+        only_recommended=only_recommended,
+        sagging=sagging,
+        include_sagging=True,
+        cephalometric=cephalometric,
+        include_cephalometric=True,
+        comprehensive=True,
     )
 
 
@@ -837,6 +1300,7 @@ __all__ = [
     "ProcedureRecommendation",
     "ProcedureRecommender",
     "recommend_procedures",
+    "recommend_comprehensive_procedures",
     "recommend_sagging_procedures",
     "recommend_orthognathic_procedures",
 ]

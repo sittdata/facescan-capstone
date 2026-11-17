@@ -11,8 +11,14 @@ export const PROCEDURE_TITLES: Record<string, string> = {
   chin_augmentation: "ปรับมิติปลายคาง (Chin Augmentation)",
   lip_augmentation: "ปรับมิติมุมปากและริมฝีปาก (Lip Augmentation)",
   rhinoplasty: "ปรับแต่งทรงจมูก (Rhinoplasty)",
+  botulinum_toxin_masseter: "โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว (Masseter Botulinum Toxin)",
+  botulinum_toxin_wrinkles: "โบท็อกซ์ริ้วรอยส่วนบน (Upper-Face Anti-Wrinkle Botox)",
+  hyaluronic_acid_filler_nasolabial: "ฟิลเลอร์เติมเต็มร่องแก้ม (Nasolabial Fold Filler)",
+  hyaluronic_acid_filler_temple: "ฟิลเลอร์เติมเต็มขมับตอบ (Temporal Volume Restoration)",
   skin_tightening: "ยกกระชับด้วยคลื่นพลังงาน (HIFU / Ultherapy / RF)",
   thread_lift: "ร้อยไหมพยุงกรอบหน้า (Barbed Thread Lift)",
+  mandibular_contouring: "ศัลยกรรมตัดแต่งมุมกราม (Mandibular Angle Ostectomy)",
+  orthognathic_surgery: "ศัลยกรรมเลื่อนขากรรไกร (Orthognathic Surgery)",
   surgical_facelift: "ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)",
 };
 
@@ -25,6 +31,18 @@ export const RATIONALE_TH: Record<string, string> = {
     "มิติสัดส่วนทรงจมูก ปลายจมูก และความพุ่งอยู่ในเกณฑ์อ้างอิงที่ได้สัดส่วนสมดุลแล้ว",
   "Nasal proportions and tip projection are within reference ranges.":
     "มิติความกว้างและปลายจมูกอยู่ในเกณฑ์อ้างอิงที่ได้สัดส่วนสมดุลแล้ว",
+  "Mandibular angle width and masseter volume are in harmony with facial proportions.":
+    "มิติมุมขากรรไกรและขนาดกล้ามเนื้อกรามอยู่ในเกณฑ์สมดุลตามสัดส่วนใบหน้าแล้ว",
+  "Upper face dynamic vectors and brow contours display smooth, harmonious muscular tone.":
+    "มิติการเคลื่อนไหวและแรงตึงตัวของกล้ามเนื้อส่วนบนอยู่ในเกณฑ์ราบเรียบสมดุลแล้ว",
+  "Nasolabial fold contours and pyriform aperture projection are youthfully supported without soft-tissue deficit.":
+    "ร่องแก้มและฐานกระดูกข้างปีกจมูกมีความอิ่มเอิบ ไม่พบการยุบตัวของชั้นไขมัน",
+  "Temporal fossa volume and bitemporal contour are in balanced anatomical proportion.":
+    "มิติความกว้างของขมับและเนื้อเยื่อส่วนบนอยู่ในเกณฑ์สมดุล ไม่พบภาวะขมับตอบ",
+  "Bony mandibular angle and basal bone dimensions are balanced without structural skeletal flare.":
+    "โครงสร้างกระดูกขากรรไกรล่างและมุมกรามได้รูปสมดุล ไม่พบกระดูกกรามผายกว้างผิดปกติ",
+  "Skeletal and occlusal relationships display harmonic Class I alignment without indication for orthognathic surgical intervention.":
+    "ความสัมพันธ์ของกระดูกขากรรไกรและการสบฟันอยู่ในเกณฑ์ Class I ปกติ ไม่มีข้อบ่งชี้สำหรับการผ่าตัดเลื่อนขากรรไกร",
   "Facial skin and subcutaneous structures display high firmness; routine preventive skincare recommended without energy-based tightening.":
     "โครงสร้างผิวและความกระชับอยู่ในระดับดีเยี่ยม แนะนำการดูแลบำรุงผิวตามปกติโดยยังไม่จำเป็นต้องใช้คลื่นพลังงานยกกระชับ",
   "Facial skin and soft-tissue architecture display youthful firmness (Tier 1); no energy-based skin tightening indicated.":
@@ -43,10 +61,20 @@ export function translateRationale(text?: string | null): string {
   if (!text) return "";
   if (RATIONALE_TH[text]) return RATIONALE_TH[text];
   let s = text;
+
+  // Proportions & Aesthetics
   s = s.replace(/Lip vermilion fullness and sagittal projection are within reference ranges\./g, "ความหนาและมิติความนูนของริมฝีปากอยู่ในเกณฑ์อ้างอิงที่ได้สัดส่วนสมดุลแล้ว");
   s = s.replace(/Chin projection and vertical proportions are within reference ranges\./g, "มิติความยาวคางและสัดส่วนใบหน้าส่วนล่างอยู่ในเกณฑ์อ้างอิงที่ได้สัดส่วนสมดุลแล้ว");
   s = s.replace(/Nasal proportions, tip rotation, and projection are within reference ranges\./g, "มิติสัดส่วนทรงจมูก ปลายจมูก และความพุ่งอยู่ในเกณฑ์อ้างอิงที่ได้สัดส่วนสมดุลแล้ว");
   s = s.replace(/Nasal proportions and tip projection are within reference ranges\./g, "มิติความกว้างและปลายจมูกอยู่ในเกณฑ์อ้างอิงที่ได้สัดส่วนสมดุลแล้ว");
+  s = s.replace(/Mandibular angle width and masseter volume are in harmony with facial proportions\./g, "มิติมุมขากรรไกรและขนาดกล้ามเนื้อกรามอยู่ในเกณฑ์สมดุลตามสัดส่วนใบหน้าแล้ว");
+  s = s.replace(/Upper face dynamic vectors and brow contours display smooth, harmonious muscular tone\./g, "มิติการเคลื่อนไหวและแรงตึงตัวของกล้ามเนื้อส่วนบนอยู่ในเกณฑ์ราบเรียบสมดุลแล้ว");
+  s = s.replace(/Nasolabial fold contours and pyriform aperture projection are youthfully supported without soft-tissue deficit\./g, "ร่องแก้มและฐานกระดูกข้างปีกจมูกมีความอิ่มเอิบ ไม่พบการยุบตัวของชั้นไขมัน");
+  s = s.replace(/Temporal fossa volume and bitemporal contour are in balanced anatomical proportion\./g, "มิติความกว้างของขมับและเนื้อเยื่อส่วนบนอยู่ในเกณฑ์สมดุล ไม่พบภาวะขมับตอบ");
+  s = s.replace(/Bony mandibular angle and basal bone dimensions are balanced without structural skeletal flare\./g, "โครงสร้างกระดูกขากรรไกรล่างและมุมกรามได้รูปสมดุล ไม่พบกระดูกกรามผายกว้างผิดปกติ");
+  s = s.replace(/Skeletal and occlusal relationships display harmonic Class I alignment without indication for orthognathic surgical intervention\./g, "ความสัมพันธ์ของกระดูกขากรรไกรและการสบฟันอยู่ในเกณฑ์ Class I ปกติ ไม่มีข้อบ่งชี้สำหรับการผ่าตัดเลื่อนขากรรไกร");
+
+  // Chin & Profile
   s = s.replace(/Lower lip position relative to Ricketts' E-line \(P4: ([^)]+)\) indicates chin retrusion in profile\./g, "ตำแหน่งริมฝีปากล่างเมื่อเทียบกับเส้น E-line (P4: $1) บ่งชี้ว่าคางมีการถอยร่นเมื่อมองจากด้านข้าง");
   s = s.replace(/Upper lip position relative to Ricketts' E-line \(P4: ([^)]+)\) indicates relative chin retrusion in profile\./g, "ตำแหน่งริมฝีปากบนเมื่อเทียบกับเส้น E-line (P4: $1) บ่งชี้ว่าคางถอยเมื่อมองจากด้านข้าง");
   s = s.replace(/Lower face proportion \(F1: ([^)]+)\) is shorter than classical third \(33\.3%\)\./g, "สัดส่วนใบหน้าส่วนล่าง (F1: $1) สั้นกว่าสัดส่วนมาตรฐาน 1 ใน 3");
@@ -64,6 +92,94 @@ export function translateRationale(text?: string | null): string {
   s = s.replace(/Nasolabial angle \(P2: ([^)]+)\) is obtuse, indicating upward nasal tip rotation\./g, "มุมจมูก-ริมฝีปาก (P2: $1) กว้าง ปลายจมูกเชิดขึ้น");
   s = s.replace(/Nose tip projection \(P3a Goode: ([^)]+)\) is below classical reference\./g, "ความพุ่งของปลายจมูกตามเกณฑ์ Goode (P3a: $1) ต่ำกว่าเกณฑ์มาตรฐาน");
   s = s.replace(/Nose tip projection \(P3a Goode: ([^)]+)\) is above classical reference\./g, "ความพุ่งของปลายจมูกตามเกณฑ์ Goode (P3a: $1) สูงกว่าเกณฑ์มาตรฐาน");
+
+  // Masseter Botox & Mandibular
+  s = s.replace(
+    /Gonial angle \(([^)]+)°\) indicates strong masseteric muscle attachment and square jaw pattern; botulinum toxin type A to masseter muscles can significantly reduce transverse lower face width\./g,
+    "มุมกราม ($1°) บ่งชี้การยึดเกาะของกล้ามเนื้อกรามที่หนาตัวและใบหน้าทรงเหลี่ยม การฉีดโบท็อกซ์ลดขนาดกล้ามเนื้อกราม (Masseter Botox) จะช่วยลดความกว้างใบหน้าส่วนล่างได้อย่างมีประสิทธิภาพ"
+  );
+  s = s.replace(
+    /Hypodivergent skeletal pattern \(FMA: ([^)]+)°\) indicates high masticatory muscle tone and masseter hypertrophy\./g,
+    "โครงสร้างกระดูกหน้าสั้น (FMA: $1°) สัมพันธ์กับแรงบดเคี้ยวสูงและกล้ามเนื้อกรามหนาตัวผิดปกติ"
+  );
+  s = s.replace(
+    /Vertical-to-bizygomatic facial ratio \(F10: ([^)]+)\) indicates transverse lower facial width dominance\./g,
+    "อัตราส่วนความยาวใบหน้าต่อความกว้างโหนกแก้ม (F10: $1) บ่งชี้ความกว้างส่วนล่างที่เด่นชัด"
+  );
+  s = s.replace(
+    /Middle-to-lower third ratio \(F1: ([^)]+)\) indicates wide, square lower facial morphology\./g,
+    "สัดส่วนใบหน้าส่วนกลางต่อส่วนล่าง (F1: $1) บ่งชี้โครงสร้างใบหน้าส่วนล่างที่กว้างทรงเหลี่ยม"
+  );
+  s = s.replace(
+    /Very acute gonial angle \(([^)]+)°\) indicates severe bony mandibular angle prominence and square jaw deformity; ostectomy or contouring surgery provides definitive bony reduction\./g,
+    "มุมกรามแคบมาก ($1°) บ่งชี้กระดูกมุมกรามผายยื่นชัดเจนจนเกิดรูปหน้าเหลี่ยม การผ่าตัดตัดแต่งมุมกรามจะช่วยลดขนาดกระดูกได้อย่างถาวร"
+  );
+  s = s.replace(
+    /Marked hypodivergent pattern \(FMA: ([^)]+)°\) demonstrates thick bony mandibular base beyond muscular correction alone\./g,
+    "โครงสร้างกระดูกขากรรไกรหนาตัวเด่นชัด (FMA: $1°) ซึ่งเกินกว่าการแก้ไขด้วยการฉีดโบท็อกซ์เพียงอย่างเดียว"
+  );
+
+  // Wrinkle Botox
+  s = s.replace(
+    /Upper facial third proportion \(F1: ([^)]+)\) indicates dynamic frontalis muscular strain in forehead region\./g,
+    "สัดส่วนใบหน้าส่วนบน (F1: $1) สัมพันธ์กับการทำงานหนักของกล้ามเนื้อหน้าผาก (Frontalis) ทำให้เกิดริ้วรอยแนวนอน"
+  );
+  s = s.replace(
+    /Upper facial third proportion \(F1: ([^)]+)\) indicates corrugator supercilii hyperactivity with deep glabellar furrowing\./g,
+    "สัดส่วนใบหน้าส่วนบน (F1: $1) สัมพันธ์กับการเกร็งตัวของกล้ามเนื้อหัวคิ้ว (Corrugator) ทำให้เกิดริ้วรอยขมวดคิ้วลึก"
+  );
+  s = s.replace(
+    /Brow apex vertical height asymmetry \(([^)]+)\) suggests differential frontalis\/orbicularis muscle tone\./g,
+    "ระดับความสูงยอดคิ้วไม่สมมาตร ($1) จากความตึงตัวของกล้ามเนื้อสองข้างที่ไม่เท่ากัน"
+  );
+  s = s.replace(
+    /Brow medial head vertical offset \(([^)]+)px\) indicates asymmetric corrugator and depressor supercilii dynamic pull\./g,
+    "ตำแหน่งหัวคิ้วสองข้างเหลื่อมล้ำ ($1px) จากแรงดึงของกล้ามเนื้อรอบคิ้วไม่เท่ากัน"
+  );
+  s = s.replace(
+    /Steep nasofrontal angle \(P1: ([^)]+)°\) with acute P5 \(([^)]+)°\) indicates prominent procerus furrowing\./g,
+    "มุมหัวตาสันจมูก (P1: $1°) ร่วมกับมุมหัวคิ้ว (P5: $2°) บ่งชี้ริ้วรอยย่นสันจมูกจากกล้ามเนื้อ Procerus"
+  );
+
+  // HA Fillers (Nasolabial & Temple)
+  s = s.replace(
+    /Deep nasolabial fold depth score \(([^)]+)%\) warrants structural deep-bolus hyaluronic acid filler\./g,
+    "ร่องแก้มลึก ($1%) มีข้อบ่งชี้ในการฉีดฟิลเลอร์ไฮยาลูโรนิกแอซิดชั้นลึกเพื่อพยุงร่องแก้ม"
+  );
+  s = s.replace(
+    /Midface soft-tissue laxity \(([^)]+)%\) with descending malar fat pad deepens nasolabial creases\./g,
+    "ความหย่อนคล้อยของเนื้อเยื่อใบหน้าส่วนกลาง ($1%) ร่วมกับการคล้อยตัวของก้อนไขมันแก้มส่งผลให้ร่องแก้มดูลึกขึ้น"
+  );
+  s = s.replace(
+    /Acute nasolabial angle \(P2: ([^)]+)°\) with alar crease depression indicates sub-alar pyriform aperture volume deficiency\./g,
+    "มุมจมูก-ริมฝีปาก (P2: $1°) ร่วมกับรอยบุ๋มข้างปีกจมูก บ่งชี้การยุบตัวของกระดูกฐานปีกจมูก (Pyriform aperture)"
+  );
+  s = s.replace(
+    /Cephalometric maxillary retrusion indicates deficient skeletal pyriform support requiring deep structural filler boluses\./g,
+    "กระดูกขากรรไกรบนถอยร่น ขาดแรงพยุงโครงสร้างฐานปีกจมูก เหมาะกับการฉีดฟิลเลอร์หนุนกระดูกชั้นลึก"
+  );
+  s = s.replace(
+    /Temporal outer fifths ratio \(F5: ([^)]+)\) indicates temporal hollowing and skeletonized upper lateral facial contour\./g,
+    "สัดส่วนความกว้างขมับ (F5: $1) บ่งชี้ภาวะขมับตอบ เห็นแนวกระดูกขมับชัดเจน"
+  );
+  s = s.replace(
+    /Bitemporal-to-bizygomatic width ratio \(([^)]+)\) indicates significant temporal hollowing \(peanut-shaped face contour\)\./g,
+    "อัตราส่วนขมับต่อโหนกแก้ม ($1) บ่งชี้ขมับตอบชัดเจนจนเกิดรูปหน้าทรงผลถั่วลิสง (Peanut-shaped)"
+  );
+  s = s.replace(
+    /Bitemporal width asymmetry indicates uneven temporal fossa soft tissue atrophy\./g,
+    "ความกว้างขมับซ้ายขวาไม่สมมาตร จากการฝ่อตัวของเนื้อเยื่อบริเวณขมับไม่เท่ากัน"
+  );
+
+  // Orthognathic Surgery
+  s = s.replace(
+    /Skeletal Class III malocclusion \(ANB: ([^,]+), Wits: ([^)]+)\) with prominent mandibular prognathism warrants multidisciplinary orthognathic surgery \(BSSO\/Le Fort I\) for definitive skeletal and occlusal correction\./g,
+    "โครงสร้างกระดูกขากรรไกรล่างยื่นผิดรูป Skeletal Class III (ANB: $1, Wits: $2) มีข้อบ่งชี้การผ่าตัดเลื่อนขากรรไกร (BSSO/Le Fort I) ร่วมกับการจัดฟัน"
+  );
+  s = s.replace(
+    /Severe Skeletal Class II malocclusion \(ANB: ([^,]+), Wits: ([^)]+)\) with mandibular retrognathia warrants bilateral sagittal split osteotomy \(BSSO\) mandibular advancement\./g,
+    "โครงสร้างกระดูกขากรรไกรล่างถอยร่นรุนแรง Skeletal Class II (ANB: $1, Wits: $2) มีข้อบ่งชี้การผ่าตัดเลื่อนขากรรไกรล่างมาด้านหน้า (BSSO)"
+  );
 
   // Sagging and laxity procedure rationales
   s = s.replace(
@@ -97,6 +213,9 @@ export function translateRationale(text?: string | null): string {
 export function ProcedureRecommendationCard({ recommendations, onOpenSimulation }: Props) {
   if (!recommendations || recommendations.length === 0) return null;
 
+  // Sort descending by recommendation intensity / priority percentage
+  const sorted = [...recommendations].sort((a, b) => b.intensity - a.intensity);
+
   return (
     <div className="border border-line bg-surface p-4 overflow-hidden break-words">
       <div className="flex items-center justify-between border-b border-line pb-3">
@@ -107,7 +226,7 @@ export function ProcedureRecommendationCard({ recommendations, onOpenSimulation 
               ข้อเสนอแนะหัตถการความงาม (Aesthetic Recommendations)
             </h3>
             <p className="text-sm text-ink-2">
-              ประเมินจากความเบี่ยงเบนของสัดส่วนใบหน้า (F1–F11, P1–P5) เทียบกับเกณฑ์มาตรฐาน
+              เรียงลำดับความจำเป็นตามการวิเคราะห์สัดส่วนใบหน้า โครงสร้างกระดูก และความหย่อนคล้อย
             </p>
           </div>
         </div>
@@ -117,7 +236,7 @@ export function ProcedureRecommendationCard({ recommendations, onOpenSimulation 
       </div>
 
       <div className="mt-4 space-y-3">
-        {recommendations.map((rec) => {
+        {sorted.map((rec) => {
           const title = PROCEDURE_TITLES[rec.procedure] ?? rec.procedure;
           const pct = Math.round(rec.intensity * 100);
           const isRecommended = rec.intensity > 0;

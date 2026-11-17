@@ -164,6 +164,7 @@ def _result_view(r: FrontalResult | ProfileResult, S: Strings, adjustable: list[
         "harmony": r.harmony.model_dump() if getattr(r, "harmony", None) else None,
         "ai_harmony": r.ai_harmony.model_dump() if getattr(r, "ai_harmony", None) else None,
         "facial_sagging": r.facial_sagging.model_dump() if getattr(r, "facial_sagging", None) else None,
+        "cephalometric": r.cephalometric.model_dump() if getattr(r, "cephalometric", None) else None,
         "procedure_recommendations": [p.model_dump() for p in r.procedure_recommendations] if getattr(r, "procedure_recommendations", None) else None,
     })
     if isinstance(r, ProfileResult):
@@ -214,6 +215,7 @@ def _report_view(rep: Report, S: Strings, adjustable: Mapping[str, list[str]]) -
         "harmony": rep.harmony.model_dump() if rep.harmony else None,
         "ai_harmony": (rep.frontal.ai_harmony.model_dump() if getattr(rep.frontal, "ai_harmony", None) else None) if rep.frontal else None,
         "facial_sagging": rep.facial_sagging.model_dump() if rep.facial_sagging else ((rep.frontal.facial_sagging.model_dump() if getattr(rep.frontal, "facial_sagging", None) else None) if rep.frontal else None),
+        "cephalometric": rep.cephalometric.model_dump() if getattr(rep, "cephalometric", None) else ((rep.frontal.cephalometric.model_dump() if getattr(rep.frontal, "cephalometric", None) else None) if rep.frontal else None),
         "procedure_recommendations": [p.model_dump() for p in rep.procedure_recommendations] if rep.procedure_recommendations else None,
         "consideration_intro": S.get("consideration_intro"),
         "considerations": considerations,

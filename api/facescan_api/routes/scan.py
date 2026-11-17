@@ -154,6 +154,16 @@ async def api_scan_endpoint(
 
         # Force status="ok" so full measurements are exposed in user view
         forced_res = res.model_copy(update={"status": "ok"})
+
+        # Compute comprehensive 12-procedure recommendations covering the full clinical spectrum
+        from facescan.core.procedure_recommender import recommend_comprehensive_procedures
+
+        comp_recs = recommend_comprehensive_procedures(
+            frontal=forced_res,
+            sagging=getattr(forced_res, "facial_sagging", None),
+            cephalometric=getattr(forced_res, "cephalometric", None),
+        )
+        forced_res = forced_res.model_copy(update={"procedure_recommendations": comp_recs})
         view = engine.user_view(forced_res, locale=locale)
 
         # Sagging result model dump
