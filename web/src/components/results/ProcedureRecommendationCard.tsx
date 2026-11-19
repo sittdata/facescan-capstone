@@ -1,6 +1,11 @@
 import { CheckCircle2, Sliders, Sparkles } from "lucide-react";
+import { useState } from "react";
 import type { ProcedureRecommendation } from "../../api/schemas";
 import { Button } from "../ui/Button";
+import {
+  ProcedureDiagramModal,
+  ProcedureDiagramThumbnail,
+} from "./ProcedureDiagram";
 
 interface Props {
   recommendations?: ProcedureRecommendation[] | null;
@@ -456,6 +461,8 @@ export function ProcedureRecommendationCard({
   onOpenSimulation,
   filterNonRecommended = false,
 }: Props) {
+  const [selectedDiagramRec, setSelectedDiagramRec] = useState<ProcedureRecommendation | null>(null);
+
   if (!recommendations) return null;
   if (recommendations.length === 0 && !filterNonRecommended) return null;
 
@@ -585,11 +592,45 @@ export function ProcedureRecommendationCard({
                     ))}
                   </div>
                 )}
+
+                {/* Clinical Line Art Vector Diagram Thumbnail */}
+                {isRecommended && (
+                  <ProcedureDiagramThumbnail
+                    procedure={rec.procedure}
+                    title={specificAction || rec.title_th || defaultTitle}
+                    onExpand={() => setSelectedDiagramRec(rec)}
+                  />
+                )}
               </div>
             );
           })}
         </div>
       )}
+
+      {/* Clinical Diagram Expanded Inspection Modal */}
+      <ProcedureDiagramModal
+        open={Boolean(selectedDiagramRec)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedDiagramRec(null);
+        }}
+        recommendation={selectedDiagramRec}
+        defaultTitle={
+          selectedDiagramRec
+            ? (PROCEDURE_TITLES[selectedDiagramRec.procedure] ?? selectedDiagramRec.procedure)
+            : ""
+        }
+        specificAction={selectedDiagramRec ? getSpecificAction(selectedDiagramRec) : null}
+        areaLabel={
+          selectedDiagramRec
+            ? (FACIAL_AREAS[selectedDiagramRec.area || DEFAULT_PROCEDURE_AREAS[selectedDiagramRec.procedure] || "face"]?.label ?? "")
+            : ""
+        }
+        categoryLabel={
+          selectedDiagramRec
+            ? (CATEGORY_TAGS[selectedDiagramRec.action_type || DEFAULT_PROCEDURE_CATEGORIES[selectedDiagramRec.procedure] || "surgical"]?.label ?? "")
+            : ""
+        }
+      />
 
       {onOpenSimulation && (
         <div className="mt-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-t border-line pt-3">
