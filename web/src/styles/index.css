@@ -92,8 +92,11 @@
   }
 
   img,
-  svg {
+  svg,
+  [data-testid="spectrum-bar"],
+  [data-testid="spectrum-bar"] * {
     print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
 

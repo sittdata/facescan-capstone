@@ -132,7 +132,10 @@ export function ResultScreen({ view }: { view: View }) {
         <div className="grid content-start gap-4 lg:col-span-7 min-w-0 max-w-full">
           {view === "frontal" && (
             <>
-              <DemographicsCard demographics={result.inferred_demographics} />
+              <DemographicsCard
+                demographics={result.inferred_demographics}
+                sagging={result.facial_sagging}
+              />
               <HarmonyCard harmony={result.harmony} result={result} />
               <FacialSaggingCard
                 sagging={result.facial_sagging}

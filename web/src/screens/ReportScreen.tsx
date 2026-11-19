@@ -159,7 +159,10 @@ export function ReportScreen() {
             )}
           </section>
 
-          <DemographicsCard demographics={state.frontal.latest?.result.inferred_demographics} />
+          <DemographicsCard
+            demographics={state.frontal.latest?.result.inferred_demographics}
+            sagging={report.frontal.facial_sagging}
+          />
 
           <FaceShapeCard
             photoUrl={state.frontal.photoUrl}
