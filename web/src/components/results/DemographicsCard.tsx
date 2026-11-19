@@ -1,8 +1,7 @@
-import { Sparkles, Layers, Activity, User, ShieldCheck } from "lucide-react";
+import { Sparkles, Layers, Activity, ShieldCheck } from "lucide-react";
 import type { InferredDemographics, FacialSaggingResult } from "../../api/schemas";
 import {
   getSkinVitalityProfile,
-  getAnatomicalSexStandard,
 } from "../../utils/skinAgeProfile";
 
 interface Props {
@@ -13,7 +12,7 @@ interface Props {
 export function DemographicsCard({ demographics, sagging }: Props) {
   if (!demographics) return null;
 
-  const { predicted_sex, sex_confidence, predicted_age, age_sd } = demographics;
+  const { predicted_age, age_sd } = demographics;
   const resolvedTier =
     sagging?.tier ??
     (sagging?.tier_name === "Firm"
@@ -24,7 +23,6 @@ export function DemographicsCard({ demographics, sagging }: Props) {
           ? 3
           : undefined);
   const profile = getSkinVitalityProfile(predicted_age, age_sd, resolvedTier);
-  const sexStandard = getAnatomicalSexStandard(predicted_sex, sex_confidence);
 
   return (
     <div
@@ -239,37 +237,6 @@ export function DemographicsCard({ demographics, sagging }: Props) {
             <span>{profile.firmnessCorrelation.descriptionTh}</span>
           </div>
         )}
-      </div>
-
-      {/* Anatomical Sex Standard Reference */}
-      <div data-testid="anatomical-sex-card" className="mt-4 border border-line bg-paper p-4">
-        <div className="flex items-start gap-3">
-          <User size={20} className="text-accent shrink-0 mt-1" aria-hidden="true" />
-          <div className="w-full">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <div className="text-sm text-ink-3">
-                  เกณฑ์กายวิภาคศาสตร์อ้างอิง (Anatomical Sex Standard)
-                </div>
-                <div
-                  data-testid="anatomical-sex-label"
-                  className="text-sm font-semibold text-ink"
-                >
-                  {sexStandard.sexLabelTh}
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="text-sm text-ink-3">ความสอดคล้องทางกายวิภาค: </span>
-                <span className="text-sm font-semibold text-ink-2">
-                  {sexStandard.confidencePercent}%
-                </span>
-              </div>
-            </div>
-            <p className="mt-2 text-sm text-ink-2 border-t border-line pt-2">
-              {sexStandard.clinicalContextTh}
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

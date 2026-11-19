@@ -85,15 +85,6 @@ describe("DemographicsCard & Skin Vitality Index", () => {
       expect(
         screen.getByText(/ชั้นคอลลาเจนและอิลาสตินหนาแน่นเต็มที่/i)
       ).toBeInTheDocument();
-
-      // Anatomical Sex Standard
-      expect(screen.getByTestId("anatomical-sex-label")).toHaveTextContent(
-        "เพศหญิง (Female Reference)"
-      );
-      expect(screen.getByText(/94%/)).toBeInTheDocument();
-      expect(
-        screen.getByText(/ใช้อ้างอิงอัตราส่วน Golden Ratio สากล/i)
-      ).toBeInTheDocument();
     });
   });
 
@@ -110,15 +101,6 @@ describe("DemographicsCard & Skin Vitality Index", () => {
       expect(screen.getByText("ระยะเริ่มชะลอวัยเชิงป้องกัน")).toBeInTheDocument();
       expect(
         screen.getByText(/การสร้างคอลลาเจนเริ่มลดลงเฉลี่ยปีละ ~1%/i)
-      ).toBeInTheDocument();
-
-      // Male Anatomical Sex Standard
-      expect(screen.getByTestId("anatomical-sex-label")).toHaveTextContent(
-        "เพศชาย (Male Reference)"
-      );
-      expect(screen.getByText(/88%/)).toBeInTheDocument();
-      expect(
-        screen.getByText(/ใช้อ้างอิงมุมกรอบหน้า \(Gonial Angle\) ที่คมชัด/i)
       ).toBeInTheDocument();
     });
   });
@@ -271,22 +253,12 @@ describe("DemographicsCard & Skin Vitality Index", () => {
   });
 
   describe("Anatomical Sex Standard Edge Cases", () => {
-    it("handles unspecified sex reference gracefully", () => {
-      const unspecifiedDemo: InferredDemographics = {
-        predicted_sex: "unspecified",
-        sex_confidence: 0.5,
-        predicted_age: 30,
-      };
+    it("calculates confidence bounds safely", () => {
+      const sexStd = getAnatomicalSexStandard("female", 1.5);
+      expect(sexStd.confidencePercent).toBe(100);
 
-      render(<DemographicsCard demographics={unspecifiedDemo} />);
-
-      expect(screen.getByTestId("anatomical-sex-label")).toHaveTextContent(
-        "เกณฑ์มาตรฐานกลาง (Neutral Standard)"
-      );
-      expect(screen.getByText(/50%/)).toBeInTheDocument();
-      expect(
-        screen.getByText(/ใช้อ้างอิงสัดส่วนมาตรฐานความสมดุลใบหน้า/i)
-      ).toBeInTheDocument();
+      const sexStdLow = getAnatomicalSexStandard("male", -0.2);
+      expect(sexStdLow.confidencePercent).toBe(0);
     });
   });
 
