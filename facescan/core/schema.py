@@ -305,6 +305,12 @@ class ProcedureRecommendation(_Model):
     intensity: float = Field(ge=0.0, le=1.0)
     rationale: str
     triggering_metrics: list[str] = Field(default_factory=list)
+    title_th: str | None = None
+    title_en: str | None = None
+    action_type: str | None = None
+    area: str | None = None
+    priority_level: str | None = None
+    specific_action: str | None = None
 
     @property
     def recommended(self) -> bool:

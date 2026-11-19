@@ -305,6 +305,50 @@ def test_recommend_comprehensive_procedures_only_recommended_filter():
     assert all(r.intensity > 0.0 for r in recs)
 
 
+def test_chin_augmentation_class_iii_metadata_populated():
+    """Verify Class III contraindication still populates full metadata fields."""
+    recommender = ProcedureRecommender()
+    ceph = {"skeletal_class": 2, "skeletal_class_name": "Class_III"}
+    rec = recommender.evaluate_chin_augmentation({}, cephalometric=ceph)
+    assert rec.intensity == 0.0
+    assert rec.area == "chin"
+    assert rec.action_type == "injection"
+    assert rec.priority_level == "none"
+    assert rec.title_th == "ปรับมิติปลายคาง (Chin Augmentation)"
+    assert rec.title_en == "Chin Augmentation"
+    assert rec.specific_action is None
+
+
+def test_specific_action_and_actionable_title_th():
+    """Verify recommended procedures yield concrete, actionable Thai titles."""
+    recommender = ProcedureRecommender()
+    # 1. Rhinoplasty with alar base width trigger
+    rec_rhino = recommender.evaluate_rhinoplasty({"F6_alar_icd_ratio": 1.25})
+    assert rec_rhino.intensity > 0.0
+    assert rec_rhino.title_th == "ตัดปีกจมูก (ลดความกว้าง)"
+    assert rec_rhino.specific_action == "ตัดปีกจมูก (ลดความกว้าง)"
+    assert rec_rhino.area == "nose"
+    assert rec_rhino.action_type == "surgical"
+
+    # 2. Chin augmentation with E-line trigger
+    rec_chin = recommender.evaluate_chin_augmentation(
+        {}, profile_metrics={"P4_eline_lower_lip_mm": 2.5}
+    )
+    assert rec_chin.intensity > 0.0
+    assert rec_chin.title_th == "เสริมคางยื่นรับสัดส่วน E-line"
+    assert rec_chin.specific_action == "เสริมคางยื่นรับสัดส่วน E-line"
+    assert rec_chin.area == "chin"
+
+    # 3. Masseter botox
+    rec_botox = recommender.evaluate_botulinum_toxin_masseter(
+        {}, cephalometric={"features": {"gonial_angle": 115.0}}
+    )
+    assert rec_botox.intensity > 0.0
+    assert rec_botox.title_th == "โบท็อกซ์ลดขนาดกล้ามเนื้อกราม ปรับรูปหน้าเรียว"
+    assert rec_botox.area == "jawline"
+    assert rec_botox.action_type == "injection"
+
+
 # ---------------------------------------------------------------------------
 # 7. Backward Compatibility Preservation
 # ---------------------------------------------------------------------------

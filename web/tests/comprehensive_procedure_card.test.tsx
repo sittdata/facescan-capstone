@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
-import type { ProcedureRecommendation } from "../src/api/schemas";
+import type { ProcedureRecommendation, CephalometricResult } from "../src/api/schemas";
 import {
   ProcedureRecommendationCard,
   PROCEDURE_TITLES,
   translateRationale,
 } from "../src/components/results/ProcedureRecommendationCard";
+import { CephalometricCard } from "../src/components/results/CephalometricCard";
 import { evaluateComprehensiveProcedures } from "../src/utils/procedureRecommender";
 
 describe("Comprehensive Aesthetic Procedures & ProcedureRecommendationCard", () => {
@@ -127,9 +128,179 @@ describe("Comprehensive Aesthetic Procedures & ProcedureRecommendationCard", () 
     const masseter = evaluated.find((r) => r.procedure === "botulinum_toxin_masseter");
     expect(masseter).toBeDefined();
     expect(masseter!.intensity).toBeGreaterThan(0);
+    expect(masseter!.specific_action).toBeDefined();
+    expect(masseter!.area).toBe("jawline");
+    expect(masseter!.action_type).toBe("injection");
 
     const temple = evaluated.find((r) => r.procedure === "hyaluronic_acid_filler_temple");
     expect(temple).toBeDefined();
     expect(temple!.intensity).toBeGreaterThan(0);
+    expect(temple!.specific_action).toBe("ฟิลเลอร์เติมเต็มขมับตอบ ปรับมิติกรอบหน้าส่วนบน (Temporal Volume Restoration)");
+  });
+
+  it("filters out 0% non-recommended procedures when filterNonRecommended is true", () => {
+    const recs: ProcedureRecommendation[] = [
+      {
+        procedure: "surgical_facelift",
+        intensity: 0.0,
+        rationale: "Facial structural contours show low-to-moderate descent; invasive surgical facelift is not indicated.",
+        triggering_metrics: [],
+      },
+      {
+        procedure: "rhinoplasty",
+        intensity: 0.75,
+        rationale: "Nasal alar width (F6: 1.15) exceeds intercanthal distance.",
+        triggering_metrics: ["F6_alar_intercanthal_ratio"],
+        specific_action: "ตัดปีกจมูก (ลดความกว้าง)",
+      },
+    ];
+
+    const { queryByText, getByText } = render(
+      <ProcedureRecommendationCard recommendations={recs} filterNonRecommended={true} />
+    );
+
+    // Rhinoplasty should be visible with specific action
+    expect(getByText("ตัดปีกจมูก (ลดความกว้าง)")).toBeInTheDocument();
+    expect(getByText("แนะนำระดับ 75%")).toBeInTheDocument();
+
+    // 0% facelift should NOT be present in DOM
+    expect(queryByText("สัดส่วนสมดุล (0%)")).not.toBeInTheDocument();
+    expect(queryByText("ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)")).not.toBeInTheDocument();
+  });
+
+  it("displays harmonious balance notice when all procedures are balanced / 0% with filterNonRecommended", () => {
+    const balancedRecs: ProcedureRecommendation[] = [
+      {
+        procedure: "rhinoplasty",
+        intensity: 0.0,
+        rationale: "Nasal proportions within reference ranges.",
+        triggering_metrics: [],
+      },
+      {
+        procedure: "chin_augmentation",
+        intensity: 0.0,
+        rationale: "Chin projection within reference ranges.",
+        triggering_metrics: [],
+      },
+    ];
+
+    const { getByText, queryByText } = render(
+      <ProcedureRecommendationCard recommendations={balancedRecs} filterNonRecommended={true} />
+    );
+
+    expect(
+      getByText("สัดส่วนใบหน้าทุกมิติอยู่ในเกณฑ์สมดุล (Harmonious Balance)")
+    ).toBeInTheDocument();
+    expect(queryByText("แนะนำระดับ")).not.toBeInTheDocument();
+  });
+
+  it("renders specific actionable procedure titles for nose and chin correctly", () => {
+    const recs: ProcedureRecommendation[] = [
+      {
+        procedure: "rhinoplasty",
+        intensity: 0.65,
+        rationale: "Nasal tip projection is deficient.",
+        triggering_metrics: ["P3a_nasal_tip_angle"],
+        area: "nose",
+        action_type: "surgical",
+        specific_action: "เสริมจมูกยกปลายพุ่ง",
+      },
+      {
+        procedure: "chin_augmentation",
+        intensity: 0.70,
+        rationale: "Lower lip position relative to Ricketts' E-line indicates chin retrusion.",
+        triggering_metrics: ["P4_lip_to_eline_lower"],
+        area: "chin",
+        action_type: "injection",
+        specific_action: "เสริมคางยื่นรับสัดส่วน E-line",
+      },
+    ];
+
+    const { getByText, getAllByText } = render(
+      <ProcedureRecommendationCard recommendations={recs} filterNonRecommended={true} />
+    );
+
+    expect(getByText("เสริมจมูกยกปลายพุ่ง")).toBeInTheDocument();
+    expect(getByText("เสริมคางยื่นรับสัดส่วน E-line")).toBeInTheDocument();
+    expect(getByText("จมูก")).toBeInTheDocument();
+    expect(getByText("คาง")).toBeInTheDocument();
+    expect(getByText("ศัลยกรรมผ่าตัด")).toBeInTheDocument();
+    expect(getByText("หัตถการฉีด")).toBeInTheDocument();
+    expect(getAllByText("แนะนำสูง").length).toBe(2);
+  });
+
+  it("translates clinical rationales across all procedure categories to Thai", () => {
+    // Rhinoplasty P3a
+    const tP3a = translateRationale("Nasal tip projection ratio (P3a Goode: 0.50) is below reference range.");
+    expect(tP3a).toContain("ความพุ่งของปลายจมูกตามเกณฑ์ Goode");
+
+    // Wrinkles F1 upper third
+    const tWrinkles = translateRationale(
+      "Upper facial third height (F1: 0.380) indicates elevated frontalis dynamic strain and forehead line tendency."
+    );
+    expect(tWrinkles).toContain("สัดส่วนความสูงใบหน้าส่วนบน");
+    expect(tWrinkles).toContain("Frontalis");
+
+    // Temple F3 outer fifth
+    const tTemple = translateRationale(
+      "Temporal width in outer facial fifths (F3: 0.165) falls below Neoclassical canon (0.200), indicating temporal fossa hollowing."
+    );
+    expect(tTemple).toContain("สัดส่วนความกว้างขมับ");
+    expect(tTemple).toContain("ขมับตอบ");
+
+    // Class III chin augmentation contraindication
+    const tContra = translateRationale(
+      "Chin augmentation (filler or implant) is contraindicated due to Skeletal Class III prognathism (mandibular excess or midface hypoplasia). Adding chin volume would exacerbate lower-face anterior protrusion; orthognathic surgical consultation is recommended instead."
+    );
+    expect(tContra).toContain("ข้อห้ามทางการแพทย์");
+    expect(tContra).toContain("Skeletal Class III");
+  });
+
+  it("filters only recommended procedures in evaluateComprehensiveProcedures when onlyRecommended is true", () => {
+    const evaluated = evaluateComprehensiveProcedures([], {
+      F1_lower_third: 0.28,
+      F6_alar_icd_ratio: 1.20,
+    }, null, null, { onlyRecommended: true });
+
+    expect(evaluated.length).toBeGreaterThan(0);
+    expect(evaluated.every((r) => r.intensity > 0)).toBe(true);
+  });
+
+  it("renders contraindication notice in CephalometricCard for Class III even when chin recommendation is filtered out", () => {
+    const mockClassIII: CephalometricResult = {
+      skeletal_class: 2,
+      skeletal_class_name: "Class_III",
+      confidence: 0.99,
+      probabilities: { Class_I: 0.0, Class_II: 0.01, Class_III: 0.99 },
+      severity: "Severe",
+      primary_etiology: "mandibular_prognathism",
+      vertical_pattern: "Normodivergent",
+      surgical_indication: "orthognathic_strongly_recommended",
+      label_th: "ขากรรไกรล่างยื่น / คางยื่น (Class III)",
+      label_en: "Mandibular Excess (Class III)",
+      description_th: "ขากรรไกรล่างเจริญเติบโตเกินไปทางด้านหน้า คางยื่น",
+      description_en: "Severe mandibular prognathism",
+      features: {
+        sna_angle: 80.0,
+        snb_angle: 88.0,
+        anb_angle: -8.0,
+      },
+    };
+
+    // recommendations array has NO chin_augmentation (omitted because 0%)
+    const recsWithoutChin: ProcedureRecommendation[] = [
+      {
+        procedure: "orthognathic_surgery",
+        intensity: 0.95,
+        rationale: "Severe Skeletal Class III deformity.",
+        triggering_metrics: ["skeletal_class_iii"],
+      },
+    ];
+
+    const { getByText } = render(
+      <CephalometricCard cephalometric={mockClassIII} recommendations={recsWithoutChin} />
+    );
+
+    expect(getByText("ข้อห้ามทางการแพทย์ (Clinical Contraindication)")).toBeInTheDocument();
   });
 });

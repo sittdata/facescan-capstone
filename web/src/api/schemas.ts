@@ -239,6 +239,12 @@ export const ProcedureRecommendationSchema = z.object({
   intensity: z.number(),
   rationale: z.string(),
   triggering_metrics: z.array(z.string()),
+  title_th: z.string().optional().nullable(),
+  title_en: z.string().optional().nullable(),
+  action_type: z.string().optional().nullable(),
+  area: z.string().optional().nullable(),
+  priority_level: z.string().optional().nullable(),
+  specific_action: z.string().optional().nullable(),
 });
 export type ProcedureRecommendation = z.infer<typeof ProcedureRecommendationSchema>;
 

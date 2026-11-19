@@ -144,6 +144,7 @@ export function ResultScreen({ view }: { view: View }) {
               />
               <ProcedureRecommendationCard
                 recommendations={result.procedure_recommendations}
+                filterNonRecommended={true}
                 onOpenSimulation={() => setShowSimulation(true)}
               />
             </>

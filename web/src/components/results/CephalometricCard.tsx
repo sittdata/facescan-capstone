@@ -1,5 +1,6 @@
 import { Compass, AlertTriangle, ShieldAlert } from "lucide-react";
 import type { CephalometricResult, ProcedureRecommendation } from "../../api/schemas";
+import { translateRationale } from "./ProcedureRecommendationCard";
 
 interface Props {
   cephalometric?: CephalometricResult | null;
@@ -264,11 +265,11 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
               ระดับความจำเป็น: {(orthoRec.intensity * 100).toFixed(0)}%
             </span>
           </div>
-          <p className="mt-1 text-sm text-ink-2">{orthoRec.rationale}</p>
+          <p className="mt-1 text-sm text-ink-2">{translateRationale(orthoRec.rationale)}</p>
         </div>
       )}
 
-      {chinRec && className === "Class_III" && chinRec.intensity === 0 && (
+      {className === "Class_III" && (!chinRec || chinRec.intensity === 0) && (
         <div className="mt-3 border border-line-strong bg-notice p-3">
           <div className="flex items-center gap-2 text-ink">
             <AlertTriangle size={16} />
@@ -276,7 +277,12 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
               ข้อห้ามทางการแพทย์ (Clinical Contraindication)
             </span>
           </div>
-          <p className="mt-1 text-sm text-ink-2">{chinRec.rationale}</p>
+          <p className="mt-1 text-sm text-ink-2">
+            {translateRationale(
+              chinRec?.rationale ||
+                "Chin augmentation (filler or implant) is contraindicated due to Skeletal Class III prognathism (mandibular excess or midface hypoplasia). Adding chin volume would exacerbate lower-face anterior protrusion; orthognathic surgical consultation is recommended instead."
+            )}
+          </p>
         </div>
       )}
     </div>

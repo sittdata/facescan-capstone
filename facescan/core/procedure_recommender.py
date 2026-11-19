@@ -14,6 +14,17 @@ from typing import Any, Mapping
 from facescan.core.schema import ProcedureRecommendation
 
 
+def _calc_priority_level(intensity: float) -> str:
+    """Calculate priority level tag from recommendation intensity."""
+    if intensity >= 0.65:
+        return "high"
+    if intensity >= 0.35:
+        return "moderate"
+    if intensity > 0.0:
+        return "low"
+    return "none"
+
+
 def _extract_metric_val(metrics: Mapping[str, Any] | None, key: str) -> float | None:
     """Extract a float value from a metric dict or Metric instance."""
     if not metrics or key not in metrics:
@@ -205,6 +216,12 @@ class ProcedureRecommender:
                     "orthognathic surgical consultation is recommended instead."
                 ),
                 triggering_metrics=["cephalometric_class_iii"],
+                title_th="ปรับมิติปลายคาง (Chin Augmentation)",
+                title_en="Chin Augmentation",
+                action_type="injection",
+                area="chin",
+                priority_level="none",
+                specific_action=None,
             )
 
         triggering_metrics: list[str] = []
@@ -293,11 +310,49 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Chin projection and vertical proportions are within reference ranges."
 
+        has_profile = any("P4" in m for m in triggering_metrics)
+        has_vertical = any(m in ("F1_lower_third", "F2_lower_face_ratio", "F1_middle_lower_ratio") for m in triggering_metrics)
+        has_ceph = any("class_ii" in m for m in triggering_metrics)
+
+        if intensity > 0:
+            if has_profile and has_vertical:
+                specific_action = "เสริมคางยื่นรับสัดส่วน E-line และเพิ่มความยาวใบหน้า"
+                title_th = "เสริมคางยื่นรับสัดส่วน E-line และเพิ่มความยาวใบหน้า"
+                title_en = "Anterior & Vertical Chin Augmentation"
+            elif has_profile:
+                specific_action = "เสริมคางยื่นรับสัดส่วน E-line"
+                title_th = "เสริมคางยื่นรับสัดส่วน E-line"
+                title_en = "Anterior Chin Augmentation (E-line Projection)"
+            elif has_vertical:
+                specific_action = "เสริมคางเพิ่มความยาวใบหน้า"
+                title_th = "เสริมคางเพิ่มความยาวใบหน้า"
+                title_en = "Vertical Chin Augmentation (Lower Third Length)"
+            elif has_ceph:
+                specific_action = "เสริมคางปรับโครงสร้างแนวกราม (Class II Aesthetic Camouflage)"
+                title_th = "เสริมคางปรับโครงสร้างแนวกราม"
+                title_en = "Chin Augmentation (Class II Camouflage)"
+            else:
+                specific_action = "เสริมคางปรับมิติปลายคาง"
+                title_th = "เสริมคางปรับมิติปลายคาง"
+                title_en = "Chin Augmentation"
+            action_type = "surgical" if (ceph_class == 1 and ceph_sev in ("Moderate", "Severe")) else "injection"
+        else:
+            specific_action = None
+            title_th = "ปรับมิติปลายคาง (Chin Augmentation)"
+            title_en = "Chin Augmentation"
+            action_type = "injection"
+
         return ProcedureRecommendation(
             procedure="chin_augmentation",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type=action_type,
+            area="chin",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_lip_augmentation(
@@ -364,11 +419,41 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Lip vermilion fullness and sagittal projection are within reference ranges."
 
+        if intensity > 0:
+            f8_val = _extract_metric_val(frontal_metrics, "F8_lip_ratio")
+            has_p4 = any("P4" in m for m in triggering_metrics)
+            if f8_val is not None and f8_val < 1.50:
+                specific_action = "ฟิลเลอร์เพิ่มความอวบอิ่มริมฝีปากล่าง (Lower Lip Augmentation)"
+                title_th = "ฟิลเลอร์เพิ่มความอวบอิ่มริมฝีปากล่าง"
+                title_en = "Lower Lip Vermilion Augmentation"
+            elif f8_val is not None and f8_val > 1.75:
+                specific_action = "ฟิลเลอร์เพิ่มมิติริมฝีปากบนและยกมุมปาก (Upper Lip Definition)"
+                title_th = "ฟิลเลอร์เพิ่มมิติริมฝีปากบนและยกมุมปาก"
+                title_en = "Upper Lip Vermilion Definition"
+            elif has_p4:
+                specific_action = "ฟิลเลอร์ปรับความอิ่มฟูและมิติริมฝีปากรับเส้น E-line"
+                title_th = "ฟิลเลอร์ปรับความอิ่มฟูและมิติริมฝีปาก"
+                title_en = "Lip Projection & Volume Restoration"
+            else:
+                specific_action = "ฟิลเลอร์ปรับความอวบอิ่มริมฝีปาก"
+                title_th = "ฟิลเลอร์ปรับความอวบอิ่มริมฝีปาก"
+                title_en = "Lip Augmentation"
+        else:
+            specific_action = None
+            title_th = "ปรับมิติมุมปากและริมฝีปาก (Lip Augmentation)"
+            title_en = "Lip Augmentation"
+
         return ProcedureRecommendation(
             procedure="lip_augmentation",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="injection",
+            area="lips",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_rhinoplasty(
@@ -445,11 +530,47 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Nasal proportions, tip rotation, and projection are within reference ranges."
 
+        if intensity > 0:
+            has_alar = "F6_alar_icd_ratio" in triggering_metrics
+            has_tip = any(m in ("P2_nasolabial_angle", "P3a_tip_projection_goode") for m in triggering_metrics)
+            has_radix = "P1_nasofrontal_angle" in triggering_metrics
+
+            if has_alar and has_tip:
+                specific_action = "เสริมจมูกยกปลายพุ่งและตัดปีกจมูก"
+                title_th = "เสริมจมูกยกปลายพุ่งและตัดปีกจมูก"
+                title_en = "Rhinoplasty with Tip Augmentation & Alar Base Reduction"
+            elif has_alar:
+                specific_action = "ตัดปีกจมูก (ลดความกว้าง)"
+                title_th = "ตัดปีกจมูก (ลดความกว้าง)"
+                title_en = "Alar Base Reduction (Alarplasty)"
+            elif has_tip:
+                specific_action = "เสริมจมูกยกปลายพุ่ง"
+                title_th = "เสริมจมูกยกปลายพุ่ง"
+                title_en = "Nasal Tip Projection & Rotation"
+            elif has_radix:
+                specific_action = "เสริมสันจมูกปรับมิติหัวตา"
+                title_th = "เสริมสันจมูกปรับมิติหัวตา"
+                title_en = "Dorsal Radix Augmentation"
+            else:
+                specific_action = "ศัลยกรรมปรับโครงสร้างทรงจมูก"
+                title_th = "ศัลยกรรมปรับโครงสร้างทรงจมูก"
+                title_en = "Structural Rhinoplasty"
+        else:
+            specific_action = None
+            title_th = "ปรับแต่งทรงจมูก (Rhinoplasty)"
+            title_en = "Rhinoplasty"
+
         return ProcedureRecommendation(
             procedure="rhinoplasty",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="surgical",
+            area="nose",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_skin_tightening(
@@ -497,11 +618,35 @@ class ProcedureRecommender:
                     "typically warrants surgical or suspension repositioning for definitive rejuvenation."
                 )
 
+        if intensity > 0:
+            if tier == 1 or (laxity_score is not None and laxity_score < 30.0):
+                specific_action = "ทำคลื่นพลังงานยกกระชับระดับเริ่มต้น (Preventive HIFU / RF)"
+                title_th = "ยกกระชับด้วยคลื่นพลังงานระดับเริ่มต้น"
+                title_en = "Preventive Energy-Based Skin Tightening"
+            elif tier == 2 or (laxity_score is not None and laxity_score < 70.0):
+                specific_action = "ยกกระชับด้วยคลื่นพลังงานลึกถึงชั้น SMAS (HIFU / Ultherapy / Thermage RF)"
+                title_th = "ยกกระชับด้วยคลื่นพลังงานลึกถึงชั้น SMAS"
+                title_en = "High-Intensity Focused Ultrasound / Monopolar RF"
+            else:
+                specific_action = "ฟื้นฟูคอลลาเจนผิวชั้นหนังแท้ด้วยคลื่นพลังงาน (Dermal RF Conditioning)"
+                title_th = "ฟื้นฟูคอลลาเจนกระชับผิวชั้นหนังแท้"
+                title_en = "Dermal RF Tightening"
+        else:
+            specific_action = None
+            title_th = "ยกกระชับด้วยคลื่นพลังงาน (HIFU / Ultherapy / RF)"
+            title_en = "Energy-Based Skin Tightening"
+
         return ProcedureRecommendation(
             procedure="skin_tightening",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="energy_device",
+            area="skin",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_thread_lift(
@@ -546,11 +691,31 @@ class ProcedureRecommender:
                     "as a minimally invasive vector-lifting alternative when surgical rhytidectomy is contraindicated or declined."
                 )
 
+        if intensity > 0:
+            if tier == 2 or (laxity_score is not None and laxity_score < 75.0):
+                specific_action = "ร้อยไหมเงี่ยงละลายพยุงกรอบหน้าและกระพุ้งแก้ม (Barbed Thread Lift)"
+                title_th = "ร้อยไหมเงี่ยงละลายพยุงกรอบหน้าและกระพุ้งแก้ม"
+                title_en = "Subdermal Suspension Thread Lifting"
+            else:
+                specific_action = "ร้อยไหมยกพยุงทิศทางเนื้อเยื่อกรอบหน้า (Vector Thread Lifting)"
+                title_th = "ร้อยไหมยกพยุงทิศทางเนื้อเยื่อกรอบหน้า"
+                title_en = "Vector Suspension Thread Lifting"
+        else:
+            specific_action = None
+            title_th = "ร้อยไหมพยุงกรอบหน้า (Barbed Thread Lift)"
+            title_en = "Subdermal Suspension Thread Lifting"
+
         return ProcedureRecommendation(
             procedure="thread_lift",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="thread",
+            area="jawline",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_surgical_facelift(
@@ -589,11 +754,26 @@ class ProcedureRecommender:
                     "and redundant skin envelope excision."
                 )
 
+        if intensity > 0:
+            specific_action = "ศัลยกรรมผ่าตัดดึงหน้าชั้น SMAS และเย็บกระชับลำคอ (SMAS / Deep-Plane Facelift)"
+            title_th = "ศัลยกรรมผ่าตัดดึงหน้าชั้น SMAS"
+            title_en = "Surgical Rhytidectomy (Deep Plane / SMAS Facelift)"
+        else:
+            specific_action = None
+            title_th = "ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)"
+            title_en = "Surgical Rhytidectomy (Facelift)"
+
         return ProcedureRecommendation(
             procedure="surgical_facelift",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="surgical",
+            area="face",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_orthognathic_surgery(
@@ -678,11 +858,35 @@ class ProcedureRecommender:
                         "is strongly recommended to restore chewing function, TMJ stability, and facial harmony."
                     )
 
+        if intensity > 0:
+            if ceph_class == 1 or ceph_name == "Class_II":
+                specific_action = "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรล่างมาด้านหน้า (BSSO Mandibular Advancement)"
+                title_th = "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรล่าง"
+                title_en = "BSSO Mandibular Advancement"
+            elif ceph_class == 2 or ceph_name == "Class_III":
+                specific_action = "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรแก้ไขคางยื่น (Two-Jaw Orthognathic Surgery)"
+                title_th = "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรแก้ไขคางยื่น"
+                title_en = "Two-Jaw Orthognathic Surgery"
+            else:
+                specific_action = "ศัลยกรรมผ่าตัดขากรรไกรเพื่อการสบฟันและความสมดุลใบหน้า"
+                title_th = "ศัลยกรรมผ่าตัดเลื่อนขากรรไกร"
+                title_en = "Orthognathic Surgery"
+        else:
+            specific_action = None
+            title_th = "ศัลยกรรมเลื่อนขากรรไกร (Orthognathic Surgery)"
+            title_en = "Orthognathic Surgery"
+
         return ProcedureRecommendation(
             procedure="orthognathic_surgery",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="surgical",
+            area="skeletal",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_botulinum_toxin_masseter(
@@ -756,11 +960,26 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Mandibular angle width and masseter volume are in harmony with facial proportions."
 
+        if intensity > 0:
+            specific_action = "โบท็อกซ์ลดขนาดกล้ามเนื้อกราม ปรับรูปหน้าเรียว (Masseter Botulinum Toxin)"
+            title_th = "โบท็อกซ์ลดขนาดกล้ามเนื้อกราม ปรับรูปหน้าเรียว"
+            title_en = "Masseter Botulinum Toxin"
+        else:
+            specific_action = None
+            title_th = "โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว (Masseter Botulinum Toxin)"
+            title_en = "Masseter Botulinum Toxin"
+
         return ProcedureRecommendation(
             procedure="botulinum_toxin_masseter",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="injection",
+            area="jawline",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_botulinum_toxin_wrinkles(
@@ -842,11 +1061,32 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Upper facial dynamic lines and brow vector symmetry are well-balanced."
 
+        if intensity > 0:
+            has_brow_asym = any("brow" in m for m in triggering_metrics)
+            if has_brow_asym:
+                specific_action = "โบท็อกซ์ปรับสมดุลแนวคิ้วและลดริ้วรอยหน้าผาก (Brow Balancing Botox)"
+                title_th = "โบท็อกซ์ปรับสมดุลแนวคิ้วและลดริ้วรอยส่วนบน"
+                title_en = "Upper-Face & Brow Balancing Botox"
+            else:
+                specific_action = "โบท็อกซ์ลดริ้วรอยหน้าผากและหว่างคิ้ว (Forehead & Glabellar Botox)"
+                title_th = "โบท็อกซ์ลดริ้วรอยหน้าผากและหว่างคิ้ว"
+                title_en = "Forehead & Glabellar Anti-Wrinkle Botox"
+        else:
+            specific_action = None
+            title_th = "โบท็อกซ์ริ้วรอยส่วนบน (Upper-Face Anti-Wrinkle Botox)"
+            title_en = "Upper-Face Anti-Wrinkle Botox"
+
         return ProcedureRecommendation(
             procedure="botulinum_toxin_wrinkles",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="injection",
+            area="upper_face",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_hyaluronic_acid_filler_nasolabial(
@@ -932,11 +1172,32 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Nasolabial transition and paranasal structural volume are youthful and well-supported."
 
+        if intensity > 0:
+            has_pyriform = any(m in ("P2_nasolabial_angle", "sna_angle") for m in triggering_metrics)
+            if has_pyriform:
+                specific_action = "ฟิลเลอร์หนุนฐานกระดูกปีกจมูกและร่องแก้มลึก (Pyriform & Nasolabial Filler)"
+                title_th = "ฟิลเลอร์หนุนฐานปีกจมูกและเติมเต็มร่องแก้ม"
+                title_en = "Deep Pyriform & Nasolabial Fold Filler"
+            else:
+                specific_action = "ฟิลเลอร์เติมเต็มร่องแก้ม (Nasolabial Fold Filler)"
+                title_th = "ฟิลเลอร์เติมเต็มร่องแก้ม"
+                title_en = "Nasolabial Fold Filler"
+        else:
+            specific_action = None
+            title_th = "ฟิลเลอร์เติมเต็มร่องแก้ม (Nasolabial Fold Filler)"
+            title_en = "Nasolabial Fold Filler"
+
         return ProcedureRecommendation(
             procedure="hyaluronic_acid_filler_nasolabial",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="injection",
+            area="midface",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_hyaluronic_acid_filler_temple(
@@ -988,11 +1249,26 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Temporal fossa contour and bitemporal-to-zygomatic proportions are well-balanced."
 
+        if intensity > 0:
+            specific_action = "ฟิลเลอร์เติมเต็มขมับตอบ ปรับมิติกรอบหน้าส่วนบน (Temporal Volume Restoration)"
+            title_th = "ฟิลเลอร์เติมเต็มขมับตอบ ปรับมิติกรอบหน้าส่วนบน"
+            title_en = "Temporal Fossa Volume Restoration"
+        else:
+            specific_action = None
+            title_th = "ฟิลเลอร์เติมเต็มขมับตอบ (Temporal Volume Restoration)"
+            title_en = "Temporal Volume Restoration"
+
         return ProcedureRecommendation(
             procedure="hyaluronic_acid_filler_temple",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="injection",
+            area="temple",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_mandibular_contouring(
@@ -1045,11 +1321,26 @@ class ProcedureRecommender:
             intensity = 0.0
             rationale = "Mandibular bony contour and gonial angle are within physiological aesthetic boundaries."
 
+        if intensity > 0:
+            specific_action = "ศัลยกรรมผ่าตัดลดขนาดกระดูกมุมกราม (Mandibular Angle Ostectomy)"
+            title_th = "ศัลยกรรมผ่าตัดลดขนาดกระดูกมุมกราม"
+            title_en = "Mandibular Angle Ostectomy"
+        else:
+            specific_action = None
+            title_th = "ศัลยกรรมตัดแต่งมุมกราม (Mandibular Angle Ostectomy)"
+            title_en = "Mandibular Angle Ostectomy"
+
         return ProcedureRecommendation(
             procedure="mandibular_contouring",
             intensity=intensity,
             rationale=rationale,
             triggering_metrics=triggering_metrics,
+            title_th=title_th,
+            title_en=title_en,
+            action_type="surgical",
+            area="jawline",
+            priority_level=_calc_priority_level(intensity),
+            specific_action=specific_action,
         )
 
     def evaluate_sagging_treatments(

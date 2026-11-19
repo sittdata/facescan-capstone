@@ -1,4 +1,10 @@
 import type { ProcedureRecommendation, FacialSaggingResult, CephalometricResult } from "../api/schemas";
+import {
+  DEFAULT_PROCEDURE_AREAS,
+  DEFAULT_PROCEDURE_CATEGORIES,
+  PROCEDURE_TITLES,
+  getSpecificAction,
+} from "../components/results/ProcedureRecommendationCard";
 
 function getNum(metrics: Record<string, unknown> | null | undefined, key: string): number | null {
   if (!metrics || !(key in metrics)) return null;
@@ -23,6 +29,7 @@ export function evaluateComprehensiveProcedures(
   metrics?: Record<string, unknown> | null,
   sagging?: FacialSaggingResult | null,
   cephalometric?: CephalometricResult | null,
+  options?: { onlyRecommended?: boolean },
 ): ProcedureRecommendation[] {
   const recMap = new Map<string, ProcedureRecommendation>();
 
@@ -49,6 +56,13 @@ export function evaluateComprehensiveProcedures(
       comps.push((f1 - 1.0) / 0.35);
       triggers.push("F1_middle_lower_ratio");
       rationales.push(`Middle-to-lower third ratio (F1: ${f1.toFixed(2)}) indicates lower face vertical deficit compared to midface.`);
+    }
+
+    const f1Lower = getNum(metrics, "F1_lower_third");
+    if (f1Lower != null && f1Lower < 0.3167) {
+      comps.push((0.3333 - f1Lower) / 0.10);
+      triggers.push("F1_lower_third");
+      rationales.push(`Lower face proportion (F1: ${f1Lower.toFixed(3)}) is shorter than classical third (33.3%).`);
     }
 
     const f2 = getNum(metrics, "F2_lower_face_ratio");
@@ -113,10 +127,10 @@ export function evaluateComprehensiveProcedures(
     const comps: number[] = [];
     const rationales: string[] = [];
 
-    const f6 = getNum(metrics, "F6_alar_intercanthal_ratio");
+    const f6 = getNum(metrics, "F6_alar_intercanthal_ratio") ?? getNum(metrics, "F6_alar_icd_ratio");
     if (f6 != null && f6 > 1.05) {
       comps.push((f6 - 1.00) / 0.20);
-      triggers.push("F6_alar_intercanthal_ratio");
+      triggers.push(getNum(metrics, "F6_alar_intercanthal_ratio") != null ? "F6_alar_intercanthal_ratio" : "F6_alar_icd_ratio");
       rationales.push(`Alar base width relative to intercanthal distance (F6: ${f6.toFixed(2)}) exceeds classical canon proportion.`);
     }
 
@@ -492,5 +506,30 @@ export function evaluateComprehensiveProcedures(
     return a.procedure.localeCompare(b.procedure);
   });
 
-  return resultList;
+  const mapped = resultList.map((rec) => {
+    const specificAction = rec.specific_action ?? getSpecificAction(rec);
+    const priorityLevel = rec.priority_level ?? (
+      rec.intensity >= 0.65 ? "high" :
+      rec.intensity >= 0.35 ? "moderate" :
+      rec.intensity > 0 ? "low" : "none"
+    );
+    const area = rec.area ?? DEFAULT_PROCEDURE_AREAS[rec.procedure] ?? "face";
+    const actionType = rec.action_type ?? DEFAULT_PROCEDURE_CATEGORIES[rec.procedure] ?? "surgical";
+    const defaultTitle = PROCEDURE_TITLES[rec.procedure] ?? rec.procedure;
+    const titleTh = rec.title_th ?? (rec.intensity > 0 && specificAction ? specificAction : defaultTitle);
+
+    return {
+      ...rec,
+      specific_action: specificAction,
+      priority_level: priorityLevel,
+      area,
+      action_type: actionType,
+      title_th: titleTh,
+    };
+  });
+
+  if (options?.onlyRecommended) {
+    return mapped.filter((r) => r.intensity > 0);
+  }
+  return mapped;
 }

@@ -155,13 +155,23 @@ async def api_scan_endpoint(
         # Force status="ok" so full measurements are exposed in user view
         forced_res = res.model_copy(update={"status": "ok"})
 
-        # Compute comprehensive 12-procedure recommendations covering the full clinical spectrum
+        # Compute comprehensive recommendations covering the clinical spectrum (filtered to recommended procedures only)
         from facescan.core.procedure_recommender import recommend_comprehensive_procedures
+
+        only_rec = True
+        if meta:
+            try:
+                m_dict = json.loads(meta)
+                if "only_recommended" in m_dict:
+                    only_rec = bool(m_dict["only_recommended"])
+            except Exception:
+                pass
 
         comp_recs = recommend_comprehensive_procedures(
             frontal=forced_res,
             sagging=getattr(forced_res, "facial_sagging", None),
             cephalometric=getattr(forced_res, "cephalometric", None),
+            only_recommended=only_rec,
         )
         forced_res = forced_res.model_copy(update={"procedure_recommendations": comp_recs})
         view = engine.user_view(forced_res, locale=locale)

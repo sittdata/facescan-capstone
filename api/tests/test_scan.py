@@ -123,3 +123,33 @@ def test_api_scan_with_frames_and_meta(client: TestClient):
         assert data["facial_sagging"] is not None
         assert data["result"]["facial_sagging"] is not None
     assert data["result"]["locale"] == "en"
+
+
+def test_api_scan_only_recommended_meta_flag(client: TestClient):
+    """POST /api/scan respects only_recommended meta flag."""
+    assert ASTRONAUT_PATH.is_file()
+
+    with open(ASTRONAUT_PATH, "rb") as f:
+        img_bytes = f.read()
+
+    # When only_recommended is explicitly False, all 12 procedures are present
+    meta_all = {"only_recommended": False}
+    resp_all = client.post(
+        "/api/scan",
+        files=[("frames", ("frame1.png", img_bytes, "image/png"))],
+        data={"meta": json.dumps(meta_all)},
+    )
+    assert resp_all.status_code == 200
+    recs_all = resp_all.json()["result"]["procedure_recommendations"]
+    assert len(recs_all) == 12
+
+    # By default, only recommended (> 0) procedures are returned
+    meta_default = {"only_recommended": True}
+    resp_default = client.post(
+        "/api/scan",
+        files=[("frames", ("frame1.png", img_bytes, "image/png"))],
+        data={"meta": json.dumps(meta_default)},
+    )
+    assert resp_default.status_code == 200
+    recs_default = resp_default.json()["result"]["procedure_recommendations"]
+    assert all(r["intensity"] > 0.0 for r in recs_default)
