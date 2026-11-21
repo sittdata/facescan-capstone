@@ -110,7 +110,7 @@ describe("CephalometricCard", () => {
     expect(screen.getByText("82.0°")).toBeInTheDocument();
   });
 
-  it("renders Class II severe retrognathia and orthognathic recommendation", () => {
+  it("renders Class II severe retrognathia and condensed orthognathic summary", () => {
     render(
       <CephalometricCard cephalometric={mockClassII} recommendations={mockRecs} />
     );
@@ -119,6 +119,14 @@ describe("CephalometricCard", () => {
     expect(screen.getByText(/แนะนำผ่าตัดขากรรไกรอย่างยิ่ง/)).toBeInTheDocument();
     expect(screen.getByText(/ศัลยกรรมเลื่อนขากรรไกร/)).toBeInTheDocument();
     expect(screen.getByText(/95%/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/ดูรายละเอียดที่การ์ดข้อเสนอแนะหัตถการด้านล่าง/)
+    ).toBeInTheDocument();
+    expect(screen.getByText("ดูรายละเอียด →")).toBeInTheDocument();
+    // Full procedure rationale is not duplicated in cephalometric card
+    expect(
+      screen.queryByText(/Severe Skeletal Class II mandibular deficiency with high sagittal discrepancy/)
+    ).toBeNull();
   });
 
   it("renders Class III prognathism and chin filler contraindication", () => {

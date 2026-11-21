@@ -68,16 +68,16 @@ describe("FacialSaggingCard", () => {
   it("renders the header and benchmark badge", () => {
     render(<FacialSaggingCard sagging={mockSagging} recommendations={mockRecommendations} />);
     expect(
-      screen.getByText("การประเมินความหย่อนคล้อยและแนวกราม (Facial Sagging & Laxity Index)")
+      screen.getByText("การประเมินความหย่อนคล้อยและแนวกราม")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("การประเมินโครงสร้างทางกายวิภาค (Anatomical Evaluation)")
+      screen.getByText("การประเมินโครงสร้างทางกายวิภาค")
     ).toBeInTheDocument();
   });
 
   it("renders Tier 2 Moderate badge, rating, and clinical description", () => {
     render(<FacialSaggingCard sagging={mockSagging} recommendations={mockRecommendations} />);
-    expect(screen.getByText("Tier 2: Moderate (หย่อนคล้อยปานกลาง)")).toBeInTheDocument();
+    expect(screen.getByText("ระดับที่ 2: หย่อนคล้อยปานกลาง")).toBeInTheDocument();
     expect(
       screen.getByText("ความหย่อนคล้อยระดับปานกลาง (Moderate Laxity)")
     ).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe("FacialSaggingCard", () => {
       description_th: "กรอบหน้าคมชัด แนวกรามเรียวสวย ไม่พบความหย่อนคล้อย",
     };
     render(<FacialSaggingCard sagging={firmSagging} recommendations={[]} />);
-    expect(screen.getByText("Tier 1: Firm (ความกระชับสูง)")).toBeInTheDocument();
+    expect(screen.getByText("ระดับที่ 1: ความกระชับสูง")).toBeInTheDocument();
     expect(screen.getByText("ความกระชับระดับดีเยี่ยม (Firm Structure)")).toBeInTheDocument();
   });
 
@@ -110,7 +110,7 @@ describe("FacialSaggingCard", () => {
       description_th: "เนื้อเยื่อแก้มส่วนล่างคล้อยลงมาใต้แนวกรามชัดเจน",
     };
     render(<FacialSaggingCard sagging={advSagging} recommendations={[]} />);
-    expect(screen.getByText("Tier 3: Advanced (หย่อนคล้อยชัดเจน)")).toBeInTheDocument();
+    expect(screen.getByText("ระดับที่ 3: หย่อนคล้อยชัดเจน")).toBeInTheDocument();
     expect(
       screen.getByText("ความหย่อนคล้อยระดับสูง (Advanced Structural Laxity)")
     ).toBeInTheDocument();
@@ -118,7 +118,7 @@ describe("FacialSaggingCard", () => {
 
   it("renders the continuous laxity spectrum bar and posterior probabilities", () => {
     render(<FacialSaggingCard sagging={mockSagging} recommendations={mockRecommendations} />);
-    expect(screen.getByText("แถบวัดระดับความหย่อนคล้อย (Facial Laxity Spectrum)")).toBeInTheDocument();
+    expect(screen.getByText("แถบวัดระดับความหย่อนคล้อย")).toBeInTheDocument();
     expect(screen.getByText("กระชับ Firm (0–35%)")).toBeInTheDocument();
     expect(screen.getByText("หย่อนคล้อยปานกลาง Moderate (36–65%)")).toBeInTheDocument();
     expect(screen.getByText("หย่อนคล้อยชัดเจน Advanced (66–100%)")).toBeInTheDocument();
@@ -132,7 +132,7 @@ describe("FacialSaggingCard", () => {
       features: { ...mockSagging.features, oral_commissure_droop: -0.035 },
     };
     const { unmount: u1 } = render(<FacialSaggingCard sagging={upliftedSagging} />);
-    expect(screen.getByText("มุมปากยกกระชับ (Uplifted)")).toBeInTheDocument();
+    expect(screen.getByText("มุมปากยกกระชับ")).toBeInTheDocument();
     u1();
 
     // 2. Severe droop (commissure lower than stomion, val > -0.015)
@@ -141,7 +141,7 @@ describe("FacialSaggingCard", () => {
       features: { ...mockSagging.features, oral_commissure_droop: 0.015 },
     };
     const { unmount: u2 } = render(<FacialSaggingCard sagging={severeDroopSagging} />);
-    expect(screen.getByText("ตกลู่ชัดเจน (Noticeable)")).toBeInTheDocument();
+    expect(screen.getByText("ตกลู่ชัดเจน")).toBeInTheDocument();
     u2();
   });
 
@@ -182,10 +182,10 @@ describe("FacialSaggingCard", () => {
     expect(screen.getByText("1.1500")).toBeInTheDocument();
     expect(screen.getByText("-0.0300")).toBeInTheDocument();
     expect(screen.getByText("0.0180")).toBeInTheDocument();
-    expect(screen.getByText("ปกติ (Minimal)")).toBeInTheDocument();
-    expect(screen.getByText("กระชับรูปไข่ (V-Shape)")).toBeInTheDocument();
-    expect(screen.getByText("มุมปากยกกระชับ (Uplifted)")).toBeInTheDocument();
-    expect(screen.getByText("คมชัดเรียบเนียน (Sharp)")).toBeInTheDocument();
+    expect(screen.getByText("ปกติ")).toBeInTheDocument();
+    expect(screen.getByText("กระชับรูปไข่")).toBeInTheDocument();
+    expect(screen.getByText("มุมปากยกกระชับ")).toBeInTheDocument();
+    expect(screen.getByText("คมชัดเรียบเนียน")).toBeInTheDocument();
   });
 
   it("renders needle without clipping at boundary laxity scores (0% and 100%)", () => {
@@ -207,15 +207,15 @@ describe("FacialSaggingCard", () => {
       tier_name: "Advanced",
     };
     render(<FacialSaggingCard sagging={noTierNum} />);
-    expect(screen.getByText("Tier 3: Advanced (หย่อนคล้อยชัดเจน)")).toBeInTheDocument();
+    expect(screen.getByText("ระดับที่ 3: หย่อนคล้อยชัดเจน")).toBeInTheDocument();
   });
 
   it("renders the 4 explainable XAI anatomical features", () => {
     render(<FacialSaggingCard sagging={mockSagging} recommendations={mockRecommendations} />);
-    expect(screen.getByText("แนวกรามหย่อนคล้อย (Jowl Sagging Index)")).toBeInTheDocument();
-    expect(screen.getByText("สัดส่วนโหนกแก้มต่อกราม (Malar-to-Jaw Ratio)")).toBeInTheDocument();
-    expect(screen.getByText("มุมองศาขอบปากตกลู่ (Marionette Droop)")).toBeInTheDocument();
-    expect(screen.getByText("ความคมชัดของขอบกราม (Mandibular Contour)")).toBeInTheDocument();
+    expect(screen.getByText("แนวกรามหย่อนคล้อย")).toBeInTheDocument();
+    expect(screen.getByText("สัดส่วนโหนกแก้มต่อกราม")).toBeInTheDocument();
+    expect(screen.getByText("มุมองศาขอบปากตกลู่")).toBeInTheDocument();
+    expect(screen.getByText("ความคมชัดของขอบกราม")).toBeInTheDocument();
 
     // Check numerical formatting
     expect(screen.getByText("0.0315")).toBeInTheDocument();
@@ -224,34 +224,34 @@ describe("FacialSaggingCard", () => {
     expect(screen.getByText("0.0225")).toBeInTheDocument();
 
     // Check interpretation badges
-    expect(screen.getByText("เริ่มหย่อนคล้อย (Mild)")).toBeInTheDocument();
-    expect(screen.getByText("เริ่มขยายตัว (Transitional)")).toBeInTheDocument();
-    expect(screen.getByText("เริ่มตกลู่ (Slight Droop)")).toBeInTheDocument();
-    expect(screen.getByText("เริ่มมีรอยคลื่น (Wavy)")).toBeInTheDocument();
+    expect(screen.getByText("เริ่มหย่อนคล้อย")).toBeInTheDocument();
+    expect(screen.getByText("เริ่มขยายตัว")).toBeInTheDocument();
+    expect(screen.getByText("เริ่มตกลู่")).toBeInTheDocument();
+    expect(screen.getByText("เริ่มมีรอยคลื่น")).toBeInTheDocument();
   });
 
-  it("filters and displays only indicated sagging procedures (intensity > 0)", () => {
+  it("displays condensed summary box linking to procedure card when sagging procedures are indicated (Option B)", () => {
     render(<FacialSaggingCard sagging={mockSagging} recommendations={mockRecommendations} />);
 
-    // skin_tightening (intensity 0.75 -> 75%)
+    // Renders 1-line condensed summary with count and link to procedures below
     expect(
-      screen.getByText("ยกกระชับด้วยคลื่นพลังงาน (HIFU / Ultherapy / RF)")
+      screen.getByText("มีข้อบ่งชี้การยกกระชับ 2 รายการ — ดูรายละเอียดและแนวทางหัตถการที่การ์ดข้อเสนอแนะหัตถการด้านล่าง")
     ).toBeInTheDocument();
-    expect(screen.getByText("ความจำเป็นระดับ 75%")).toBeInTheDocument();
+    expect(screen.getByText("ดูรายละเอียด →")).toBeInTheDocument();
 
-    // thread_lift (intensity 0.50 -> 50%)
+    // Does NOT render duplicate full procedure cards or progress bars
     expect(
-      screen.getByText("ร้อยไหมพยุงกรอบหน้า (Barbed Thread Lift)")
-    ).toBeInTheDocument();
-    expect(screen.getByText("ความจำเป็นระดับ 50%")).toBeInTheDocument();
-
-    // surgical_facelift has intensity 0 -> should NOT be displayed
-    expect(
-      screen.queryByText("ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)")
+      screen.queryByText("ยกกระชับด้วยคลื่นพลังงาน")
     ).toBeNull();
-
-    // rhinoplasty is NOT a sagging procedure -> should NOT be displayed
-    expect(screen.queryByText("ปรับแต่งทรงจมูก (Rhinoplasty)")).toBeNull();
+    expect(screen.queryByText("ความจำเป็นระดับ 75%")).toBeNull();
+    expect(
+      screen.queryByText("ร้อยไหมพยุงกรอบหน้า")
+    ).toBeNull();
+    expect(screen.queryByText("ความจำเป็นระดับ 50%")).toBeNull();
+    expect(
+      screen.queryByText("ศัลยกรรมยกกระชับดึงหน้า")
+    ).toBeNull();
+    expect(screen.queryByText("ปรับแต่งทรงจมูก")).toBeNull();
   });
 
   it("displays preventive message when no sagging procedures are indicated", () => {
@@ -275,13 +275,13 @@ describe("FacialSaggingCard", () => {
 describe("ProcedureRecommendationCard translations for sagging procedures", () => {
   it("translates titles for all 3 sagging procedures", () => {
     expect(PROCEDURE_TITLES["skin_tightening"]).toBe(
-      "ยกกระชับด้วยคลื่นพลังงาน (HIFU / Ultherapy / RF)"
+      "ยกกระชับด้วยคลื่นพลังงาน"
     );
     expect(PROCEDURE_TITLES["thread_lift"]).toBe(
-      "ร้อยไหมพยุงกรอบหน้า (Barbed Thread Lift)"
+      "ร้อยไหมพยุงกรอบหน้า"
     );
     expect(PROCEDURE_TITLES["surgical_facelift"]).toBe(
-      "ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)"
+      "ศัลยกรรมยกกระชับดึงหน้า"
     );
   });
 

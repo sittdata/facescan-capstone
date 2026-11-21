@@ -8,6 +8,7 @@ import {
   ResultSchema,
   ReportSchema,
   type HarmonyScore,
+  type AIHarmonyResult,
   type ProcedureRecommendation,
 } from "../src/api/schemas";
 import { HarmonyCard } from "../src/components/results/HarmonyCard";
@@ -154,7 +155,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
         },
       };
       render(<HarmonyCard harmony={harmony} />);
-      expect(screen.getByText(/สัดส่วนทองคำยอดเยี่ยม \(Golden Ratio\)/)).toBeInTheDocument();
+      expect(screen.getByText(/สัดส่วนทองคำยอดเยี่ยม/)).toBeInTheDocument();
       expect(screen.getAllByText("89%").length).toBeGreaterThanOrEqual(1);
     });
 
@@ -169,7 +170,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
         },
       };
       render(<HarmonyCard harmony={harmony} />);
-      expect(screen.getByText(/สัดส่วนสมดุลดี \(Well Balanced\)/)).toBeInTheDocument();
+      expect(screen.getByText(/สัดส่วนสมดุลดี/)).toBeInTheDocument();
     });
 
     it("renders Moderate badge for scores 50-69", () => {
@@ -183,7 +184,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
         },
       };
       render(<HarmonyCard harmony={harmony} />);
-      expect(screen.getByText(/สัดส่วนระดับปานกลาง \(Moderate\)/)).toBeInTheDocument();
+      expect(screen.getByText(/สัดส่วนระดับปานกลาง/)).toBeInTheDocument();
     });
 
     it("renders Needs Attention badge for scores < 50", () => {
@@ -197,7 +198,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
         },
       };
       render(<HarmonyCard harmony={harmony} />);
-      expect(screen.getByText(/สัดส่วนควรพิจารณาปรับสมดุล \(Needs Attention\)/)).toBeInTheDocument();
+      expect(screen.getByText(/สัดส่วนควรพิจารณาปรับสมดุล/)).toBeInTheDocument();
     });
 
     it("renders all 4 subscores and descriptions", () => {
@@ -215,6 +216,60 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
       expect(screen.getByText(/สัดส่วน 5 ส่วนแนวนอน/)).toBeInTheDocument();
       expect(screen.getByText(/สัดส่วนริมฝีปาก/)).toBeInTheDocument();
       expect(screen.getByText(/ความสมมาตรซ้าย-ขวา/)).toBeInTheDocument();
+    });
+
+    it("defaults SHAP feature attribution to collapsed and expands upon user click", async () => {
+      const user = userEvent.setup();
+      const mockAiHarmony: AIHarmonyResult = {
+        overall_score: 82,
+        raw_model_score: 0.82,
+        percentile: 78,
+        rating_th: "สัดส่วนดีเยี่ยม",
+        rating_en: "Excellent",
+        key_strengths: [
+          {
+            feature: "f1",
+            name_th: "สัดส่วนความกว้างปากต่อจมูก",
+            name_en: "Mouth to nose",
+            impact_score: 1.8,
+            is_positive: true,
+            user_value: 1.35,
+            reference_median: 1.35,
+            description: "สมดุลดี",
+          },
+        ],
+        key_improvements: [
+          {
+            feature: "f2",
+            name_th: "มุมองศาหางตา",
+            name_en: "Canthal tilt",
+            impact_score: -1.2,
+            is_positive: false,
+            user_value: 5.5,
+            reference_median: 6.5,
+            description: "ควรปรับ",
+          },
+        ],
+        total_features_evaluated: 10,
+      };
+
+      render(<HarmonyCard harmony={null} aiHarmony={mockAiHarmony} />);
+
+      // Initially collapsed: shows "ดูปัจจัยเด่น" and does NOT render the feature attributions
+      const toggleBtn = screen.getByRole("button", { name: /การอธิบายผลโมเดล/ });
+      expect(toggleBtn).toBeInTheDocument();
+      expect(screen.getByText("ดูปัจจัยเด่น")).toBeInTheDocument();
+      expect(screen.queryByText("จุดเด่นของสัดส่วน")).toBeNull();
+      expect(screen.queryByText("สัดส่วนความกว้างปากต่อจมูก")).toBeNull();
+      expect(screen.queryByText("มุมองศาหางตา")).toBeNull();
+
+      // Click to expand
+      await user.click(toggleBtn);
+      expect(screen.getByText("ย่อรายละเอียด")).toBeInTheDocument();
+      expect(screen.getByText("จุดเด่นของสัดส่วน")).toBeInTheDocument();
+      expect(screen.getByText("สัดส่วนความกว้างปากต่อจมูก")).toBeInTheDocument();
+      expect(screen.getByText("จุดควรพิจารณาปรับสมดุล")).toBeInTheDocument();
+      expect(screen.getByText("มุมองศาหางตา")).toBeInTheDocument();
     });
   });
 
@@ -241,7 +296,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
       ];
 
       render(<ProcedureRecommendationCard recommendations={recs} />);
-      expect(screen.getByText("ปรับมิติปลายคาง (Chin Augmentation)")).toBeInTheDocument();
+      expect(screen.getByText("ปรับมิติปลายคาง")).toBeInTheDocument();
       expect(screen.getByText("แนะนำระดับ 55%")).toBeInTheDocument();
       expect(screen.getByText("Lower facial height is vertically deficient.")).toBeInTheDocument();
       expect(screen.getByText("F1_lower_third")).toBeInTheDocument();
@@ -259,7 +314,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
       ];
 
       render(<ProcedureRecommendationCard recommendations={recs} />);
-      expect(screen.getByText("ปรับแต่งทรงจมูก (Rhinoplasty)")).toBeInTheDocument();
+      expect(screen.getByText("ปรับแต่งทรงจมูก")).toBeInTheDocument();
       expect(screen.getByText("สัดส่วนสมดุล (0%)")).toBeInTheDocument();
     });
 
@@ -275,7 +330,7 @@ describe("Milestone M3 Empirical Challenger Suite", () => {
       ];
 
       render(<ProcedureRecommendationCard recommendations={recs} onOpenSimulation={onOpen} />);
-      const btn = screen.getByRole("button", { name: /ทดลองจำลองใบหน้า/ });
+      const btn = screen.getByRole("button", { name: /เปิดหน้าต่างจำลองผลลัพธ์หัตถการ|ทดลองจำลองใบหน้า/ });
       await userEvent.click(btn);
       expect(onOpen).toHaveBeenCalledTimes(1);
     });

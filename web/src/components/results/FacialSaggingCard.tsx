@@ -1,6 +1,5 @@
 import { Activity, Sparkles, CheckCircle2, ShieldAlert } from "lucide-react";
 import type { FacialSaggingResult, ProcedureRecommendation } from "../../api/schemas";
-import { PROCEDURE_TITLES, translateRationale } from "./ProcedureRecommendationCard";
 
 interface Props {
   sagging?: FacialSaggingResult | null;
@@ -16,7 +15,7 @@ interface TierStyle {
 }
 
 const DEFAULT_TIER_STYLE: TierStyle = {
-  label: "Tier 1: Firm (ความกระชับสูง)",
+  label: "ระดับที่ 1: ความกระชับสูง",
   badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   barColor: "#10b981",
 };
@@ -24,12 +23,12 @@ const DEFAULT_TIER_STYLE: TierStyle = {
 const TIER_STYLES: Record<number, TierStyle> = {
   1: DEFAULT_TIER_STYLE,
   2: {
-    label: "Tier 2: Moderate (หย่อนคล้อยปานกลาง)",
+    label: "ระดับที่ 2: หย่อนคล้อยปานกลาง",
     badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20",
     barColor: "#f59e0b",
   },
   3: {
-    label: "Tier 3: Advanced (หย่อนคล้อยชัดเจน)",
+    label: "ระดับที่ 3: หย่อนคล้อยชัดเจน",
     badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20",
     barColor: "#f43f5e",
   },
@@ -45,63 +44,63 @@ interface FeatureDisplayConfig {
 
 const FEATURE_CONFIGS: Record<string, FeatureDisplayConfig> = {
   jowl_sagging_index: {
-    nameTh: "แนวกรามหย่อนคล้อย (Jowl Sagging Index)",
+    nameTh: "แนวกรามหย่อนคล้อย",
     nameEn: "Mandibular Soft-Tissue Descent",
     description: "การคล้อยตัวของเนื้อเยื่อกระพุ้งแก้มลงมาใต้แนวขอบกระดูกกรามล่าง",
     fallbackKeys: ["jowl_sagging"],
     interpret: (val: number) => {
       if (val <= 0.029) {
-        return { label: "ปกติ (Minimal)", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
+        return { label: "ปกติ", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
       }
       if (val <= 0.033) {
-        return { label: "เริ่มหย่อนคล้อย (Mild)", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
+        return { label: "เริ่มหย่อนคล้อย", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
       }
-      return { label: "คล้อยชัดเจน (Prominent)", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
+      return { label: "คล้อยชัดเจน", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
     },
   },
   malar_to_jaw_ratio: {
-    nameTh: "สัดส่วนโหนกแก้มต่อกราม (Malar-to-Jaw Ratio)",
+    nameTh: "สัดส่วนโหนกแก้มต่อกราม",
     nameEn: "Facial Proportion Vector (Malar-to-Jaw)",
     description: "สัดส่วนความกว้างโหนกแก้มต่อแนวกราม สะท้อนความกระชับของกรอบหน้าส่วนล่าง",
     fallbackKeys: ["malar_jaw_ratio"],
     interpret: (val: number) => {
       if (val >= 1.11) {
-        return { label: "กระชับรูปไข่ (V-Shape)", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
+        return { label: "กระชับรูปไข่", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
       }
       if (val >= 1.07) {
-        return { label: "เริ่มขยายตัว (Transitional)", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
+        return { label: "เริ่มขยายตัว", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
       }
-      return { label: "แนวกรามกว้างกว่าโหนกแก้ม (Wider Jaw)", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
+      return { label: "แนวกรามกว้างกว่าโหนกแก้ม", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
     },
   },
   oral_commissure_droop: {
-    nameTh: "มุมองศาขอบปากตกลู่ (Marionette Droop)",
+    nameTh: "มุมองศาขอบปากตกลู่",
     nameEn: "Oral Commissure Angle Descent",
     description: "การตกลู่ของมุมปากและร่องน้ำหมาก บ่งบอกการหย่อนคล้อยของกล้ามเนื้อรอบปาก",
     fallbackKeys: ["marionette_droop", "commissure_droop"],
     interpret: (val: number) => {
       if (val <= -0.025) {
-        return { label: "มุมปากยกกระชับ (Uplifted)", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
+        return { label: "มุมปากยกกระชับ", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
       }
       if (val <= -0.015) {
-        return { label: "เริ่มตกลู่ (Slight Droop)", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
+        return { label: "เริ่มตกลู่", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
       }
-      return { label: "ตกลู่ชัดเจน (Noticeable)", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
+      return { label: "ตกลู่ชัดเจน", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
     },
   },
   jawline_irregularity: {
-    nameTh: "ความคมชัดของขอบกราม (Mandibular Contour)",
+    nameTh: "ความคมชัดของขอบกราม",
     nameEn: "Jawline Smoothness & Definition",
     description: "ความเรียบสม่ำเสมอของแนวขอบกระดูกขากรรไกรล่าง",
     fallbackKeys: ["mandibular_contour_irregularity", "mandibular_irregularity"],
     interpret: (val: number) => {
       if (val <= 0.020) {
-        return { label: "คมชัดเรียบเนียน (Sharp)", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
+        return { label: "คมชัดเรียบเนียน", badgeClass: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
       }
       if (val <= 0.025) {
-        return { label: "เริ่มมีรอยคลื่น (Wavy)", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
+        return { label: "เริ่มมีรอยคลื่น", badgeClass: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
       }
-      return { label: "กรอบกรามลบเลือน (Blunted)", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
+      return { label: "กรอบกรามลบเลือน", badgeClass: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
     },
   },
 };
@@ -158,7 +157,7 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
           <Activity size={16} className="text-accent" />
           <div>
             <h3 className="text-sm font-semibold text-ink">
-              การประเมินความหย่อนคล้อยและแนวกราม (Facial Sagging & Laxity Index)
+              การประเมินความหย่อนคล้อยและแนวกราม
             </h3>
             <p className="text-sm text-ink-2">
               ประเมินโครงสร้างเนื้อเยื่อและแนวกรามตามเกณฑ์กายวิภาคศาสตร์คลินิก
@@ -166,7 +165,7 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
           </div>
         </div>
         <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-2">
-          การประเมินโครงสร้างทางกายวิภาค (Anatomical Evaluation)
+          การประเมินโครงสร้างทางกายวิภาค
         </span>
       </div>
 
@@ -200,7 +199,7 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
         {/* Continuous Laxity Spectrum Bar */}
         <div className="mt-4 pt-2 border-t border-line">
           <div className="flex items-center justify-between text-sm text-ink-2 mb-1">
-            <span>แถบวัดระดับความหย่อนคล้อย (Facial Laxity Spectrum)</span>
+            <span>แถบวัดระดับความหย่อนคล้อย</span>
             <span className="font-semibold text-ink">
               {laxityScore.toFixed(1)}%
             </span>
@@ -278,7 +277,7 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
         <div className="flex items-center gap-2 mb-2">
           <Sparkles size={16} className="text-accent" />
           <h4 className="text-sm font-semibold text-ink">
-            ดัชนีกายวิภาคเบื้องหลัง (Explainable XAI Morphological Features)
+            ดัชนีกายวิภาคเบื้องหลัง
           </h4>
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -324,7 +323,7 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
         <div className="flex items-center gap-2 mb-2">
           <ShieldAlert size={16} className="text-accent" />
           <h4 className="text-sm font-semibold text-ink">
-            แนวทางหัตถการยกกระชับแนะนำเฉพาะบุคคล (Targeted Lifting Procedures)
+            แนวทางหัตถการยกกระชับแนะนำเฉพาะบุคคล
           </h4>
         </div>
 
@@ -336,48 +335,19 @@ export function FacialSaggingCard({ sagging, recommendations }: Props) {
             </span>
           </div>
         ) : (
-          <div className="space-y-3">
-            {saggingRecs.map((rec) => {
-              const title = PROCEDURE_TITLES[rec.procedure] ?? rec.procedure;
-              const pct = Math.round(rec.intensity * 100);
-
-              return (
-                <div key={rec.procedure} className="border border-line bg-paper p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-ink">{title}</span>
-                    <span className="text-sm font-semibold text-accent">
-                      ความจำเป็นระดับ {pct}%
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mt-2 h-2 w-full bg-line overflow-hidden rounded-control">
-                    <div
-                      className="h-2 bg-accent transition-all duration-300"
-                      style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
-                    />
-                  </div>
-
-                  <p className="mt-2 text-sm text-ink-2">
-                    {translateRationale(rec.rationale)}
-                  </p>
-
-                  {rec.triggering_metrics && rec.triggering_metrics.length > 0 && (
-                    <div className="mt-2 flex flex-wrap items-center gap-1">
-                      <span className="text-sm text-ink-3">ตัวชี้วัดที่กระตุ้น:</span>
-                      {rec.triggering_metrics.map((m) => (
-                        <span
-                          key={m}
-                          className="border border-line bg-surface px-2 py-1 text-sm text-ink-2 rounded-control"
-                        >
-                          {m}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="border border-line bg-paper p-3 text-sm text-ink-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-accent shrink-0" />
+              <span>
+                มีข้อบ่งชี้การยกกระชับ {saggingRecs.length} รายการ — ดูรายละเอียดและแนวทางหัตถการที่การ์ดข้อเสนอแนะหัตถการด้านล่าง
+              </span>
+            </div>
+            <a
+              href="#procedure-recommendations"
+              className="text-sm font-medium text-accent hover:underline shrink-0"
+            >
+              ดูรายละเอียด →
+            </a>
           </div>
         )}
       </div>

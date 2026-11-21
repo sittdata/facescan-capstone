@@ -13,39 +13,39 @@ interface SkeletalClassStyle {
 }
 
 const DEFAULT_CLASS_STYLE: SkeletalClassStyle = {
-  label: "Skeletal Class I: สมดุลกระดูกปกติ (Balanced)",
+  label: "Skeletal Class I: สมดุลกระดูกปกติ",
   badgeClass: "border border-line bg-paper text-ink",
 };
 
 const CLASS_STYLES: Record<string, SkeletalClassStyle> = {
   Class_I: DEFAULT_CLASS_STYLE,
   Class_II: {
-    label: "Skeletal Class II: ขากรรไกรล่างถอย / คางถอย (Retrognathic)",
+    label: "Skeletal Class II: ขากรรไกรล่างถอย / คางถอย",
     badgeClass: "border border-line-strong bg-notice text-ink",
   },
   Class_III: {
-    label: "Skeletal Class III: ขากรรไกรล่างยื่น / คางยื่น (Prognathic)",
+    label: "Skeletal Class III: ขากรรไกรล่างยื่น / คางยื่น",
     badgeClass: "border border-accent bg-paper text-accent",
   },
 };
 
 const DEFAULT_SURGICAL_BADGE = {
-  labelTh: "ไม่ต้องผ่าตัด (None)",
+  labelTh: "ไม่ต้องผ่าตัด",
   badgeClass: "border border-line bg-paper text-ink-2",
 };
 
 const SURGICAL_BADGES: Record<string, { labelTh: string; badgeClass: string }> = {
   none: DEFAULT_SURGICAL_BADGE,
   camouflage_or_orthognathic: {
-    labelTh: "พิจารณาตกแต่งพรางหรือผ่าตัด (Camouflage / Orthodontic)",
+    labelTh: "พิจารณาตกแต่งพรางหรือผ่าตัด",
     badgeClass: "border border-accent bg-paper text-accent",
   },
   orthognathic_indicated: {
-    labelTh: "ข้อบ่งชี้ผ่าตัดเลื่อนขากรรไกร (Orthognathic Indicated)",
+    labelTh: "ข้อบ่งชี้ผ่าตัดเลื่อนขากรรไกร",
     badgeClass: "border border-line-strong bg-notice text-ink",
   },
   orthognathic_strongly_recommended: {
-    labelTh: "แนะนำผ่าตัดขากรรไกรอย่างยิ่ง (Strongly Recommended)",
+    labelTh: "แนะนำผ่าตัดขากรรไกรอย่างยิ่ง",
     badgeClass: "border border-error bg-surface text-error",
   },
 };
@@ -65,8 +65,8 @@ const CLINICAL_METRICS: MetricNorm[] = [
     norm: "0.0° - 4.0°",
     unit: "°",
     check: (v) => {
-      if (v < 0.0) return { status: "low", statusTh: "คางยื่น (Class III)" };
-      if (v > 4.0) return { status: "high", statusTh: "คางถอย (Class II)" };
+      if (v < 0.0) return { status: "low", statusTh: "คางยื่น" };
+      if (v > 4.0) return { status: "high", statusTh: "คางถอย" };
       return { status: "normal", statusTh: "สมดุลปกติ" };
     },
   },
@@ -76,8 +76,8 @@ const CLINICAL_METRICS: MetricNorm[] = [
     norm: "-1.5 - +1.0 mm",
     unit: " mm",
     check: (v) => {
-      if (v < -2.0) return { status: "low", statusTh: "ล่างยื่น (Class III)" };
-      if (v > 1.5) return { status: "high", statusTh: "ล่างถอย (Class II)" };
+      if (v < -2.0) return { status: "low", statusTh: "ล่างยื่น" };
+      if (v > 1.5) return { status: "high", statusTh: "ล่างถอย" };
       return { status: "normal", statusTh: "สมดุลปกติ" };
     },
   },
@@ -87,8 +87,8 @@ const CLINICAL_METRICS: MetricNorm[] = [
     norm: "79.0° - 85.0°",
     unit: "°",
     check: (v) => {
-      if (v < 79.0) return { status: "low", statusTh: "บนถดถอย (Hypoplasia)" };
-      if (v > 85.0) return { status: "high", statusTh: "บนยื่น (Protrusion)" };
+      if (v < 79.0) return { status: "low", statusTh: "บนถดถอย" };
+      if (v > 85.0) return { status: "high", statusTh: "บนยื่น" };
       return { status: "normal", statusTh: "สมดุลปกติ" };
     },
   },
@@ -98,8 +98,8 @@ const CLINICAL_METRICS: MetricNorm[] = [
     norm: "77.0° - 83.0°",
     unit: "°",
     check: (v) => {
-      if (v < 77.0) return { status: "low", statusTh: "ล่างถอย (Retrusion)" };
-      if (v > 83.0) return { status: "high", statusTh: "ล่างยื่น (Prognathism)" };
+      if (v < 77.0) return { status: "low", statusTh: "ล่างถอย" };
+      if (v > 83.0) return { status: "high", statusTh: "ล่างยื่น" };
       return { status: "normal", statusTh: "สมดุลปกติ" };
     },
   },
@@ -109,8 +109,8 @@ const CLINICAL_METRICS: MetricNorm[] = [
     norm: "21.0° - 29.0°",
     unit: "°",
     check: (v) => {
-      if (v < 21.0) return { status: "low", statusTh: "หน้าสั้น (Hypodivergent)" };
-      if (v > 29.0) return { status: "high", statusTh: "หน้ายาว (Hyperdivergent)" };
+      if (v < 21.0) return { status: "low", statusTh: "หน้าสั้น" };
+      if (v > 29.0) return { status: "high", statusTh: "หน้ายาว" };
       return { status: "normal", statusTh: "สมดุลปกติ" };
     },
   },
@@ -147,7 +147,7 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
           <Compass size={16} className="text-accent" />
           <div>
             <h3 className="text-sm font-semibold text-ink">
-              การวิเคราะห์โครงสร้างกระดูกขากรรไกร (Cephalometric Skeletal Classifier)
+              การวิเคราะห์โครงสร้างกระดูกขากรรไกร
             </h3>
             <p className="text-sm text-ink-2">
               ประเมินความสัมพันธ์ของฐานกระดูกขากรรไกรตามเกณฑ์มาตรฐาน Steiner & Tweed Analysis
@@ -155,7 +155,7 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
           </div>
         </div>
         <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-2">
-          ตารางวิเคราะห์กระดูก (Cephalometric Tabular Analysis)
+          ตารางวิเคราะห์กระดูก
         </span>
       </div>
 
@@ -191,7 +191,7 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
         {/* Probability Breakdown */}
         <div className="mt-3 border-t border-line pt-2">
           <div className="flex items-center justify-between text-sm text-ink-3">
-            <span>ความน่าจะเป็นจำแนกกลุ่ม (Posterior Probabilities):</span>
+            <span>ความน่าจะเป็นจำแนกกลุ่ม:</span>
             <span className="text-ink-2">ความมั่นใจ {(cephalometric.confidence * 100).toFixed(1)}%</span>
           </div>
           <div className="mt-1 grid grid-cols-3 gap-2 text-center text-sm">
@@ -214,7 +214,7 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
       {/* Clinical Measurement Gauges */}
       <div className="mt-4">
         <h4 className="text-sm font-semibold text-ink">
-          ดัชนีวัดทางเซฟาโลเมตริกส์ (Cephalometric Standard Parameters)
+          ดัชนีวัดทางเซฟาโลเมตริกส์
         </h4>
         <div className="mt-2 space-y-2">
           {CLINICAL_METRICS.map((m) => {
@@ -255,17 +255,19 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
 
       {/* Surgical vs Non-Surgical Guidance Cross-Link */}
       {orthoRec && orthoRec.intensity > 0 && (
-        <div className="mt-4 border border-error bg-surface p-3">
-          <div className="flex items-center gap-2 text-error">
-            <ShieldAlert size={16} />
-            <span className="text-sm font-semibold">
-              ข้อเสนอแนะด้านการรักษา: ศัลยกรรมเลื่อนขากรรไกร (Orthognathic Surgery)
-            </span>
-            <span className="ml-auto text-sm font-semibold">
-              ระดับความจำเป็น: {(orthoRec.intensity * 100).toFixed(0)}%
+        <div className="mt-4 border border-line bg-paper p-3 text-sm text-ink-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ShieldAlert size={16} className="text-accent shrink-0" />
+            <span>
+              มีข้อบ่งชี้ทางศัลยกรรมเลื่อนขากรรไกร (ความจำเป็น {(orthoRec.intensity * 100).toFixed(0)}%) — ดูรายละเอียดที่การ์ดข้อเสนอแนะหัตถการด้านล่าง
             </span>
           </div>
-          <p className="mt-1 text-sm text-ink-2">{translateRationale(orthoRec.rationale)}</p>
+          <a
+            href="#procedure-recommendations"
+            className="text-sm font-medium text-accent hover:underline shrink-0"
+          >
+            ดูรายละเอียด →
+          </a>
         </div>
       )}
 
@@ -274,7 +276,7 @@ export function CephalometricCard({ cephalometric, recommendations }: Props) {
           <div className="flex items-center gap-2 text-ink">
             <AlertTriangle size={16} />
             <span className="text-sm font-semibold">
-              ข้อห้ามทางการแพทย์ (Clinical Contraindication)
+              ข้อห้ามทางการแพทย์
             </span>
           </div>
           <p className="mt-1 text-sm text-ink-2">

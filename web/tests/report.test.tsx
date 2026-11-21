@@ -54,7 +54,7 @@ function textOrder(container: HTMLElement, texts: string[]): number[] {
 describe("report", () => {
   it("sends the latest tokens and renders the report verbatim, in the API's order", async () => {
     const { user, calls } = await toProfileResults();
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     await screen.findByRole("heading", { level: 1, name: "รายงาน" });
     expect(screen.getByText("ขั้นที่ 4 จาก 4 · รายงาน")).toBeInTheDocument();
     await screen.findByTestId("example-rules");
@@ -85,7 +85,7 @@ describe("report", () => {
 
   it("shows every measurement of both photos in tables, verbatim, with their photos", async () => {
     const { user } = await toProfileResults();
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     await screen.findByTestId("example-rules");
     const r = reportOkTh.report;
     for (const [view, result] of [["ภาพหน้าตรง", r.frontal], ["ภาพด้านข้าง", r.profile!]] as const) {
@@ -107,7 +107,7 @@ describe("report", () => {
 
   it("without a side photo: no profile token, and the core's note when there are no topics", async () => {
     const { user, calls } = await toFrontalResults();
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     expect(await screen.findByTestId("no-considerations")).toHaveTextContent(reportFrontalOnlyTh.report.no_considerations_note!);
     expect(calls.report).toEqual([{ frontal_token: "fixture-token-frontal", locale: "th" }]);
     expect(screen.queryByRole("article")).toBeNull();
@@ -119,19 +119,19 @@ describe("report", () => {
     const { user } = await toFrontalResults();
     const real = { ...reportFrontalOnlyTh, report: { ...reportFrontalOnlyTh.report, rules_version: "2026-10" } };
     server.use(http.post(`${MOCK_API}/v1/report`, () => HttpResponse.json(real, { headers: CORS_HEADERS })));
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     await screen.findByTestId("no-considerations");
     expect(screen.queryByTestId("example-rules")).toBeNull();
   });
 
   it("keeps the report until an adjustment changes a token, then sends the latest", async () => {
     const { user, calls } = await toProfileResults();
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     await screen.findByTestId("example-rules");
     // Back and forth: the same tokens, no new request.
     await user.click(within(screen.getByRole("banner")).getByRole("button", { name: "ย้อนกลับ" }));
     await screen.findByRole("heading", { level: 1, name: "ผลการวัดภาพด้านข้าง" });
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     await screen.findByTestId("example-rules");
     expect(calls.report).toHaveLength(1);
     // A side adjustment: the new side token goes with the next report.
@@ -145,7 +145,7 @@ describe("report", () => {
     await user.keyboard("{ArrowDown}");
     await user.click(screen.getByRole("button", { name: "บันทึกตำแหน่ง" }));
     await screen.findByRole("heading", { level: 1, name: "ผลการวัดภาพด้านข้าง" });
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     await waitFor(() => expect(calls.report).toHaveLength(2));
     expect(calls.report[1]).toEqual({ frontal_token: "fixture-token-frontal", profile_token: "fixture-token-profile-adjusted", locale: "th" });
   });
@@ -160,7 +160,7 @@ describe("report", () => {
         return problem("token_stale", 400);
       }),
     );
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     const panel = await screen.findByTestId("scan-error");
     await user.click(within(panel).getByRole("button", { name: "วิเคราะห์ภาพเดิมทั้งสองภาพอีกครั้ง" }));
     await screen.findByTestId("example-rules", {}, { timeout: 3000 });
@@ -173,7 +173,7 @@ describe("report", () => {
   it("a session mismatch offers to start over", async () => {
     const { user } = await toFrontalResults();
     server.use(http.post(`${MOCK_API}/v1/report`, () => problem("session_mismatch", 400)));
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     const panel = await screen.findByTestId("scan-error");
     expect(panel).toHaveTextContent("เกิดข้อผิดพลาดที่ไม่คาดคิด");
     await user.click(within(panel).getByRole("button", { name: "เริ่มใหม่" }));
@@ -183,7 +183,7 @@ describe("report", () => {
   it("saves as PDF or prints through the browser", async () => {
     const print = vi.spyOn(window, "print").mockImplementation(() => undefined);
     const { user } = await toProfileResults();
-    await user.click(screen.getByRole("link", { name: "ดูรายงาน" }));
+    await user.click(screen.getByRole("link", { name: /พิมพ์รายงานสรุป|ดูรายงาน/ }));
     await screen.findByTestId("example-rules");
     await user.click(screen.getByRole("button", { name: "บันทึกเป็น PDF หรือพิมพ์" }));
     expect(print).toHaveBeenCalledTimes(1);

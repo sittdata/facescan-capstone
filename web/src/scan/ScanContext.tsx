@@ -141,6 +141,43 @@ export function ScanProvider({ children, now = Date.now }: { children: ReactNode
           dispatch({ type: "analysis_ok", view, analysis: analysisFrom(response, locale, now()), photoUrl });
           return { kind: "ok" };
         }
+
+        // Auto-Align fallback: if frontal failed quality checks (except when no face or multiple faces), auto-align in background
+        const fatalChecks = ["no_face", "multiple_faces"];
+        const isFatal = response.failed_checks?.some((c) => fatalChecks.includes(c));
+        if (view === "frontal" && capture.frames[0] && !isFatal) {
+          try {
+            const frame = capture.frames[0];
+            const form = new FormData();
+            form.append("file", frame.blob, frame.name || "frontal.jpg");
+            form.append("sex", subject?.sex ?? "female");
+            form.append("age", String(subject?.age ?? 25));
+            form.append("locale", locale);
+
+            const res = await fetch("/v1/simulation/auto-align", {
+              method: "POST",
+              body: form,
+              signal,
+            });
+            if (res.ok) {
+              const aligned = await res.json();
+              if (aligned.status === "ok") {
+                const analysis = analysisFrom(aligned, locale, now());
+                (analysis.result as Record<string, unknown>).is_auto_aligned = true;
+                dispatch({
+                  type: "analysis_ok",
+                  view: "frontal",
+                  analysis,
+                  photoUrl: aligned.aligned_photo,
+                });
+                return { kind: "ok" };
+              }
+            }
+          } catch {
+            // shortcut: fallback to failure if auto-align request fails
+          }
+        }
+
         dispatch({ type: "analysis_failed", view, failure: failureFrom(response, locale) });
         return { kind: "failed" };
       } catch (err) {

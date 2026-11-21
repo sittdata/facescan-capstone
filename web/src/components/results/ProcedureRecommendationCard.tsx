@@ -11,21 +11,22 @@ interface Props {
   recommendations?: ProcedureRecommendation[] | null;
   onOpenSimulation?: () => void;
   filterNonRecommended?: boolean;
+  excludeStructural?: boolean;
 }
 
 export const PROCEDURE_TITLES: Record<string, string> = {
-  chin_augmentation: "ปรับมิติปลายคาง (Chin Augmentation)",
-  lip_augmentation: "ปรับมิติมุมปากและริมฝีปาก (Lip Augmentation)",
-  rhinoplasty: "ปรับแต่งทรงจมูก (Rhinoplasty)",
-  botulinum_toxin_masseter: "โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว (Masseter Botulinum Toxin)",
-  botulinum_toxin_wrinkles: "โบท็อกซ์ริ้วรอยส่วนบน (Upper-Face Anti-Wrinkle Botox)",
-  hyaluronic_acid_filler_nasolabial: "ฟิลเลอร์เติมเต็มร่องแก้ม (Nasolabial Fold Filler)",
-  hyaluronic_acid_filler_temple: "ฟิลเลอร์เติมเต็มขมับตอบ (Temporal Volume Restoration)",
-  skin_tightening: "ยกกระชับด้วยคลื่นพลังงาน (HIFU / Ultherapy / RF)",
-  thread_lift: "ร้อยไหมพยุงกรอบหน้า (Barbed Thread Lift)",
-  mandibular_contouring: "ศัลยกรรมตัดแต่งมุมกราม (Mandibular Angle Ostectomy)",
-  orthognathic_surgery: "ศัลยกรรมเลื่อนขากรรไกร (Orthognathic Surgery)",
-  surgical_facelift: "ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)",
+  chin_augmentation: "ปรับมิติปลายคาง",
+  lip_augmentation: "ปรับมิติมุมปากและริมฝีปาก",
+  rhinoplasty: "ปรับแต่งทรงจมูก",
+  botulinum_toxin_masseter: "โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว",
+  botulinum_toxin_wrinkles: "โบท็อกซ์ริ้วรอยส่วนบน",
+  hyaluronic_acid_filler_nasolabial: "ฟิลเลอร์เติมเต็มร่องแก้ม",
+  hyaluronic_acid_filler_temple: "ฟิลเลอร์เติมเต็มขมับตอบ",
+  skin_tightening: "ยกกระชับด้วยคลื่นพลังงาน",
+  thread_lift: "ร้อยไหมพยุงกรอบหน้า",
+  mandibular_contouring: "ศัลยกรรมตัดแต่งมุมกราม",
+  orthognathic_surgery: "ศัลยกรรมเลื่อนขากรรไกร",
+  surgical_facelift: "ศัลยกรรมยกกระชับดึงหน้า",
 };
 
 export const FACIAL_AREAS: Record<string, { label: string; badgeClass: string }> = {
@@ -119,57 +120,57 @@ export function getSpecificAction(rec: ProcedureRecommendation): string | null {
       if (hasProfile && hasVertical) return "เสริมคางยื่นรับสัดส่วน E-line และเพิ่มความยาวใบหน้า";
       if (hasProfile) return "เสริมคางยื่นรับสัดส่วน E-line";
       if (hasVertical) return "เสริมคางเพิ่มความยาวใบหน้า";
-      if (hasCeph) return "เสริมคางปรับโครงสร้างแนวกราม (Class II Aesthetic Camouflage)";
+      if (hasCeph) return "เสริมคางปรับโครงสร้างแนวกราม";
       return "เสริมคางปรับมิติปลายคาง";
     }
     case "lip_augmentation": {
       if (rationale.includes("lower lip") || rationale.includes("ริมฝีปากล่าง")) {
-        return "ฟิลเลอร์เพิ่มความอวบอิ่มริมฝีปากล่าง (Lower Lip Augmentation)";
+        return "ฟิลเลอร์เพิ่มความอวบอิ่มริมฝีปากล่าง";
       }
       if (rationale.includes("upper lip") || rationale.includes("ริมฝีปากบน")) {
-        return "ฟิลเลอร์เพิ่มมิติริมฝีปากบนและยกมุมปาก (Upper Lip Definition)";
+        return "ฟิลเลอร์เพิ่มมิติริมฝีปากบนและยกมุมปาก";
       }
       return "ฟิลเลอร์ปรับความอิ่มฟูและมิติริมฝีปาก";
     }
     case "botulinum_toxin_masseter":
-      return "โบท็อกซ์ลดขนาดกล้ามเนื้อกราม ปรับรูปหน้าเรียว (Masseter Botulinum Toxin)";
+      return "โบท็อกซ์ลดขนาดกล้ามเนื้อกราม ปรับรูปหน้าเรียว";
     case "botulinum_toxin_wrinkles": {
       const hasBrow = metrics.some((m) => m.includes("brow"));
-      if (hasBrow) return "โบท็อกซ์ปรับสมดุลแนวคิ้วและลดริ้วรอยหน้าผาก (Brow Balancing Botox)";
-      return "โบท็อกซ์ลดริ้วรอยหน้าผากและหว่างคิ้ว (Forehead & Glabellar Botox)";
+      if (hasBrow) return "โบท็อกซ์ปรับสมดุลแนวคิ้วและลดริ้วรอยหน้าผาก";
+      return "โบท็อกซ์ลดริ้วรอยหน้าผากและหว่างคิ้ว";
     }
     case "hyaluronic_acid_filler_nasolabial": {
       const hasPyriform = metrics.some((m) => m.includes("P2") || m.includes("sna"));
-      if (hasPyriform) return "ฟิลเลอร์หนุนฐานกระดูกปีกจมูกและร่องแก้มลึก (Pyriform & Nasolabial Filler)";
-      return "ฟิลเลอร์เติมเต็มร่องแก้ม (Nasolabial Fold Filler)";
+      if (hasPyriform) return "ฟิลเลอร์หนุนฐานกระดูกปีกจมูกและร่องแก้มลึก";
+      return "ฟิลเลอร์เติมเต็มร่องแก้ม";
     }
     case "hyaluronic_acid_filler_temple":
-      return "ฟิลเลอร์เติมเต็มขมับตอบ ปรับมิติกรอบหน้าส่วนบน (Temporal Volume Restoration)";
+      return "ฟิลเลอร์เติมเต็มขมับตอบ ปรับมิติกรอบหน้าส่วนบน";
     case "skin_tightening": {
       if (rationale.includes("tier 1") || rationale.includes("early")) {
-        return "ทำคลื่นพลังงานยกกระชับระดับเริ่มต้น (Preventive HIFU / RF)";
+        return "ทำคลื่นพลังงานยกกระชับระดับเริ่มต้น";
       }
-      return "ยกกระชับผิวและชั้น SMAS ด้วยคลื่นพลังงาน (HIFU / Ultherapy / Thermage RF)";
+      return "ยกกระชับผิวและชั้น SMAS ด้วยคลื่นพลังงาน";
     }
     case "thread_lift": {
       if (rationale.includes("tier 3") || rationale.includes("advanced")) {
-        return "ร้อยไหมยกพยุงทิศทางเนื้อเยื่อกรอบหน้า (Vector Thread Lifting)";
+        return "ร้อยไหมยกพยุงทิศทางเนื้อเยื่อกรอบหน้า";
       }
-      return "ร้อยไหมเงี่ยงละลายพยุงกรอบหน้าและกระพุ้งแก้ม (Barbed Thread Lift)";
+      return "ร้อยไหมเงี่ยงละลายพยุงกรอบหน้าและกระพุ้งแก้ม";
     }
     case "mandibular_contouring":
-      return "ศัลยกรรมผ่าตัดลดขนาดกระดูกมุมกราม (Mandibular Angle Ostectomy)";
+      return "ศัลยกรรมผ่าตัดลดขนาดกระดูกมุมกราม";
     case "orthognathic_surgery": {
       if (metrics.some((m) => m.includes("class_ii"))) {
-        return "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรล่างมาด้านหน้า (BSSO Mandibular Advancement)";
+        return "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรล่างมาด้านหน้า";
       }
       if (metrics.some((m) => m.includes("class_iii"))) {
-        return "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรแก้ไขคางยื่น (Two-Jaw Orthognathic Surgery)";
+        return "ศัลยกรรมผ่าตัดเลื่อนขากรรไกรแก้ไขคางยื่น";
       }
-      return "ศัลยกรรมผ่าตัดเลื่อนขากรรไกร (Orthognathic Surgery)";
+      return "ศัลยกรรมผ่าตัดเลื่อนขากรรไกร";
     }
     case "surgical_facelift":
-      return "ศัลยกรรมผ่าตัดดึงหน้าชั้น SMAS และเย็บกระชับลำคอ (SMAS / Deep-Plane Facelift)";
+      return "ศัลยกรรมผ่าตัดดึงหน้าชั้น SMAS และเย็บกระชับลำคอ";
     default:
       return null;
   }
@@ -460,6 +461,7 @@ export function ProcedureRecommendationCard({
   recommendations,
   onOpenSimulation,
   filterNonRecommended = false,
+  excludeStructural = false,
 }: Props) {
   const [selectedDiagramRec, setSelectedDiagramRec] = useState<ProcedureRecommendation | null>(null);
 
@@ -467,24 +469,36 @@ export function ProcedureRecommendationCard({
   if (recommendations.length === 0 && !filterNonRecommended) return null;
 
   // Filter 0% non-recommended items if filterNonRecommended is enabled
-  const displayed = filterNonRecommended
+  let displayed = filterNonRecommended
     ? recommendations.filter((r) => r && r.intensity > 0)
     : recommendations;
+
+  // Filter out sagittal/structural procedures (chin & nose) when viewing frontal scan
+  if (excludeStructural) {
+    displayed = displayed.filter(
+      (r) => r && r.procedure !== "chin_augmentation" && r.procedure !== "rhinoplasty"
+    );
+  }
 
   // Sort descending by recommendation intensity / priority percentage
   const sorted = [...displayed].sort((a, b) => b.intensity - a.intensity);
 
   return (
-    <div className="border border-line bg-surface p-4 overflow-hidden break-words">
+    <div
+      id="procedure-recommendations"
+      className="border border-line bg-surface p-4 overflow-hidden break-words"
+    >
       <div className="flex items-center justify-between border-b border-line pb-3">
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-accent" />
           <div>
             <h3 className="text-sm font-semibold text-ink">
-              ข้อเสนอแนะหัตถการความงาม (Aesthetic Recommendations)
+              ข้อเสนอแนะหัตถการความงาม
             </h3>
             <p className="text-sm text-ink-2">
-              ประเมินและเรียงลำดับเฉพาะหัตถการที่มีข้อบ่งชี้ตามสัดส่วนใบหน้า โครงสร้างกระดูก และความกระชับ
+              {excludeStructural
+                ? "ประเมินและเรียงลำดับหัตถการผิวพรรณ กล้ามเนื้อ และความกระชับจากภาพหน้าตรง"
+                : "ประเมินและเรียงลำดับเฉพาะหัตถการที่มีข้อบ่งชี้ตามสัดส่วนใบหน้า โครงสร้างกระดูก และความกระชับ"}
             </p>
           </div>
         </div>
@@ -498,7 +512,7 @@ export function ProcedureRecommendationCard({
           <CheckCircle2 size={20} className="text-emerald-600 shrink-0 mt-1" />
           <div>
             <h4 className="text-sm font-semibold text-emerald-600">
-              สัดส่วนใบหน้าทุกมิติอยู่ในเกณฑ์สมดุล (Harmonious Balance)
+              สัดส่วนใบหน้าทุกมิติอยู่ในเกณฑ์สมดุล
             </h4>
             <p className="mt-1 text-sm text-ink-2">
               จากการวิเคราะห์สัดส่วนใบหน้า โครงสร้างกระดูก และความกระชับของผิว ทุกมิติอยู่ในเกณฑ์มาตรฐานความงามคลินิก ไม่พบจุดที่จำเป็นต้องได้รับการปรับแต่งหรือทำหัตถการทางการแพทย์ในขณะนี้ แนะนำการดูแลบำรุงผิวตามปกติเพื่อคงความอ่อนเยาว์ในระยะยาว
@@ -639,7 +653,7 @@ export function ProcedureRecommendationCard({
           </p>
           <Button variant="secondary" onClick={onOpenSimulation}>
             <Sliders size={16} className="text-accent" />
-            <span>ทดลองจำลองใบหน้า</span>
+            <span>เปิดหน้าต่างจำลองผลลัพธ์หัตถการ</span>
           </Button>
         </div>
       )}

@@ -101,15 +101,15 @@ describe("Comprehensive Aesthetic Procedures & ProcedureRecommendationCard", () 
     expect(cards.length).toBe(3);
 
     // First card should be masseter botox (85%)
-    expect(cards[0]!.textContent).toContain("โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว (Masseter Botulinum Toxin)");
+    expect(cards[0]!.textContent).toContain("โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว");
     expect(cards[0]!.textContent).toContain("แนะนำระดับ 85%");
 
     // Second card should be temple filler (45%)
-    expect(cards[1]!.textContent).toContain("ฟิลเลอร์เติมเต็มขมับตอบ (Temporal Volume Restoration)");
+    expect(cards[1]!.textContent).toContain("ฟิลเลอร์เติมเต็มขมับตอบ");
     expect(cards[1]!.textContent).toContain("แนะนำระดับ 45%");
 
     // Third card should be facelift (0%)
-    expect(cards[2]!.textContent).toContain("ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)");
+    expect(cards[2]!.textContent).toContain("ศัลยกรรมยกกระชับดึงหน้า");
     expect(cards[2]!.textContent).toContain("สัดส่วนสมดุล (0%)");
   });
 
@@ -135,7 +135,7 @@ describe("Comprehensive Aesthetic Procedures & ProcedureRecommendationCard", () 
     const temple = evaluated.find((r) => r.procedure === "hyaluronic_acid_filler_temple");
     expect(temple).toBeDefined();
     expect(temple!.intensity).toBeGreaterThan(0);
-    expect(temple!.specific_action).toBe("ฟิลเลอร์เติมเต็มขมับตอบ ปรับมิติกรอบหน้าส่วนบน (Temporal Volume Restoration)");
+    expect(temple!.specific_action).toBe("ฟิลเลอร์เติมเต็มขมับตอบ ปรับมิติกรอบหน้าส่วนบน");
   });
 
   it("filters out 0% non-recommended procedures when filterNonRecommended is true", () => {
@@ -165,7 +165,48 @@ describe("Comprehensive Aesthetic Procedures & ProcedureRecommendationCard", () 
 
     // 0% facelift should NOT be present in DOM
     expect(queryByText("สัดส่วนสมดุล (0%)")).not.toBeInTheDocument();
-    expect(queryByText("ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)")).not.toBeInTheDocument();
+    expect(queryByText("ศัลยกรรมยกกระชับดึงหน้า")).not.toBeInTheDocument();
+  });
+
+  it("filters out structural procedures (chin and nose) when excludeStructural is true", () => {
+    const recs: ProcedureRecommendation[] = [
+      {
+        procedure: "rhinoplasty",
+        intensity: 0.75,
+        rationale: "Nasal alar width exceeds intercanthal distance.",
+        triggering_metrics: ["F6_alar_intercanthal_ratio"],
+        specific_action: "ตัดปีกจมูก (ลดความกว้าง)",
+      },
+      {
+        procedure: "chin_augmentation",
+        intensity: 0.60,
+        rationale: "Lower facial height deficiency.",
+        triggering_metrics: ["F1_lower_third_ratio"],
+        specific_action: "ปรับมิติปลายคาง",
+      },
+      {
+        procedure: "botulinum_toxin_masseter",
+        intensity: 0.85,
+        rationale: "Gonial angle indicates strong masseteric muscle attachment.",
+        triggering_metrics: ["gonial_angle"],
+        specific_action: "โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว",
+      },
+    ];
+
+    const { queryByText, getAllByText } = render(
+      <ProcedureRecommendationCard
+        recommendations={recs}
+        filterNonRecommended={true}
+        excludeStructural={true}
+      />
+    );
+
+    // Masseter botox should be present
+    expect(getAllByText(/โบท็อกซ์ลดกราม/).length).toBeGreaterThan(0);
+
+    // Rhinoplasty and Chin augmentation should NOT be present
+    expect(queryByText("ตัดปีกจมูก (ลดความกว้าง)")).not.toBeInTheDocument();
+    expect(queryByText("ปรับมิติปลายคาง")).not.toBeInTheDocument();
   });
 
   it("displays harmonious balance notice when all procedures are balanced / 0% with filterNonRecommended", () => {
@@ -189,7 +230,7 @@ describe("Comprehensive Aesthetic Procedures & ProcedureRecommendationCard", () 
     );
 
     expect(
-      getByText("สัดส่วนใบหน้าทุกมิติอยู่ในเกณฑ์สมดุล (Harmonious Balance)")
+      getByText("สัดส่วนใบหน้าทุกมิติอยู่ในเกณฑ์สมดุล")
     ).toBeInTheDocument();
     expect(queryByText("แนะนำระดับ")).not.toBeInTheDocument();
   });
@@ -301,6 +342,6 @@ describe("Comprehensive Aesthetic Procedures & ProcedureRecommendationCard", () 
       <CephalometricCard cephalometric={mockClassIII} recommendations={recsWithoutChin} />
     );
 
-    expect(getByText("ข้อห้ามทางการแพทย์ (Clinical Contraindication)")).toBeInTheDocument();
+    expect(getByText("ข้อห้ามทางการแพทย์")).toBeInTheDocument();
   });
 });

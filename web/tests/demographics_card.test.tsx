@@ -64,9 +64,9 @@ describe("DemographicsCard & Skin Vitality Index", () => {
 
       // Title & Biometrics badge
       expect(
-        screen.getByText("ประเมินอายุสภาพผิวและความอ่อนเยาว์ (Skin Age & Facial Vitality Index)")
+        screen.getByText("ประเมินอายุสภาพผิวและความอ่อนเยาว์")
       ).toBeInTheDocument();
-      expect(screen.getByText("ชีวมิติผิวพรรณ (Clinical Biometrics)")).toBeInTheDocument();
+      expect(screen.getByText("ชีวมิติผิวพรรณ")).toBeInTheDocument();
 
       // Estimated age & range
       const ageEl = screen.getByTestId("estimated-skin-age");
@@ -141,7 +141,7 @@ describe("DemographicsCard & Skin Vitality Index", () => {
   });
 
   describe("Facial Firmness & Sagging Correlation", () => {
-    it("correlates with Tier 1 Firm tissue", () => {
+    it("correlates with Tier 1 Firm tissue without duplicate tier badge", () => {
       render(
         <DemographicsCard
           demographics={mockFemaleYoung}
@@ -150,14 +150,15 @@ describe("DemographicsCard & Skin Vitality Index", () => {
       );
 
       const statusTag = screen.getByTestId("vitality-status-tag");
-      expect(statusTag).toHaveTextContent("อ่อนเยาว์สมวัย (Youthful Vitality)");
-      expect(screen.getByText(/ความกระชับสูง \(Tier 1 Firm\)/i)).toBeInTheDocument();
+      expect(statusTag).toHaveTextContent("อ่อนเยาว์สมวัย");
+      // Duplicate firmness badge removed from DemographicsCard to avoid duplicating FacialSaggingCard
+      expect(screen.queryByText(/Tier 1/i)).toBeNull();
       expect(
         screen.getByText(/โครงสร้างเนื้อเยื่อและผิวพรรณมีความกระชับสูง/i)
       ).toBeInTheDocument();
     });
 
-    it("correlates with Tier 2 Moderate laxity", () => {
+    it("correlates with Tier 2 Moderate laxity without duplicate tier badge", () => {
       render(
         <DemographicsCard
           demographics={mockMalePreventive}
@@ -166,14 +167,14 @@ describe("DemographicsCard & Skin Vitality Index", () => {
       );
 
       const statusTag = screen.getByTestId("vitality-status-tag");
-      expect(statusTag).toHaveTextContent("เริ่มหย่อนคล้อยตามวัย (Moderate Maturation)");
-      expect(screen.getByText(/หย่อนคล้อยปานกลาง \(Tier 2 Moderate\)/i)).toBeInTheDocument();
+      expect(statusTag).toHaveTextContent("เริ่มหย่อนคล้อยตามวัย");
+      expect(screen.queryByText(/Tier 2/i)).toBeNull();
       expect(
         screen.getByText(/เนื้อเยื่อเริ่มคลายตัวระดับปานกลางตามวัฏจักรคอลลาเจน/i)
       ).toBeInTheDocument();
     });
 
-    it("correlates with Tier 3 Advanced laxity", () => {
+    it("correlates with Tier 3 Advanced laxity without duplicate tier badge", () => {
       render(
         <DemographicsCard
           demographics={mockRestorative}
@@ -182,8 +183,8 @@ describe("DemographicsCard & Skin Vitality Index", () => {
       );
 
       const statusTag = screen.getByTestId("vitality-status-tag");
-      expect(statusTag).toHaveTextContent("ต้องการการฟื้นฟูโครงสร้าง (Restorative Need)");
-      expect(screen.getByText(/หย่อนคล้อยชัดเจน \(Tier 3 Advanced\)/i)).toBeInTheDocument();
+      expect(statusTag).toHaveTextContent("ต้องการการฟื้นฟูโครงสร้าง");
+      expect(screen.queryByText(/Tier 3/i)).toBeNull();
       expect(
         screen.getByText(/เนื้อเยื่อและผิวชั้นลึกมีความหย่อนคล้อยชัดเจน/i)
       ).toBeInTheDocument();
@@ -209,8 +210,11 @@ describe("DemographicsCard & Skin Vitality Index", () => {
       );
 
       const statusTag = screen.getByTestId("vitality-status-tag");
-      expect(statusTag).toHaveTextContent("เริ่มหย่อนคล้อยตามวัย (Moderate Maturation)");
-      expect(screen.getByText(/หย่อนคล้อยปานกลาง \(Tier 2 Moderate\)/i)).toBeInTheDocument();
+      expect(statusTag).toHaveTextContent("เริ่มหย่อนคล้อยตามวัย");
+      expect(screen.queryByText(/Tier 2/i)).toBeNull();
+      expect(
+        screen.getByText(/เนื้อเยื่อเริ่มคลายตัวระดับปานกลางตามวัฏจักรคอลลาเจน/i)
+      ).toBeInTheDocument();
     });
 
     it("correctly evaluates cross-age sagging scenarios", () => {
@@ -222,7 +226,7 @@ describe("DemographicsCard & Skin Vitality Index", () => {
         />
       );
       expect(screen.getByTestId("vitality-status-tag")).toHaveTextContent(
-        "เริ่มหย่อนคล้อยก่อนวัย (Early Tissue Laxity)"
+        "เริ่มหย่อนคล้อยก่อนวัย"
       );
       u1();
 
@@ -234,7 +238,7 @@ describe("DemographicsCard & Skin Vitality Index", () => {
         />
       );
       expect(screen.getByTestId("vitality-status-tag")).toHaveTextContent(
-        "ผิวพรรณกระชับกว่าวัย (Remarkable Firmness)"
+        "ผิวพรรณกระชับกว่าวัย"
       );
       u2();
 
@@ -246,7 +250,7 @@ describe("DemographicsCard & Skin Vitality Index", () => {
         />
       );
       expect(screen.getByTestId("vitality-status-tag")).toHaveTextContent(
-        "ผิวกระชับกว่าเกณฑ์วัย (Well-preserved Firmness)"
+        "ผิวกระชับกว่าเกณฑ์วัย"
       );
       u3();
     });

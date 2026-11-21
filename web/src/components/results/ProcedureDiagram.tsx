@@ -16,7 +16,65 @@ import { useState } from "react";
 import type { ProcedureRecommendation } from "../../api/schemas";
 import { Button } from "../ui/Button";
 
-export type DiagramMode = "thumbnail" | "expanded" | "before" | "after" | "vectors";
+export type DiagramMode = "thumbnail" | "expanded" | "before" | "after" | "vectors" | "compare";
+
+export interface ProcedureAsset {
+  compare: string;
+  before: string;
+  after: string;
+  alt: string;
+}
+
+export const PROCEDURE_ASSETS: Record<string, ProcedureAsset> = {
+  chin_augmentation: {
+    compare: "/procedures/chin_augmentation_compare.webp",
+    before: "/procedures/chin_augmentation_before.webp",
+    after: "/procedures/chin_augmentation_after.webp",
+    alt: "ภาพตัวอย่างหัตถการเสริมคาง",
+  },
+  rhinoplasty: {
+    compare: "/procedures/rhinoplasty_compare.webp",
+    before: "/procedures/rhinoplasty_before.webp",
+    after: "/procedures/rhinoplasty_after.webp",
+    alt: "ภาพตัวอย่างหัตถการปรับแต่งทรงจมูก",
+  },
+  botulinum_toxin_masseter: {
+    compare: "/procedures/botulinum_toxin_masseter_compare.webp",
+    before: "/procedures/botulinum_toxin_masseter_before.webp",
+    after: "/procedures/botulinum_toxin_masseter_after.webp",
+    alt: "ภาพตัวอย่างหัตถการโบท็อกซ์ลดกราม",
+  },
+  lip_augmentation: {
+    compare: "/procedures/lip_augmentation_compare.webp",
+    before: "/procedures/lip_augmentation_before.webp",
+    after: "/procedures/lip_augmentation_after.webp",
+    alt: "ภาพตัวอย่างหัตถการฟิลเลอร์ริมฝีปาก",
+  },
+  hyaluronic_acid_filler_nasolabial: {
+    compare: "/procedures/hyaluronic_acid_filler_nasolabial_compare.webp",
+    before: "/procedures/hyaluronic_acid_filler_nasolabial_before.webp",
+    after: "/procedures/hyaluronic_acid_filler_nasolabial_after.webp",
+    alt: "ภาพตัวอย่างหัตถการฟิลเลอร์ร่องแก้ม",
+  },
+  skin_tightening: {
+    compare: "/procedures/skin_tightening_compare.webp",
+    before: "/procedures/skin_tightening_before.webp",
+    after: "/procedures/skin_tightening_after.webp",
+    alt: "ภาพตัวอย่างหัตถการยกกระชับผิวด้วยพลังงาน",
+  },
+  thread_lift: {
+    compare: "/procedures/thread_lift_compare.webp",
+    before: "/procedures/thread_lift_before.webp",
+    after: "/procedures/thread_lift_after.webp",
+    alt: "ภาพตัวอย่างหัตถการร้อยไหมพยุงกรอบหน้า",
+  },
+  botulinum_toxin_wrinkles: {
+    compare: "/procedures/botulinum_toxin_wrinkles_compare.webp",
+    before: "/procedures/botulinum_toxin_wrinkles_before.webp",
+    after: "/procedures/botulinum_toxin_wrinkles_after.webp",
+    alt: "ภาพตัวอย่างหัตถการโบท็อกซ์ริ้วรอยส่วนบน",
+  },
+};
 
 export interface ProcedureDiagramMetadata {
   titleTh: string;
@@ -29,9 +87,9 @@ export interface ProcedureDiagramMetadata {
 
 export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata> = {
   rhinoplasty: {
-    titleTh: "ปรับแต่งทรงจมูก (Rhinoplasty)",
+    titleTh: "ปรับแต่งทรงจมูก",
     titleEn: "Structural Rhinoplasty & Nasal Vector Optimization",
-    anatomicalAreaTh: "จมูก (Nasal Complex)",
+    anatomicalAreaTh: "จมูก",
     targetLandmarks: [
       "Pronasale (Nasal Tip)",
       "Nasion / Nasofrontal Angle (P1)",
@@ -39,17 +97,17 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Nasolabial Angle (P2)",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์หมุนยกปลายจมูก (Tip Cephalic Rotation): ปรับมุมจมูก-ริมฝีปาก (P2) สู่ 95°-105°",
-      "เวกเตอร์ความพุ่งของปลายจมูก (Tip Projection Vector): ปรับอัตราส่วน Goode สู่ 0.55-0.60",
-      "เวกเตอร์รวบความกว้างปีกจมูก (Alar Base Reduction Vector): บีบกระชับความกว้างปีกจมูก (F6) ให้สมดุลกับระยะหัวตา (ICD)",
+      "เวกเตอร์หมุนยกปลายจมูก: ปรับมุมจมูก-ริมฝีปาก (P2) สู่ 95°-105°",
+      "เวกเตอร์ความพุ่งของปลายจมูก: ปรับอัตราส่วน Goode สู่ 0.55-0.60",
+      "เวกเตอร์รวบความกว้างปีกจมูก: บีบกระชับความกว้างปีกจมูก (F6) ให้สมดุลกับระยะหัวตา (ICD)",
     ],
     clinicalSignificanceTh:
       "การปรับแต่งโครงสร้างจมูกมุ่งเน้นการยกปลายจมูกที่งุ้มลงให้เชิดขึ้นในมุมที่รับกับริมฝีปากบน พร้อมจัดระเบียบความกว้างของปีกจมูกเพื่อสร้างสัดส่วนใบหน้าส่วนกลางที่ได้ดุลยภาพ",
   },
   chin_augmentation: {
-    titleTh: "ปรับมิติปลายคาง (Chin Augmentation)",
+    titleTh: "ปรับมิติปลายคาง",
     titleEn: "Chin Projection & Vertical Proportion Harmonization",
-    anatomicalAreaTh: "คางและแนวกรามล่าง (Chin & Mandibular Apex)",
+    anatomicalAreaTh: "คางและแนวกรามล่าง",
     targetLandmarks: [
       "Pogonion (Pog)",
       "Gnathion (Gn) / Menton (Me)",
@@ -57,17 +115,17 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Labiomental Groove",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์เสริมยื่นด้านหน้า (Anterior Projection Vector): ดันจุด Pogonion ไปด้านหน้ารับกับเส้นระนาบ E-line (0 ถึง -2 มม.)",
-      "เวกเตอร์เพิ่มความยาวแนวดิ่ง (Vertical Elongation Vector): ปรับสัดส่วนใบหน้าส่วนล่าง (F1/F2) ให้ได้สัดส่วน 1 ใน 3 มาตรฐาน",
-      "เวกเตอร์นิยามร่องคาง (Labiomental Definition Vector): จัดระเบียบมุมรอยต่อริมฝีปากล่างและคางให้รับแสงเงาอย่างเป็นธรรมชาติ",
+      "เวกเตอร์เสริมยื่นด้านหน้า: ดันจุด Pogonion ไปด้านหน้ารับกับเส้นระนาบ E-line (0 ถึง -2 มม.)",
+      "เวกเตอร์เพิ่มความยาวแนวดิ่ง: ปรับสัดส่วนใบหน้าส่วนล่าง (F1/F2) ให้ได้สัดส่วน 1 ใน 3 มาตรฐาน",
+      "เวกเตอร์กำหนดแนวร่องคาง: ปรับมุมรอยต่อริมฝีปากล่างและคางให้ได้มุมกายวิภาคมาตรฐาน",
     ],
     clinicalSignificanceTh:
-      "แก้ไขภาวะคางถอยร่น (Retrognathia) โดยการยื่นปลายคางออกมารับกับแนวริมฝีปากและจมูกตามเกณฑ์ Ricketts' E-line ช่วยให้กรอบหน้าส่วนล่างคมชัดและลดความหย่อนคล้อยใต้คาง",
+      "แก้ไขภาวะคางถอยร่น โดยปรับตำแหน่งปลายคางให้สอดคล้องกับแนวริมฝีปากและจมูกตามเกณฑ์ Ricketts' E-line เพื่อให้กรอบหน้าส่วนล่างได้สัดส่วน",
   },
   botulinum_toxin_masseter: {
-    titleTh: "โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว (Masseter Botulinum Toxin)",
+    titleTh: "โบท็อกซ์ลดกราม ปรับรูปหน้าเรียว",
     titleEn: "Masseter Muscle Chemodenervation & Lower Face Tapering",
-    anatomicalAreaTh: "มุมกรามและกล้ามเนื้อบดเคี้ยว (Mandibular Angle & Masseter)",
+    anatomicalAreaTh: "มุมกรามและกล้ามเนื้อบดเคี้ยว",
     targetLandmarks: [
       "Superficial Masseter Muscle Belly",
       "Gonion (Mandibular Angle)",
@@ -75,16 +133,16 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Marginal Mandibular Nerve Safety Zone",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์ยุบตัวเข้าด้านใน (Transverse Inward Reduction): ลดความหนาของมวลกล้ามเนื้อกรามซ้าย-ขวา 2-4 มม. ต่อข้าง",
-      "เวกเตอร์ปรับแนวโค้งกรอบหน้า (V-Line Tapering Vector): เปลี่ยนโครงสร้างกรอบหน้าล่างจากทรงสี่เหลี่ยมเป็นทรงรูปไข่เรียว",
+      "เวกเตอร์ยุบตัวเข้าด้านใน: ลดความหนาของมวลกล้ามเนื้อกรามซ้าย-ขวา 2-4 มม. ต่อข้าง",
+      "เวกเตอร์ปรับแนวโค้งกรอบหน้า: เปลี่ยนโครงสร้างกรอบหน้าล่างจากทรงสี่เหลี่ยมเป็นทรงรูปไข่เรียว",
     ],
     clinicalSignificanceTh:
-      "การคลายตัวของกล้ามเนื้อ Masseter ด้วย Botulinum Toxin Type A ช่วยลดแรงตึงตัวและลดขนาดมวลกล้ามเนื้อที่หนาตัว ส่งผลให้ความกว้างของใบหน้าส่วนล่างเรียวเล็กลงอย่างสมส่วน",
+      "การคลายตัวของกล้ามเนื้อ Masseter ช่วยลดแรงตึงตัวและลดขนาดมวลกล้ามเนื้อที่หนาตัว ส่งผลให้ความกว้างของใบหน้าส่วนล่างเรียวเล็กลงอย่างสมส่วน",
   },
   lip_augmentation: {
-    titleTh: "ปรับมิติมุมปากและริมฝีปาก (Lip Augmentation)",
+    titleTh: "ปรับมิติมุมปากและริมฝีปาก",
     titleEn: "Vermilion Fullness & Cupid's Bow Volumetric Definition",
-    anatomicalAreaTh: "ริมฝีปาก (Perioral & Vermilion Border)",
+    anatomicalAreaTh: "ริมฝีปาก",
     targetLandmarks: [
       "Philtral Columns & Cupid's Bow",
       "Vermilion Border (White Roll)",
@@ -92,17 +150,17 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Oral Commissures (Mouth Corners)",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์ยกมุมปาก (Commissure Elevation Vector): พยุงมุมปากที่ตกให้ยกขึ้นระดับ 1.5-2.0 มม. ในทิศทางเฉียงขึ้น",
-      "เวกเตอร์ความอิ่มฟูริมฝีปากล่าง (Lower Vermilion Projection): เพิ่มเนื้อสัมผัสก้อนไขมันกึ่งกลางและข้างให้ได้สัดส่วนทองคำ 1:1.6",
-      "เวกเตอร์เน้นขอบกระจับ (Cupid's Bow Definition Vector): เสริมความคมชัดของขอบร่องคิวปิดและรอยหยักริมฝีปากบน",
+      "เวกเตอร์ยกมุมปาก: ปรับมุมปากให้อยู่ในแนวระนาบปกติ",
+      "เวกเตอร์ความหนาริมฝีปากล่าง: ปรับสัดส่วนริมฝีปากบนต่อล่างตามเกณฑ์ 1:1.6",
+      "เวกเตอร์เน้นขอบกระจับ: เสริมความชัดเจนของขอบริมฝีปากบน",
     ],
     clinicalSignificanceTh:
-      "คืนความอิ่มเอิบและมิติขอบปากด้วย Hyaluronic Acid ฟื้นฟูสัดส่วนริมฝีปากบนต่อล่างให้เข้าสู่สัดส่วนทองคำ พร้อมยกมุมปากให้ดูสดใสอ่อนเยาว์",
+      "ปรับสัดส่วนความหนาและขอบริมฝีปากด้วยไฮยาลูโรนิกให้สอดคล้องกับเกณฑ์สัดส่วนริมฝีปากบนต่อล่าง (F8 Ratio)",
   },
   skin_tightening: {
-    titleTh: "ยกกระชับด้วยคลื่นพลังงาน (HIFU / Ultherapy / RF)",
+    titleTh: "ยกกระชับด้วยคลื่นพลังงาน",
     titleEn: "Non-Surgical Energy-Based SMAS Tightening & Neocollagenesis",
-    anatomicalAreaTh: "ชั้นพังผืด SMAS และผิวหนังชั้นหนังแท้ (SMAS & Deep Dermis)",
+    anatomicalAreaTh: "ชั้นพังผืด SMAS และผิวหนังชั้นหนังแท้",
     targetLandmarks: [
       "SMAS Fascial Plane (4.5mm depth)",
       "Deep Dermal Matrix (3.0mm & 1.5mm)",
@@ -110,17 +168,17 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Zygomaticus Ligamentous Anchor",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์หดกระชับชั้น SMAS (Deep SMAS Contraction Vector): ส่งผ่านพลังงานความร้อนกระตุ้นการหดตัวในแนวเฉียงขึ้นสู่ขมับ",
-      "เวกเตอร์ยกกระพุ้งแก้ม (Jowl Soft-Tissue Elevation): ดึงรั้งก้อนเนื้อเยื่อกระพุ้งแก้มที่คล้อยให้กลับขึ้นมาเหนือขอบกระดูกกราม",
-      "เวกเตอร์กระตุ้นคอลลาเจน (Thermal Neocollagenesis Matrix): ฟื้นฟูความยืดหยุ่นของโครงสร้างตาข่ายเส้นใยผิว",
+      "เวกเตอร์หดกระชับชั้น SMAS: ส่งผ่านพลังงานความร้อนกระตุ้นการหดตัวในแนวเฉียงขึ้นสู่ขมับ",
+      "เวกเตอร์ยกกระพุ้งแก้ม: ดึงรั้งก้อนเนื้อเยื่อกระพุ้งแก้มที่คล้อยให้กลับขึ้นมาเหนือขอบกระดูกกราม",
+      "เวกเตอร์กระตุ้นคอลลาเจน: ฟื้นฟูความยืดหยุ่นของโครงสร้างตาข่ายเส้นใยผิว",
     ],
     clinicalSignificanceTh:
       "การส่งพลังงานคลื่นเสียงโฟกัสหรือคลื่นวิทยุลงสู่ชั้นพังผืด SMAS ก่อให้เกิดจุดความร้อนเพื่อกระตุ้นการหดกระชับของเนื้อเยื่อชั้นลึกโดยไม่ต้องผ่าตัด ชะลอการหย่อนคล้อยในระยะยาว",
   },
   thread_lift: {
-    titleTh: "ร้อยไหมพยุงกรอบหน้า (Barbed Thread Lift)",
+    titleTh: "ร้อยไหมพยุงกรอบหน้า",
     titleEn: "Mechanical Tissue Suspension & Vector Repositioning",
-    anatomicalAreaTh: "แนวกรามและร่องแก้มส่วนล่าง (Malar & Mandibular Vector)",
+    anatomicalAreaTh: "แนวกรามและร่องแก้มส่วนล่าง",
     targetLandmarks: [
       "Temporal Fascia Entry Anchor",
       "Malar Fat Pad Descent Axis",
@@ -128,17 +186,17 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Subcutaneous Tissue Plane",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์ดึงพยุงกลไกเงี่ยงไหม (Mechanical Barb Traction Vector): ดึงเนื้อเยื่อแนวกรามและกระพุ้งแก้มขึ้นในทิศ 45° สู่โหนกแก้ม",
-      "เวกเตอร์ลดร่องมุมปาก (Marionette Suspension Vector): พยุงรอยต่อมุมปากและร่องน้ำหมากให้ตื้นขึ้นทันทีหลังทำ",
-      "เวกเตอร์กระตุ้นพังผืดคอลลาเจน (Collagen Tunnel Vector): สร้างแนวพังผืดใหม่ตามแนวไหมเพื่อความคงทนของโครงสร้าง",
+      "เวกเตอร์ดึงพยุงกลไกเงี่ยงไหม: ดึงเนื้อเยื่อแนวกรามและกระพุ้งแก้มขึ้นในทิศ 45° สู่โหนกแก้ม",
+      "เวกเตอร์ลดร่องมุมปาก: พยุงรอยต่อมุมปากและร่องน้ำหมากให้ตื้นขึ้นทันทีหลังทำ",
+      "เวกเตอร์กระตุ้นพังผืดคอลลาเจน: สร้างแนวพังผืดใหม่ตามแนวไหมเพื่อความคงทนของโครงสร้าง",
     ],
     clinicalSignificanceTh:
       "ใช้ไหมละลายชนิดมีเงี่ยงเกี่ยวเนื้อเยื่อใต้ผิวหนังเพื่อยกพยุงก้อนไขมันและผิวหนังที่หย่อนคล้อยขึ้นสู่ตำแหน่งทางกายวิภาคเดิม ให้ผลลัพธ์การยกกระชับที่เห็นได้ทันที",
   },
   botulinum_toxin_wrinkles: {
-    titleTh: "โบท็อกซ์ริ้วรอยส่วนบน (Upper-Face Anti-Wrinkle Botox)",
+    titleTh: "โบท็อกซ์ริ้วรอยส่วนบน",
     titleEn: "Upper-Face Dynamic Rhytid Neuromodulation",
-    anatomicalAreaTh: "หน้าผากและหว่างคิ้ว (Forehead & Glabella)",
+    anatomicalAreaTh: "หน้าผากและหว่างคิ้ว",
     targetLandmarks: [
       "Frontalis Muscle Fibers",
       "Corrugator Supercilii & Procerus",
@@ -146,17 +204,17 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Brow Apex Balance Points",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์คลายแรงเกร็งแนวขวาง (Frontalis Horizontal Relaxation): ผ่อนคลายกล้ามเนื้อหน้าผากเพื่อลบริ้วรอยแนวนอน",
-      "เวกเตอร์คลายรอยขมวดคิ้ว (Glabellar Decontraction Vector): สลายแรงดึงเข้าหากึ่งกลางของรอยย่นเลข 11",
-      "เวกเตอร์ปรับสมดุลแนวคิ้ว (Brow Architecture Symmetry Vector): ควบคุมระดับความสูงยอดคิ้วสองข้างให้สมมาตร",
+      "เวกเตอร์คลายแรงเกร็งแนวขวาง: ผ่อนคลายกล้ามเนื้อหน้าผากเพื่อลบริ้วรอยแนวนอน",
+      "เวกเตอร์คลายรอยขมวดคิ้ว: สลายแรงดึงเข้าหากึ่งกลางของรอยย่นเลข 11",
+      "เวกเตอร์ปรับสมดุลแนวคิ้ว: ควบคุมระดับความสูงยอดคิ้วสองข้างให้สมมาตร",
     ],
     clinicalSignificanceTh:
       "ยับยั้งการหลั่งสารสื่อประสาทในกล้ามเนื้อที่แสดงอารมณ์ส่วนบน ลดการพับตัวของผิวหนังขณะเลิกคิ้วหรือขมวดคิ้ว ป้องกันการเกิดริ้วรอยถาวรบนหน้าผาก",
   },
   hyaluronic_acid_filler_nasolabial: {
-    titleTh: "ฟิลเลอร์เติมเต็มร่องแก้ม (Nasolabial Fold Filler)",
+    titleTh: "ฟิลเลอร์เติมเต็มร่องแก้ม",
     titleEn: "Pyriform Aperture Structural Support & Fold Softening",
-    anatomicalAreaTh: "ร่องแก้มและข้างปีกจมูก (Midface & Paranasal Region)",
+    anatomicalAreaTh: "ร่องแก้มและข้างปีกจมูก",
     targetLandmarks: [
       "Pyriform Aperture Bony Margin",
       "Facial Artery Safety Course",
@@ -164,16 +222,16 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Sub-alar Fossa",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์หนุนกระดูกชั้นลึก (Pyriform Bony Bolus Projection): หนุนฐานกระดูกข้างปีกจมูกที่ยุบตัวให้ดันตัวออกมาด้านหน้า",
-      "เวกเตอร์เกลี่ยรอยพับผิว (Subdermal Smoothing Vector): เติมเต็มร่องรอยต่อระหว่างแก้มและริมฝีปากบนให้เรียบเนียน",
+      "เวกเตอร์หนุนกระดูกชั้นลึก: หนุนฐานกระดูกข้างปีกจมูกที่ยุบตัวให้ดันตัวออกมาด้านหน้า",
+      "เวกเตอร์เกลี่ยรอยพับผิว: เติมเต็มร่องรอยต่อระหว่างแก้มและริมฝีปากบนให้เรียบเนียน",
     ],
     clinicalSignificanceTh:
-      "แก้ไขการทรุดตัวของกระดูกฐานจมูกและการคล้อยตัวของแก้มส่วนกลาง โดยการเสริมความมั่นคงของฐานกระดูกชั้นลึกเพื่อรองรับร่องแก้มให้แลดูตื้นขึ้นอย่างเป็นธรรมชาติ",
+      "แก้ไขการยุบตัวของกระดูกฐานจมูกและการคล้อยตัวของแก้มส่วนกลาง โดยเสริมฐานกระดูกชั้นลึกเพื่อพยุงร่องแก้มให้ตื้นขึ้น",
   },
   hyaluronic_acid_filler_temple: {
-    titleTh: "ฟิลเลอร์เติมเต็มขมับตอบ (Temporal Volume Restoration)",
+    titleTh: "ฟิลเลอร์เติมเต็มขมับตอบ",
     titleEn: "Temporal Fossa Volumization & Lateral Contour Smoothing",
-    anatomicalAreaTh: "ขมับและกรอบหน้าส่วนบน (Temporal Fossa)",
+    anatomicalAreaTh: "ขมับและกรอบหน้าส่วนบน",
     targetLandmarks: [
       "Superior Temporal Line",
       "Deep Temporal Fascia & Muscle",
@@ -181,16 +239,16 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Superficial Temporal Artery Safe Zone",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์ขยายมิติขมับสู่ด้านข้าง (Lateral Expansion Vector): เติมเต็มรอยบุ๋มขมับที่ตอบให้โค้งมนรับกับโหนกแก้ม",
-      "เวกเตอร์เชื่อมต่อแนวกะโหลกศีรษะ (Upper Contour Unification): ปรับเส้นรอบรูปหน้าไม่ให้เว้าแหว่งเป็นทรงผลถั่วลิสง",
+      "เวกเตอร์ขยายมิติขมับสู่ด้านข้าง: เติมเต็มรอยบุ๋มขมับที่ตอบให้โค้งมนรับกับโหนกแก้ม",
+      "เวกเตอร์เชื่อมต่อแนวกะโหลกศีรษะ: ปรับเส้นรอบรูปหน้าไม่ให้เว้าแหว่งเป็นทรงผลถั่วลิสง",
     ],
     clinicalSignificanceTh:
       "ฟื้นฟูการฝ่อตัวของไขมันและกล้ามเนื้อบริเวณขมับ เชื่อมต่อสัดส่วนระหว่างหน้าผากและโหนกแก้มให้เป็นเส้นโค้งที่นุ่มนวลสมดุล",
   },
   mandibular_contouring: {
-    titleTh: "ศัลยกรรมตัดแต่งมุมกราม (Mandibular Angle Ostectomy)",
+    titleTh: "ศัลยกรรมตัดแต่งมุมกราม",
     titleEn: "Bony Mandibular Angle Reduction & Curved Ostectomy",
-    anatomicalAreaTh: "กระดูกขากรรไกรล่าง (Mandibular Bone & Angle)",
+    anatomicalAreaTh: "กระดูกขากรรไกรล่าง",
     targetLandmarks: [
       "Gonial Bony Flare",
       "Inferior Alveolar Nerve Canal",
@@ -198,16 +256,16 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Ramus Posterior Border",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์ตัดแต่งกระดูกส่วนเกิน (Curved Ostectomy Resection Vector): ตัดมุมกระดูกกรามที่ผายกว้างออกตามแนวโค้งธรรมชาติ",
-      "เวกเตอร์ปรับองศามุมกราม (Gonial Angle Optimization): ขยายมุมกรามจากต่ำกว่า 115° ขึ้นสู่ 120°-125° ที่อ่อนช้อย",
+      "เวกเตอร์ตัดแต่งกระดูกส่วนเกิน: ตัดมุมกระดูกกรามที่ผายกว้างออกตามแนวโค้งธรรมชาติ",
+      "เวกเตอร์ปรับองศามุมกราม: ขยายมุมกรามจากต่ำกว่า 115° ขึ้นสู่ 120°-125° ตามแนวระนาบกระดูก",
     ],
     clinicalSignificanceTh:
-      "การผ่าตัดปรับโครงสร้างกระดูกมุมกรามแก้ไขปัญหารูปหน้าเหลี่ยมจากกระดูกอย่างถาวร โดยยังคงแนวขอบขากรรไกรที่รับกับลำคออย่างปลอดภัย",
+      "ผ่าตัดปรับมุมกระดูกขากรรไกรล่างเพื่อลดความกว้างของใบหน้าส่วนล่างจากโครงสร้างกระดูก โดยรักษาแนวขอบกระดูกขากรรไกรและตำแหน่งของเส้นประสาท",
   },
   orthognathic_surgery: {
-    titleTh: "ศัลยกรรมเลื่อนขากรรไกร (Orthognathic Surgery)",
+    titleTh: "ศัลยกรรมเลื่อนขากรรไกร",
     titleEn: "Bimaxillary / Mandibular Skeletal Repositioning",
-    anatomicalAreaTh: "โครงกระดูกขากรรไกรบนและล่าง (Maxillomandibular Complex)",
+    anatomicalAreaTh: "โครงกระดูกขากรรไกรบนและล่าง",
     targetLandmarks: [
       "Maxillary Le Fort I Plane",
       "Mandibular BSSO Osteotomy Split",
@@ -215,16 +273,16 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "A-Point & B-Point Skeletal Relation",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์เลื่อนตำแหน่งกระดูกขากรรไกร (Sagittal Jaw Repositioning Vector): เลื่อนขากรรไกรล่างไปด้านหน้าหรือด้านหลังสู่ความสัมพันธ์ Class I",
-      "เวกเตอร์ปรับระนาบการสบฟัน (Occlusal Plane Alignment): ฟื้นฟูระนาบการเคี้ยวและการสบฟันให้ลงรอยสมบูรณ์",
+      "เวกเตอร์เลื่อนตำแหน่งกระดูกขากรรไกร: เลื่อนขากรรไกรล่างไปด้านหน้าหรือด้านหลังสู่ความสัมพันธ์ Class I",
+      "เวกเตอร์ปรับระนาบการสบฟัน: ปรับระนาบการเคี้ยวและการสบฟันให้เข้าที่",
     ],
     clinicalSignificanceTh:
-      "การผ่าตัดแก้ไขความผิดรูปของกระดูกขากรรไกรและการสบฟันขั้นรุนแรง เพื่อแก้ปัญหาทั้งด้านการทำงาน การเคี้ยว ทางเดินหายใจ และความงามของโครงหน้า",
+      "ผ่าตัดปรับตำแหน่งกระดูกขากรรไกรและการสบฟันเพื่อแก้ปัญหาการทำงาน การเคี้ยว การหายใจ และโครงสร้างใบหน้า",
   },
   surgical_facelift: {
-    titleTh: "ศัลยกรรมยกกระชับดึงหน้า (Surgical Rhytidectomy)",
+    titleTh: "ศัลยกรรมยกกระชับดึงหน้า",
     titleEn: "Deep-Plane / High-SMAS Facial & Neck Rhytidectomy",
-    anatomicalAreaTh: "โครงสร้างใบหน้าและลำคอชั้นลึก (Deep Plane & Cervical Platysma)",
+    anatomicalAreaTh: "โครงสร้างใบหน้าและลำคอชั้นลึก",
     targetLandmarks: [
       "High-SMAS Flap Axis",
       "Platysma Muscle Bands",
@@ -232,11 +290,11 @@ export const PROCEDURE_DIAGRAM_METADATA: Record<string, ProcedureDiagramMetadata
       "Periauricular Incision Line",
     ],
     correctionVectorsTh: [
-      "เวกเตอร์ดึงชั้น SMAS ใบหน้าส่วนกลาง (Superolateral Midface Vector): ดึงพยุงเนื้อเยื่อแก้มขึ้นเฉียงไปด้านหลังบนสู่ขมับ",
-      "เวกเตอร์เย็บกระชับลำคอ (Posterosuperior Platysmaplasty Vector): ดึงกระชับกล้ามเนื้อคอเพื่อสร้างมุมใต้คางที่คมชัด (<105°)",
+      "เวกเตอร์ดึงชั้น SMAS ใบหน้าส่วนกลาง: ดึงพยุงเนื้อเยื่อแก้มขึ้นเฉียงไปด้านหลังบนสู่ขมับ",
+      "เวกเตอร์เย็บกระชับลำคอ: ดึงกระชับกล้ามเนื้อคอเพื่อสร้างมุมใต้คาง (<105°)",
     ],
     clinicalSignificanceTh:
-      "การผ่าตัดจัดตำแหน่งโครงสร้างกล้ามเนื้อและพังผืดชั้นลึกอย่างถาวร พร้อมตัดแต่งผิวหนังส่วนเกิน คืนความอ่อนเยาว์และกรอบหน้าที่คมชัดสูงสุด",
+      "ผ่าตัดจัดตำแหน่งชั้น SMAS และกล้ามเนื้อคอ พร้อมตัดผิวหนังส่วนเกิน เพื่อลดความหย่อนคล้อยของเนื้อเยื่อใบหน้าส่วนล่างและลำคอ",
   },
 };
 
@@ -291,9 +349,9 @@ function SvgDefs() {
 // -----------------------------------------------------------------------------
 
 function RhinoplastySvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -432,9 +490,9 @@ function RhinoplastySvg({ mode = "vectors" }: { mode?: DiagramMode }) {
 }
 
 function ChinAugmentationSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -569,9 +627,9 @@ function ChinAugmentationSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
 }
 
 function MasseterBotoxSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -714,9 +772,9 @@ function MasseterBotoxSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
 }
 
 function LipAugmentationSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -873,9 +931,9 @@ function LipAugmentationSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
 }
 
 function SkinTighteningSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -1004,9 +1062,9 @@ function SkinTighteningSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
 }
 
 function ThreadLiftSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -1114,9 +1172,9 @@ function ThreadLiftSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
 }
 
 function WrinkleBotoxSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -1233,9 +1291,9 @@ function WrinkleBotoxSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
 }
 
 function NasolabialFillerSvg({ mode = "vectors" }: { mode?: DiagramMode }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   return (
     <svg
@@ -1350,9 +1408,9 @@ function UniversalFallbackSvg({
   procedureKey: string;
   mode?: DiagramMode;
 }) {
-  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded";
-  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded";
+  const showBefore = mode === "before" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showAfter = mode === "after" || mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
+  const showVectors = mode === "vectors" || mode === "thumbnail" || mode === "expanded" || mode === "compare";
 
   const meta = PROCEDURE_DIAGRAM_METADATA[procedureKey] ?? {
     titleTh: procedureKey,
@@ -1360,11 +1418,11 @@ function UniversalFallbackSvg({
     anatomicalAreaTh: "ใบหน้า (Facial Structure)",
     targetLandmarks: ["Facial Thirds", "Lateral Contour", "Symmetry Plane"],
     correctionVectorsTh: [
-      "เวกเตอร์ปรับสมดุลสัดส่วนใบหน้า (Facial Proportion Vector): ปรับมิติให้สอดคล้องกับมาตรฐานความงาม",
-      "เวกเตอร์เพิ่มความกระชับ (Structural Elevation Vector): ฟื้นฟูแนวความคมชัดของกรอบหน้า",
+      "เวกเตอร์ปรับสัดส่วนใบหน้า (Facial Proportion Vector): ปรับมิติให้สอดคล้องกับเกณฑ์อ้างอิง",
+      "เวกเตอร์เพิ่มความกระชับ (Structural Elevation Vector): พยุงแนวขอบของกรอบหน้า",
     ],
     clinicalSignificanceTh:
-      "การปรับแต่งมิติโครงสร้างใบหน้าตามเกณฑ์ความงามคลินิก เพื่อความสมดุลกลมกลืนในทุกมุมมอง",
+      "การปรับมิติโครงสร้างใบหน้าตามเกณฑ์กายวิภาคศาสตร์เพื่อสัดส่วนที่สมดุล",
   };
 
   return (
@@ -1446,14 +1504,75 @@ function UniversalFallbackSvg({
   );
 }
 
-/** Unified SVG Diagram Dispatcher */
+// Export individual SVGs for raw vector access if required
+export {
+  ChinAugmentationSvg,
+  LipAugmentationSvg,
+  MasseterBotoxSvg,
+  NasolabialFillerSvg,
+  RhinoplastySvg,
+  SkinTighteningSvg,
+  ThreadLiftSvg,
+  UniversalFallbackSvg,
+  WrinkleBotoxSvg,
+};
+
+/** Unified 3D Aesthetic Illustration and Diagram Dispatcher */
 export function ProcedureSvgDiagram({
   procedure,
-  mode = "vectors",
+  mode = "compare",
+  forceSvg = false,
 }: {
   procedure: string;
   mode?: DiagramMode;
+  forceSvg?: boolean;
 }) {
+  const [imgError, setImgError] = useState(false);
+  const asset = PROCEDURE_ASSETS[procedure];
+
+  if (asset && !forceSvg && !imgError) {
+    let src = asset.compare;
+    let label = "ภาพเปรียบเทียบ";
+    if (mode === "before") {
+      src = asset.before;
+      label = "ก่อนทำ";
+    } else if (mode === "after") {
+      src = asset.after;
+      label = "ผลลัพธ์เป้าหมาย";
+    }
+
+    const isThumbnail = mode === "thumbnail";
+    const isPortrait = mode === "before" || mode === "after";
+
+    return (
+      <div
+        className="relative w-full overflow-hidden rounded-control bg-paper flex items-center justify-center select-none"
+        data-testid={`procedure-illustration-${procedure}`}
+      >
+        <img
+          key={src}
+          src={src}
+          alt={`${asset.alt} - ${label}`}
+          loading={isThumbnail ? "lazy" : "eager"}
+          onError={() => setImgError(true)}
+          className={`rounded-control transition-all duration-200 ${
+            isThumbnail
+              ? "w-full max-h-[160px] object-cover"
+              : isPortrait
+                ? "max-h-[420px] w-auto max-w-full object-contain mx-auto"
+                : "max-h-[420px] w-full h-auto object-contain mx-auto"
+          }`}
+        />
+        {!isThumbnail && (
+          <div className="absolute bottom-2 right-2 px-2 py-1 bg-ink text-surface text-sm rounded-control pointer-events-none">
+            3D Educational Reference
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback to SVG diagram
   switch (procedure) {
     case "rhinoplasty":
       return <RhinoplastySvg mode={mode} />;
@@ -1476,6 +1595,8 @@ export function ProcedureSvgDiagram({
   }
 }
 
+export const ProcedureIllustration = ProcedureSvgDiagram;
+
 // -----------------------------------------------------------------------------
 // Procedure Diagram Inline Thumbnail Component
 // -----------------------------------------------------------------------------
@@ -1492,10 +1613,10 @@ export function ProcedureDiagramThumbnail({ procedure, title, onExpand }: Thumbn
       <div className="flex items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-1 text-sm font-semibold text-ink">
           <Sparkles size={15} className="text-accent" />
-          <span>แผนภาพจำลองเวกเตอร์การรักษา (Treatment Vector Diagram)</span>
+          <span>ภาพจำลองตัวอย่างผลลัพธ์</span>
         </div>
         <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-3 rounded-control">
-          Medical Line Art
+          ภาพตัวอย่างหัตถการ
         </span>
       </div>
 
@@ -1510,10 +1631,10 @@ export function ProcedureDiagramThumbnail({ procedure, title, onExpand }: Thumbn
             onExpand();
           }
         }}
-        aria-label={`คลิกเพื่อดูภาพขยายและเวกเตอร์ ${title}`}
+        aria-label={`คลิกเพื่อดูภาพขยายและตัวอย่างหัตถการ ${title}`}
         className="group relative cursor-pointer overflow-hidden border border-line rounded-control bg-paper transition-all duration-200 hover:border-accent focus-visible:outline-2 focus-visible:outline-accent"
       >
-        <div className="p-3 flex items-center justify-center max-h-[160px]">
+        <div className="p-2 flex items-center justify-center max-h-[170px] overflow-hidden">
           <ProcedureSvgDiagram procedure={procedure} mode="thumbnail" />
         </div>
 
@@ -1521,7 +1642,7 @@ export function ProcedureDiagramThumbnail({ procedure, title, onExpand }: Thumbn
         <div className="absolute inset-0 flex items-center justify-center bg-ink/10 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
           <span className="flex items-center gap-2 border border-line bg-surface px-3 py-1 text-sm font-semibold text-ink rounded-control">
             <Maximize2 size={14} className="text-accent" />
-            <span>ดูภาพขยายและเวกเตอร์</span>
+            <span>ดูภาพขยายเปรียบเทียบ</span>
           </span>
         </div>
       </div>
@@ -1530,12 +1651,12 @@ export function ProcedureDiagramThumbnail({ procedure, title, onExpand }: Thumbn
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-ink-3">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-1 bg-line-strong border-dashed" />
-            <span>เส้นประ: ก่อนทำ (Before)</span>
+            <span className="inline-block w-2 h-2 rounded-control bg-line-strong" />
+            <span>ก่อนทำ</span>
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-1 bg-accent" />
-            <span className="text-ink">สีน้ำเงิน: หลังปรับแก้ (After)</span>
+            <span className="inline-block w-2 h-2 rounded-control bg-accent" />
+            <span className="text-ink font-medium">หลังปรับแก้</span>
           </span>
         </div>
         <button
@@ -1543,7 +1664,7 @@ export function ProcedureDiagramThumbnail({ procedure, title, onExpand }: Thumbn
           onClick={onExpand}
           className="text-accent hover:underline font-medium flex items-center gap-1 text-sm cursor-pointer"
         >
-          <span>ขยายดูเวกเตอร์</span>
+          <span>ดูภาพขยาย</span>
           <Maximize2 size={13} />
         </button>
       </div>
@@ -1574,7 +1695,7 @@ export function ProcedureDiagramModal({
   areaLabel = "",
   categoryLabel = "",
 }: ModalProps) {
-  const [viewMode, setViewMode] = useState<DiagramMode>("vectors");
+  const [viewMode, setViewMode] = useState<DiagramMode>("compare");
 
   if (!recommendation) return null;
 
@@ -1585,8 +1706,8 @@ export function ProcedureDiagramModal({
     anatomicalAreaTh: areaLabel || "ใบหน้า",
     targetLandmarks: ["Anatomical Landmarks", "Facial Harmony Planes"],
     correctionVectorsTh: [
-      "เวกเตอร์ปรับมิติโครงสร้างใบหน้า (Structural Optimization Vector)",
-      "เวกเตอร์เพิ่มความกระชับและความสมดุล (Elevation & Harmony Vector)",
+      "เวกเตอร์ปรับมิติโครงสร้างใบหน้า",
+      "เวกเตอร์เพิ่มความกระชับและความสมดุล",
     ],
     clinicalSignificanceTh:
       "การปรับแต่งโครงสร้างเพื่อเสริมสร้างดุลยภาพและความเป็นธรรมชาติของสัดส่วนใบหน้าโดยรวม",
@@ -1600,7 +1721,7 @@ export function ProcedureDiagramModal({
         <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/40" />
         <Dialog.Content
           className="fixed left-1/2 top-1/2 z-50 w-[95vw] max-w-field -translate-x-1/2 -translate-y-1/2 border border-line bg-surface p-4 md:p-6 rounded-control max-h-[90vh] overflow-y-auto"
-          style={{ maxWidth: 640 }}
+          style={{ maxWidth: 660 }}
         >
           {/* Header */}
           <div className="flex items-start justify-between border-b border-line pb-4">
@@ -1617,7 +1738,7 @@ export function ProcedureDiagramModal({
                   </span>
                 )}
                 <span className="border border-line bg-paper px-2 py-1 text-sm text-ink-3 rounded-control">
-                  Clinical Vector Diagram
+                  ภาพตัวอย่างหัตถการ
                 </span>
               </div>
               <Dialog.Title className="text-lg font-semibold text-ink">
@@ -1643,14 +1764,14 @@ export function ProcedureDiagramModal({
             <span className="text-sm font-medium text-ink-3">มุมมอง:</span>
             <button
               type="button"
-              onClick={() => setViewMode("vectors")}
+              onClick={() => setViewMode("compare")}
               className={`px-3 py-1 text-sm font-medium rounded-control cursor-pointer border transition-colors ${
-                viewMode === "vectors"
+                viewMode === "compare" || viewMode === "vectors"
                   ? "border-accent bg-accent text-surface"
                   : "border-line bg-paper text-ink hover:border-line-strong"
               }`}
             >
-              เวกเตอร์รวม (All Vectors)
+              ภาพเปรียบเทียบ
             </button>
             <button
               type="button"
@@ -1661,7 +1782,7 @@ export function ProcedureDiagramModal({
                   : "border-line bg-paper text-ink hover:border-line-strong"
               }`}
             >
-              ก่อนทำ (Before)
+              ก่อนทำ
             </button>
             <button
               type="button"
@@ -1672,29 +1793,30 @@ export function ProcedureDiagramModal({
                   : "border-line bg-paper text-ink hover:border-line-strong"
               }`}
             >
-              หลังปรับแก้ (After)
+              ผลลัพธ์เป้าหมาย
             </button>
           </div>
 
-          {/* High-Resolution Diagram Display Area */}
-          <div className="mt-4 border border-line bg-paper p-4 rounded-control flex flex-col items-center justify-center">
+          {/* High-Resolution 3D Illustration Display Area */}
+          <div className="mt-4 border border-line bg-paper p-3 md:p-4 rounded-control flex flex-col items-center justify-center">
             <div className="w-full max-w-field">
               <ProcedureSvgDiagram procedure={procedure} mode={viewMode} />
             </div>
 
-            {/* In-Modal Diagram Legend */}
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-sm text-ink-2 border-t border-line pt-3 w-full">
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-4 h-1 bg-line-strong border-dashed" />
-                <span>เส้นประ: โครงสร้างเดิมก่อนทำ (Pre-treatment)</span>
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-4 h-1 bg-accent" />
-                <span className="font-semibold text-accent">เส้นทึบ: โครงสร้างหลังปรับแก้ (Target)</span>
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded-control bg-accent" />
-                <span className="font-semibold text-ink">ลูกศร: เวกเตอร์ทิศทางการรักษา</span>
+            {/* In-Modal Diagram Legend / Educational Reference Note */}
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-ink-2 border-t border-line pt-3 w-full">
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 rounded-control bg-line-strong" />
+                  <span>ก่อนทำ</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 rounded-control bg-accent" />
+                  <span className="font-semibold text-accent">ผลลัพธ์เป้าหมาย</span>
+                </span>
+              </div>
+              <span className="text-sm text-ink-3">
+                *ภาพประกอบเพื่อการศึกษาทางการแพทย์
               </span>
             </div>
           </div>
@@ -1704,7 +1826,7 @@ export function ProcedureDiagramModal({
             <div className="flex items-center gap-2">
               <Layers size={16} className="text-accent shrink-0" />
               <h4 className="text-sm font-semibold text-ink">
-                เวกเตอร์ทิศทางการรักษาทางการแพทย์ (Clinical Motion & Correction Vectors)
+                เวกเตอร์ทิศทางการรักษาทางการแพทย์
               </h4>
             </div>
 
@@ -1719,7 +1841,7 @@ export function ProcedureDiagramModal({
 
             {/* Target Landmarks */}
             <div className="border-t border-line pt-3 mt-3">
-              <span className="text-sm font-semibold text-ink">จุดอ้างอิงทางกายวิภาค (Anatomical Landmarks):</span>
+              <span className="text-sm font-semibold text-ink">จุดอ้างอิงทางกายวิภาค:</span>
               <div className="mt-2 flex flex-wrap gap-1">
                 {meta.targetLandmarks.map((lm) => (
                   <span
@@ -1744,7 +1866,7 @@ export function ProcedureDiagramModal({
           {/* Bottom Action Bar */}
           <div className="mt-6 flex justify-end">
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
-              ปิดหน้าต่าง (Close)
+              ปิดหน้าต่าง
             </Button>
           </div>
         </Dialog.Content>

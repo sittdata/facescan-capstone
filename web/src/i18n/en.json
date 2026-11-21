@@ -311,7 +311,7 @@
   },
   "report": {
     "title": "Report",
-    "see": "See the report",
+    "see": "Print summary report (PDF)",
     "loading": "Preparing the report",
     "exampleRules": "These discussion topics come from illustrative example rules, not from rules reviewed and approved by a clinical team.",
     "topics": "Possible topics",

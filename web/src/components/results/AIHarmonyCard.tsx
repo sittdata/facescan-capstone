@@ -23,7 +23,7 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-ink">
-                ดัชนีความสมดุลของใบหน้า (Facial Balance Index)
+                ดัชนีความสมดุลของใบหน้า
               </h3>
               <span className="rounded-control bg-accent/15 px-2 py-1 text-sm font-semibold text-accent">
                 การประเมินสัดส่วน
@@ -93,7 +93,7 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
         <div className="border border-line bg-paper p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <CheckCircle2 size={16} className="text-emerald-600" />
-            <span>จุดที่ได้สัดส่วนสมดุล (Key Strengths)</span>
+            <span>จุดที่ได้สัดส่วนสมดุล</span>
           </div>
           <div className="mt-3 space-y-3">
             {aiHarmony.key_strengths.length === 0 ? (
@@ -130,7 +130,7 @@ export function AIHarmonyCard({ aiHarmony, onOpenSimulation }: Props) {
         <div className="border border-line bg-paper p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             <AlertCircle size={16} className="text-amber-600" />
-            <span>จุดที่เบี่ยงเบนจากเกณฑ์อ้างอิง (Proportion Variance)</span>
+            <span>จุดที่เบี่ยงเบนจากเกณฑ์อ้างอิง</span>
           </div>
           <div className="mt-3 space-y-3">
             {aiHarmony.key_improvements.length === 0 ? (

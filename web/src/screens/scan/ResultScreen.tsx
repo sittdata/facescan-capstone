@@ -24,6 +24,7 @@ import { HarmonyCard } from "../../components/results/HarmonyCard";
 import { FacialSaggingCard } from "../../components/results/FacialSaggingCard";
 import { CephalometricCard } from "../../components/results/CephalometricCard";
 import { ProcedureRecommendationCard } from "../../components/results/ProcedureRecommendationCard";
+import { HairAdviceCard } from "../../components/results/HairAdviceCard";
 import { SimulationDrawer } from "../../extensions/SimulationDrawer";
 import { useScan } from "../../scan/ScanContext";
 import { hasProfilePhoto, type View } from "../../scan/session";
@@ -63,6 +64,10 @@ export function ResultScreen({ view }: { view: View }) {
   const noScale =
     view === "profile" && result.calibration?.available === false && !result.warnings.some((w) => w.key === "no_frontal_scale");
   const profileResults = scan.state.profile.latest !== null;
+  const isAutoAligned = Boolean(
+    (result as Record<string, unknown>).is_auto_aligned ||
+    result.warnings?.some((w) => w.key === "auto_aligned")
+  );
 
   return (
     <Screen
@@ -132,11 +137,22 @@ export function ResultScreen({ view }: { view: View }) {
         <div className="grid content-start gap-4 lg:col-span-7 min-w-0 max-w-full">
           {view === "frontal" && (
             <>
+              {isAutoAligned && (
+                <Notice data-testid="auto-align-banner" className="mb-2">
+                  <p className="text-sm text-ink-2">
+                    <span className="font-medium text-ink">โหมดปรับระนาบอัตโนมัติ:</span> ระบบปรับระดับสายตาให้ตรงสำหรับการประเมินสัดส่วนเบื้องต้น
+                  </p>
+                </Notice>
+              )}
               <DemographicsCard
                 demographics={result.inferred_demographics}
                 sagging={result.facial_sagging}
               />
-              <HarmonyCard harmony={result.harmony} result={result} />
+              <HarmonyCard
+                harmony={result.harmony}
+                aiHarmony={result.ai_harmony}
+                result={result}
+              />
               <FacialSaggingCard
                 sagging={result.facial_sagging}
                 recommendations={result.procedure_recommendations}
@@ -148,7 +164,12 @@ export function ResultScreen({ view }: { view: View }) {
               <ProcedureRecommendationCard
                 recommendations={result.procedure_recommendations}
                 filterNonRecommended={true}
+                excludeStructural={true}
                 onOpenSimulation={() => setShowSimulation(true)}
+              />
+              <HairAdviceCard
+                result={result}
+                initialSex={scan.state.subject?.sex}
               />
             </>
           )}

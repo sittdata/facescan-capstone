@@ -1,4 +1,4 @@
-import { Sparkles, Layers, Activity, ShieldCheck } from "lucide-react";
+import { Sparkles, Layers, Activity } from "lucide-react";
 import type { InferredDemographics, FacialSaggingResult } from "../../api/schemas";
 import {
   getSkinVitalityProfile,
@@ -35,7 +35,7 @@ export function DemographicsCard({ demographics, sagging }: Props) {
           <Sparkles size={16} className="text-accent shrink-0" aria-hidden="true" />
           <div>
             <h3 className="text-sm font-semibold text-ink">
-              ประเมินอายุสภาพผิวและความอ่อนเยาว์ (Skin Age & Facial Vitality Index)
+              ประเมินอายุสภาพผิวและความอ่อนเยาว์
             </h3>
             <p className="text-sm text-ink-2">
               วิเคราะห์อายุสภาพผิวพรรณ เชื่อมโยงกับวัฏจักรคอลลาเจนและความกระชับของเนื้อเยื่อ
@@ -43,7 +43,7 @@ export function DemographicsCard({ demographics, sagging }: Props) {
           </div>
         </div>
         <span className="rounded-control border border-line bg-paper px-2 py-1 text-sm text-ink-2">
-          ชีวมิติผิวพรรณ (Clinical Biometrics)
+          ชีวมิติผิวพรรณ
         </span>
       </div>
 
@@ -51,7 +51,7 @@ export function DemographicsCard({ demographics, sagging }: Props) {
       <div className="mt-4 border border-line bg-paper p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-sm text-ink-2">อายุผิวพรรณโดยประมาณ (Estimated Skin Age)</div>
+            <div className="text-sm text-ink-2">อายุผิวพรรณโดยประมาณ</div>
             <div className="mt-1 flex items-baseline gap-2">
               <span
                 data-testid="estimated-skin-age"
@@ -78,15 +78,6 @@ export function DemographicsCard({ demographics, sagging }: Props) {
             >
               {profile.statusTag.labelTh}
             </span>
-            {profile.firmnessCorrelation && (
-              <div className="mt-1 flex items-center justify-end gap-1 text-sm text-ink-3">
-                <ShieldCheck size={14} className="text-accent" aria-hidden="true" />
-                <span>ความกระชับ: </span>
-                <span className="font-medium text-ink-2">
-                  {profile.firmnessCorrelation.labelTh}
-                </span>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -95,7 +86,7 @@ export function DemographicsCard({ demographics, sagging }: Props) {
       <div data-testid="spectrum-bar" className="mt-4 border border-line bg-paper p-4">
         <div className="flex flex-wrap items-center justify-between gap-1 text-sm">
           <span className="font-semibold text-ink">
-            แถบสเปกตรัมช่วงวัยผิว (Age Spectrum Range)
+            แถบสเปกตรัมช่วงวัยผิว
           </span>
           <span className="text-sm text-ink-3">
             ตำแหน่งที่ประเมินได้:{" "}
@@ -213,7 +204,7 @@ export function DemographicsCard({ demographics, sagging }: Props) {
           <div className="rounded-control border border-line bg-surface p-3">
             <div className="font-semibold text-ink flex items-center gap-2">
               <Activity size={14} className="text-accent shrink-0" aria-hidden="true" />
-              ลักษณะเฉพาะของสภาพผิว (Characteristics)
+              ลักษณะเฉพาะของสภาพผิว
             </div>
             <p className="mt-1 text-ink-2 text-sm">
               {profile.phase.characteristicsTh}
@@ -223,7 +214,7 @@ export function DemographicsCard({ demographics, sagging }: Props) {
           <div className="rounded-control border border-line bg-surface p-3">
             <div className="font-semibold text-ink flex items-center gap-2">
               <Sparkles size={14} className="text-accent shrink-0" aria-hidden="true" />
-              แนวทางชะลอวัยเชิงป้องกัน (Preventive Focus)
+              แนวทางชะลอวัยเชิงป้องกัน
             </div>
             <p className="mt-1 text-ink-2 text-sm">
               {profile.phase.preventiveFocusTh}

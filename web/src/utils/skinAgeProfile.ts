@@ -132,9 +132,9 @@ export const COLLAGEN_PHASES: Record<CollagenPhaseId, CollagenPhaseInfo> = {
     characteristicsEn:
       "Significant loss of dermal density, bone remodeling at orbital/mandibular margins, and pronounced soft-tissue laxity.",
     preventiveFocusTh:
-      "ฟื้นฟูโครงสร้างแบบองค์รวม (Multimodal Restoration) ผสานการยกกระชับชั้นลึก การปรับโครงสร้างกรอบหน้า และการฟื้นฟูคุณภาพผิว",
+      "ฟื้นฟูโครงสร้างหลายระดับ (Multimodal Restoration) ร่วมกันระหว่างการยกกระชับชั้นลึกและการเติมเต็มปริมาตรผิว",
     preventiveFocusEn:
-      "Holistic multimodal rejuvenation combining structural lifting, volume replenishment, and regenerative biostimulation.",
+      "Multimodal structural approach combining deep-plane tightening with targeted volume replenishment.",
     badgeClass: "border border-rose-500/30 bg-rose-500/10 text-rose-600",
     barColor: "#f43f5e",
   },
@@ -181,9 +181,9 @@ export function getAnatomicalSexStandard(
 
   if (sex === "female") {
     return {
-      standardTitleTh: "เกณฑ์สรีรวิทยากายวิภาคเพศหญิง (Female Reference Standard)",
+      standardTitleTh: "เกณฑ์สรีรวิทยากายวิภาคเพศหญิง",
       standardTitleEn: "Female Reference Standard",
-      sexLabelTh: "เพศหญิง (Female Reference)",
+      sexLabelTh: "เพศหญิง",
       sexLabelEn: "Female Reference",
       clinicalContextTh:
         "ใช้อ้างอิงอัตราส่วน Golden Ratio สากล แนวกระดูกกรามมนโค้ง ความนุ่มนวลของพวงแก้ม และความกลมกลืนของสัดส่วนใบหน้าแบบสตรี",
@@ -195,9 +195,9 @@ export function getAnatomicalSexStandard(
 
   if (sex === "male") {
     return {
-      standardTitleTh: "เกณฑ์สรีรวิทยากายวิภาคเพศชาย (Male Reference Standard)",
+      standardTitleTh: "เกณฑ์สรีรวิทยากายวิภาคเพศชาย",
       standardTitleEn: "Male Reference Standard",
-      sexLabelTh: "เพศชาย (Male Reference)",
+      sexLabelTh: "เพศชาย",
       sexLabelEn: "Male Reference",
       clinicalContextTh:
         "ใช้อ้างอิงมุมกรอบหน้า (Gonial Angle) ที่คมชัด แนวกระดูกคางที่ได้รูป และความหนาแน่นของโครงสร้างกล้ามเนื้อใบหน้าตามเกณฑ์บุรุษ",
@@ -208,9 +208,9 @@ export function getAnatomicalSexStandard(
   }
 
   return {
-    standardTitleTh: "เกณฑ์สรีรวิทยากลาง (Neutral Reference Standard)",
+    standardTitleTh: "เกณฑ์สรีรวิทยากลาง",
     standardTitleEn: "Neutral Reference Standard",
-    sexLabelTh: "เกณฑ์มาตรฐานกลาง (Neutral Standard)",
+    sexLabelTh: "เกณฑ์มาตรฐานกลาง",
     sexLabelEn: "Neutral Standard",
     clinicalContextTh:
       "ใช้อ้างอิงสัดส่วนมาตรฐานความสมดุลใบหน้า (Facial Proportions) ตามค่าเฉลี่ยประชากรทั่วไปโดยไม่จำกัดเพศ",
@@ -259,28 +259,28 @@ export function getSkinVitalityProfile(
   if (saggingTier === 1) {
     if (safeAge < 25) {
       statusTag = {
-        labelTh: "อ่อนเยาว์สมวัย (Youthful Vitality)",
+        labelTh: "อ่อนเยาว์สมวัย",
         labelEn: "Youthful Vitality",
         variant: "healthy",
         badgeClass: "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600",
       };
     } else if (safeAge < 35) {
       statusTag = {
-        labelTh: "ผิวพรรณกระชับเต่งตึง (Firm & Youthful)",
+        labelTh: "ผิวพรรณกระชับเต่งตึง",
         labelEn: "Firm & Youthful",
         variant: "healthy",
         badgeClass: "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600",
       };
     } else if (safeAge < 45) {
       statusTag = {
-        labelTh: "ผิวกระชับกว่าเกณฑ์วัย (Well-preserved Firmness)",
+        labelTh: "ผิวกระชับกว่าเกณฑ์วัย",
         labelEn: "Well-preserved Firmness",
         variant: "healthy",
         badgeClass: "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600",
       };
     } else {
       statusTag = {
-        labelTh: "ผิวพรรณกระชับกว่าวัย (Remarkable Firmness)",
+        labelTh: "ผิวพรรณกระชับกว่าวัย",
         labelEn: "Remarkable Firmness",
         variant: "healthy",
         badgeClass: "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600",
@@ -289,20 +289,20 @@ export function getSkinVitalityProfile(
     firmnessCorrelation = {
       tier: 1,
       tierName: "Firm",
-      labelTh: "ความกระชับสูง (Tier 1 Firm)",
+      labelTh: "ความกระชับสูง",
       descriptionTh: "โครงสร้างเนื้อเยื่อและผิวพรรณมีความกระชับสูง สอดคล้องกับความยืดหยุ่นที่ดี",
     };
   } else if (saggingTier === 2) {
     if (safeAge < 25) {
       statusTag = {
-        labelTh: "เริ่มหย่อนคล้อยก่อนวัย (Early Tissue Laxity)",
+        labelTh: "เริ่มหย่อนคล้อยก่อนวัย",
         labelEn: "Early Tissue Laxity",
         variant: "warning",
         badgeClass: "border border-amber-500/30 bg-amber-500/10 text-amber-600",
       };
     } else {
       statusTag = {
-        labelTh: "เริ่มหย่อนคล้อยตามวัย (Moderate Maturation)",
+        labelTh: "เริ่มหย่อนคล้อยตามวัย",
         labelEn: "Moderate Maturation",
         variant: "warning",
         badgeClass: "border border-amber-500/30 bg-amber-500/10 text-amber-600",
@@ -311,20 +311,20 @@ export function getSkinVitalityProfile(
     firmnessCorrelation = {
       tier: 2,
       tierName: "Moderate",
-      labelTh: "หย่อนคล้อยปานกลาง (Tier 2 Moderate)",
+      labelTh: "หย่อนคล้อยปานกลาง",
       descriptionTh: "เนื้อเยื่อเริ่มคลายตัวระดับปานกลางตามวัฏจักรคอลลาเจน ควรดูแลเชิงป้องกัน",
     };
   } else if (saggingTier === 3) {
     if (safeAge < 35) {
       statusTag = {
-        labelTh: "หย่อนคล้อยเร็วกว่าเกณฑ์วัย (Accelerated Laxity)",
+        labelTh: "หย่อนคล้อยเร็วกว่าเกณฑ์วัย",
         labelEn: "Accelerated Laxity",
         variant: "alert",
         badgeClass: "border border-rose-500/30 bg-rose-500/10 text-rose-600",
       };
     } else {
       statusTag = {
-        labelTh: "ต้องการการฟื้นฟูโครงสร้าง (Restorative Need)",
+        labelTh: "ต้องการการฟื้นฟูโครงสร้าง",
         labelEn: "Restorative Need",
         variant: "alert",
         badgeClass: "border border-rose-500/30 bg-rose-500/10 text-rose-600",
@@ -333,35 +333,35 @@ export function getSkinVitalityProfile(
     firmnessCorrelation = {
       tier: 3,
       tierName: "Advanced",
-      labelTh: "หย่อนคล้อยชัดเจน (Tier 3 Advanced)",
+      labelTh: "หย่อนคล้อยชัดเจน",
       descriptionTh: "เนื้อเยื่อและผิวชั้นลึกมีความหย่อนคล้อยชัดเจน เหมาะกับการฟื้นฟูโครงสร้าง",
     };
   } else {
     // Age-based default vitality tag if saggingTier not provided
     if (safeAge < 25) {
       statusTag = {
-        labelTh: "อ่อนเยาว์สมวัย (Youthful Vitality)",
+        labelTh: "อ่อนเยาว์สมวัย",
         labelEn: "Youthful Vitality",
         variant: "healthy",
         badgeClass: "border border-emerald-500/30 bg-emerald-500/10 text-emerald-600",
       };
     } else if (safeAge < 35) {
       statusTag = {
-        labelTh: "เริ่มชะลอวัยเชิงป้องกัน (Preventive Vitality)",
+        labelTh: "เริ่มชะลอวัยเชิงป้องกัน",
         labelEn: "Preventive Vitality",
         variant: "preventive",
         badgeClass: "border border-accent/30 bg-accent/10 text-accent",
       };
     } else if (safeAge < 45) {
       statusTag = {
-        labelTh: "เริ่มเปลี่ยนแปลงตามวัย (Early Maturation)",
+        labelTh: "เริ่มเปลี่ยนแปลงตามวัย",
         labelEn: "Early Maturation",
         variant: "warning",
         badgeClass: "border border-amber-500/30 bg-amber-500/10 text-amber-600",
       };
     } else {
       statusTag = {
-        labelTh: "ต้องการการฟื้นฟูโครงสร้าง (Restorative Focus)",
+        labelTh: "ต้องการการฟื้นฟูโครงสร้าง",
         labelEn: "Restorative Focus",
         variant: "alert",
         badgeClass: "border border-rose-500/30 bg-rose-500/10 text-rose-600",

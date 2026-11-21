@@ -19,7 +19,6 @@ import { scanPath } from "../paths";
 import { step } from "../steps";
 import { FacingChoice } from "./FacingChoice";
 import { preflightMessage } from "./preflightMessage";
-import { AutoAlignCard } from "../../extensions/AutoAlignCard";
 
 export function PreviewScreen({ config, view }: { config: ClientConfig; view: View }) {
   const { t } = useTranslation();
@@ -69,7 +68,6 @@ export function PreviewScreen({ config, view }: { config: ClientConfig; view: Vi
         toggle={false}
       />
       {view === "profile" && <FacingChoice value={state.profile.facing} onChange={setFacing} help="check" className="mt-6" />}
-      {view === "frontal" && <AutoAlignCard className="mt-6" />}
       <p className="mt-4 text-ink-2">{t("preview.help")}</p>
     </Screen>
   );

@@ -112,7 +112,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
               <Sliders style={{ width: 20, height: 20 }} />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-ink">จำลองการปรับรูปหน้า (Aesthetic Simulation)</h2>
+              <h2 className="text-lg font-semibold text-ink">จำลองการปรับรูปหน้า</h2>
               <p className="text-ink-2" style={{ fontSize: "0.8125rem" }}>
                 ระบบ Thin Plate Spline (TPS) คำนวณการปรับรูปทรงใบหน้าเฉพาะจุด
               </p>
@@ -152,7 +152,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
               <div className="grid grid-cols-2 gap-3 w-full">
                 <div className="flex flex-col items-center">
                   <span className="mb-1 font-medium text-ink-2" style={{ fontSize: "0.8125rem" }}>
-                    รูปต้นฉบับ (Original)
+                    รูปต้นฉบับ
                   </span>
                   <img
                     src={photoUrl}
@@ -163,7 +163,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="mb-1 font-medium text-accent" style={{ fontSize: "0.8125rem" }}>
-                    ผลลัพธ์จำลอง (Simulated)
+                    ผลลัพธ์จำลอง
                   </span>
                   <img
                     src={warpedUrl || photoUrl}
@@ -211,7 +211,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
           >
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-ink border-b border-line pb-2">
-                ระดับการจำลองการปรับแต่ง (Simulation Intensity)
+                ระดับการจำลองการปรับแต่ง
               </h3>
 
               <button
@@ -227,7 +227,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
               {/* Slider 1: Rhinoplasty */}
               <div>
                 <div className="flex justify-between mb-1" style={{ fontSize: "0.8125rem" }}>
-                  <span className="font-medium text-ink">ปรับแต่งทรงจมูก (Rhinoplasty)</span>
+                  <span className="font-medium text-ink">ปรับแต่งทรงจมูก</span>
                   <span className="text-ink-2" style={{ fontFamily: "monospace" }}>
                     {params.rhinoplasty}%
                   </span>
@@ -241,14 +241,14 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
                   className="w-full accent-accent cursor-pointer"
                 />
                 <p className="text-ink-2" style={{ fontSize: 11, marginTop: 2 }}>
-                  ลดขนาดปีกจมูก (Alar) และยกปลายจมูก
+                  ลดขนาดปีกจมูก และยกปลายจมูก
                 </p>
               </div>
 
               {/* Slider 2: Lip Augmentation */}
               <div>
                 <div className="flex justify-between mb-1" style={{ fontSize: "0.8125rem" }}>
-                  <span className="font-medium text-ink">ปรับมิติมุมปาก (Lip Fullness)</span>
+                  <span className="font-medium text-ink">ปรับมิติมุมปาก</span>
                   <span className="text-ink-2" style={{ fontFamily: "monospace" }}>
                     {params.lip_augmentation}%
                   </span>
@@ -269,7 +269,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
               {/* Slider 3: Chin Augmentation */}
               <div>
                 <div className="flex justify-between mb-1" style={{ fontSize: "0.8125rem" }}>
-                  <span className="font-medium text-ink">ปรับมิติปลายคาง (Chin Augmentation)</span>
+                  <span className="font-medium text-ink">ปรับมิติปลายคาง</span>
                   <span className="text-ink-2" style={{ fontFamily: "monospace" }}>
                     {params.chin_augmentation}%
                   </span>
@@ -301,7 +301,7 @@ export function SimulationDrawer({ open, onClose, photoUrl, recommendedProcedure
                 style={{ color: "#ffffff", padding: "10px 0" }}
               >
                 <Sparkles style={{ width: 16, height: 16 }} />
-                {loading ? "กำลังประมวลผล TPS..." : "จำลองผลลัพธ์ (Simulate)"}
+                {loading ? "กำลังประมวลผล TPS..." : "จำลองผลลัพธ์"}
               </button>
 
               <div className="flex gap-2">
